@@ -5,8 +5,7 @@ namespace PartyManagement.Infrastructure.Data;
 public class CosmosService : ICosmosService
 {
     private readonly CosmosClient _cosmosClient;
-    //private const string _cosmosDatabaseId = "partymanagement";
-    private const string _cosmosDatabaseId = "officemanagement";
+    private const string _cosmosDatabaseId = "partymanagement";
 
     public CosmosService(CosmosClient cosmosClient)
     {
