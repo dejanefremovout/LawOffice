@@ -1,0 +1,58 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Cases</h2>
+      <p class="page-subtitle">View and manage all legal cases for this office.</p>
+    </div>
+    <button class="primary-button" type="button" (click)="createNewCase()">New Case</button>
+  </div>
+
+  <div class="panel">
+    <div class="table-wrapper">
+      <div *ngIf="isLoading()" class="loading-message">
+        <p>Loading cases...</p>
+      </div>
+
+      <div *ngIf="errorMessage()" class="error-message">
+        <p>{{ errorMessage() }}</p>
+      </div>
+
+      <div *ngIf="!isLoading() && !errorMessage()">
+        <table class="cases-table" *ngIf="hasCases(); else noCases">
+          <thead>
+            <tr>
+              <th>ID Number</th>
+              <th>Description</th>
+              <th>Year</th>
+              <th>City</th>
+              <th>Competent Court</th>
+              <th>Judge</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let case of casesList()" (click)="editCase(case.id)" class="clickable-row">
+              <td>{{ case.identificationNumber }}</td>
+              <td>{{ case.description }}</td>
+              <td>{{ case.year }}</td>
+              <td>{{ case.city || 'N/A' }}</td>
+              <td>{{ case.competentCourt || 'N/A' }}</td>
+              <td>{{ case.judge || 'N/A' }}</td>
+              <td>
+                <span class="status-badge" [class.active]="case.active" [class.inactive]="!case.active">
+                  {{ getStatusLabel(case.active) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #noCases>
+          <div class="no-data-message">
+            <p>No cases found.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</section>

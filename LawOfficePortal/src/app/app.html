@@ -1,0 +1,55 @@
+<div class="app-shell" [class.menu-collapsed]="isMenuCollapsed()">
+  <aside class="menu-panel">
+    <div class="menu-header">
+      <div class="brand">
+        <div class="brand-mark">LP</div>
+        <div class="brand-text">
+          <div class="brand-name">Law Office</div>
+          <div class="brand-subtitle">Admin Portal</div>
+        </div>
+      </div>
+      <button class="collapse-btn" type="button" (click)="toggleMenu()" aria-label="Toggle menu">
+        <span class="collapse-icon"></span>
+      </button>
+    </div>
+
+    <nav class="menu-items" aria-label="Primary">
+      <a class="menu-item" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="menu-icon home"></span>
+        <span class="menu-label">Home</span>
+      </a>
+      <a class="menu-item" routerLink="/clients" routerLinkActive="active">
+        <span class="menu-icon clients"></span>
+        <span class="menu-label">Clients</span>
+      </a>
+      <a class="menu-item" routerLink="/opposing-parties" routerLinkActive="active">
+        <span class="menu-icon opposing-parties"></span>
+        <span class="menu-label">Opposing Parties</span>
+      </a>
+      <a class="menu-item" routerLink="/cases" routerLinkActive="active">
+        <span class="menu-icon cases"></span>
+        <span class="menu-label">Cases</span>
+      </a>
+      <a class="menu-item" routerLink="/office" routerLinkActive="active">
+        <span class="menu-icon office"></span>
+        <span class="menu-label">Office</span>
+      </a>
+    </nav>
+  </aside>
+
+  <section class="content-area">
+    <!-- <header class="content-header">
+      <div>
+        <p class="content-kicker">Workspace</p>
+        <h1 class="content-title">Operations Overview</h1>
+      </div>
+      <div class="content-actions">
+        <button class="ghost-button" type="button">Quick Add</button>
+        <button class="primary-button" type="button">New Case</button>
+      </div>
+    </header> -->
+    <div class="content-body">
+      <router-outlet></router-outlet>
+    </div>
+  </section>
+</div>

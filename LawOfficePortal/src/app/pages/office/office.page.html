@@ -1,0 +1,40 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Office Management</h2>
+      <p class="page-subtitle">Edit office information.</p>
+    </div>
+  </div>
+
+  <div class="popup-notification" *ngIf="errorMessage()">
+    <div class="popup-notification-content">
+      <span class="notification-icon">⚠</span>
+      <span class="notification-text">{{ errorMessage() }}</span>
+      <button class="notification-close" (click)="closeError()" aria-label="Close error">&times;</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-message">
+    <p>Loading office data...</p>
+  </div>
+
+  <div class="panel" *ngIf="!isLoading()">
+    <mat-tab-group class="office-tabs">
+      <mat-tab label="Details">
+        <div class="tab-content">
+          <app-office-details-tab
+            [form]="form"
+            [isSaving]="isSaving()"
+            (save)="save()"
+            (cancel)="cancel()"
+          ></app-office-details-tab>
+        </div>
+      </mat-tab>
+      <mat-tab label="Lawyers">
+        <div class="tab-placeholder">
+          <app-office-lawyers-tab></app-office-lawyers-tab>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</section>

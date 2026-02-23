@@ -1,0 +1,63 @@
+<div class="table-wrapper">
+	<ng-container *ngIf="!showCreateHearing() && !showUpdateHearing()">
+		<div *ngIf="isLoading()" class="loading-message">
+			<p>Loading hearings...</p>
+		</div>
+
+		<div *ngIf="errorMessage()" class="error-message">
+			<p>{{ errorMessage() }}</p>
+		</div>
+
+		<div *ngIf="!isLoading() && !errorMessage()">
+			<div class="table-wrapper-header">
+				<button class="primary-button" type="button" (click)="createNewHearing()">New Hearing</button>
+			</div>
+
+			<table class="clients-table" *ngIf="hasHearings(); else noHearings">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Description</th>
+						<th>Courtroom</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let hearing of hearingsList()" (click)="updateExistingHearing(hearing)" class="clickable-row">
+						<td>{{ hearing.date | date: 'medium' }}</td>
+						<td>{{ hearing.description || 'N/A' }}</td>
+						<td>{{ hearing.courtroom || 'N/A' }}</td>
+						<td>
+							<span class="status-badge" [class.active]="hearing.held" [class.inactive]="!hearing.held">
+								{{ getStatusLabel(hearing.held) }}
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<ng-template #noHearings>
+				<div class="no-data-message">
+					<p>No hearings found.</p>
+				</div>
+			</ng-template>
+		</div>
+	</ng-container>
+	<ng-container #createHearing *ngIf="showCreateHearing()">
+		<app-case-update-hearing-create
+			[caseId]="caseId"
+			[officeId]="officeId"
+			(saved)="onHearingSaved()"
+			(cancelled)="onHearingCancelled()"
+		></app-case-update-hearing-create>
+	</ng-container>
+	<ng-container #updateHearing *ngIf="showUpdateHearing()">
+		<app-case-update-hearing-update
+			[hearingId]="selectedHearingId"
+			[caseId]="caseId"
+			[officeId]="officeId"
+			(saved)="onHearingSaved()"
+			(cancelled)="onHearingCancelled()"
+		></app-case-update-hearing-update>
+	</ng-container>
+</div>

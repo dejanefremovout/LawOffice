@@ -1,0 +1,44 @@
+<form class="office-form" (ngSubmit)="onSave()">
+  <div class="form-group">
+    <label for="name">Name <span class="required">*</span></label>
+    <textarea
+      id="name"
+      name="name"
+      [(ngModel)]="form.name"
+        required
+      [disabled]="isSaving"
+      rows="4"
+      placeholder="Enter office name"
+    ></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="address">Address</label>
+    <textarea
+      id="address"
+      name="address"
+      [(ngModel)]="form.address"
+      [disabled]="isSaving"
+      rows="4"
+      placeholder="Enter office address"
+    ></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button
+      type="button"
+      class="ghost-button"
+      (click)="onCancel()"
+      [disabled]="isSaving"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="isSaving"
+    >
+      {{ isSaving ? 'Saving...' : 'Save' }}
+    </button>
+  </div>
+</form>

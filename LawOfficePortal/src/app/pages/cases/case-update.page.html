@@ -1,0 +1,47 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Update Case</h2>
+      <p class="page-subtitle">Edit case information.</p>
+    </div>
+  </div>
+
+  <div class="popup-notification" *ngIf="errorMessage()">
+    <div class="popup-notification-content">
+      <span class="notification-icon">⚠</span>
+      <span class="notification-text">{{ errorMessage() }}</span>
+      <button class="notification-close" (click)="closeError()" aria-label="Close error">&times;</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-message">
+    <p>Loading case data...</p>
+  </div>
+
+  <div class="panel" *ngIf="!isLoading()">
+    <mat-tab-group class="case-tabs">
+      <mat-tab label="Details">
+        <div class="tab-content">
+          <app-case-update-details-tab
+            [form]="form"
+            [clients]="clientsList()"
+            [opposingParties]="opposingPartiesList()"
+            [isSaving]="isSaving()"
+            (save)="save()"
+            (cancel)="cancel()"
+          ></app-case-update-details-tab>
+        </div>
+      </mat-tab>
+      <mat-tab label="Hearings">
+        <div class="tab-placeholder">
+          <app-case-update-hearings-tab></app-case-update-hearings-tab>
+        </div>
+      </mat-tab>
+      <mat-tab label="Documents">
+        <div class="tab-placeholder">
+          <app-case-update-documents-tab></app-case-update-documents-tab>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</section>

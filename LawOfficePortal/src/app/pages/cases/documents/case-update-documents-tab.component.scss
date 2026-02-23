@@ -1,0 +1,26 @@
+@use '../../clients/clients.page' as *;
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    &.active {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    &.inactive {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+}
+
+.table-wrapper-header {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-bottom: 1rem;
+}

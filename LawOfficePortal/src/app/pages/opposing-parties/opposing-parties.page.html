@@ -1,0 +1,52 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Opposing Parties</h2>
+      <p class="page-subtitle">Manage and view all opposing parties associated with this office.</p>
+    </div>
+    <button class="primary-button" type="button" (click)="createNewOpposingParty()">New Opposing Party</button>
+  </div>
+
+  <div class="panel">
+    <div class="table-wrapper">
+      <div *ngIf="isLoading()" class="loading-message">
+        <p>Loading opposing parties...</p>
+      </div>
+
+      <div *ngIf="errorMessage()" class="error-message">
+        <p>{{ errorMessage() }}</p>
+      </div>
+
+      <div *ngIf="!isLoading() && !errorMessage()">
+        <table class="opposing-parties-table" *ngIf="hasOpposingParties(); else noOpposingParties">
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Address</th>
+              <th>Phone</th>
+              <th>ID Number</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let opposingParty of opposingPartiesList()" (click)="editOpposingParty(opposingParty.id)" class="clickable-row">
+              <td>{{ opposingParty.firstName }}</td>
+              <td>{{ opposingParty.lastName }}</td>
+              <td>{{ opposingParty.address }}</td>
+              <td>{{ opposingParty.phone || 'N/A' }}</td>
+              <td>{{ opposingParty.identificationNumber }}</td>
+              <td>{{ opposingParty.description }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #noOpposingParties>
+          <div class="no-data-message">
+            <p>No opposing parties found.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,51 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Home</h2>
+      <p class="page-subtitle">A quick snapshot of activity across the firm.</p>
+      @if (hasOfficeId()) {
+        <p class="office-info">Office ID: {{ officeId() }}</p>
+      } @else {
+        <p class="office-info">No office selected</p>
+      }
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <h3>Active Matters</h3>
+      <p>42</p>
+    </div>
+    <div class="stat-card">
+      <h3>Upcoming Hearings</h3>
+      <p>7</p>
+    </div>
+    <div class="stat-card">
+      <h3>Open Tasks</h3>
+      <p>18</p>
+    </div>
+    <div class="stat-card">
+      <h3>New Leads</h3>
+      <p>5</p>
+    </div>
+  </div>
+
+  <div class="panel-grid">
+    <div class="panel">
+      <h3>Priority Follow Ups</h3>
+      <ul class="panel-list">
+        <li><span>Client onboarding pack</span><span>Today</span></li>
+        <li><span>Discovery review</span><span>Tomorrow</span></li>
+        <li><span>Settlement draft</span><span>Thu</span></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Team Focus</h3>
+      <ul class="panel-list">
+        <li><span>Intake improvements</span><span>In progress</span></li>
+        <li><span>Litigation calendar</span><span>Syncing</span></li>
+        <li><span>Client updates</span><span>Queued</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

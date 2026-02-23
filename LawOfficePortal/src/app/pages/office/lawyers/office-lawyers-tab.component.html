@@ -1,0 +1,55 @@
+<div class="table-wrapper">
+	<ng-container *ngIf="!showCreateLawyer() && !showUpdateLawyer()">
+		<div *ngIf="isLoading()" class="loading-message">
+			<p>Loading lawyers...</p>
+		</div>
+
+		<div *ngIf="errorMessage()" class="error-message">
+			<p>{{ errorMessage() }}</p>
+		</div>
+
+		<div *ngIf="!isLoading() && !errorMessage()">
+			<div class="table-wrapper-header">
+				<button class="primary-button" type="button" (click)="createNewLawyer()">New Lawyer</button>
+			</div>
+
+			<table class="clients-table" *ngIf="hasLawyers(); else noLawyers">
+				<thead>
+					<tr>
+						<th>First Name</th>
+						<th>Last Name</th>
+						<th>Email</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let lawyer of lawyersList()" (click)="updateExistingLawyer(lawyer)" class="clickable-row">
+						<td>{{ lawyer.firstName }}</td>
+						<td>{{ lawyer.lastName }}</td>
+						<td>{{ lawyer.email }}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<ng-template #noLawyers>
+				<div class="no-data-message">
+					<p>No lawyers found.</p>
+				</div>
+			</ng-template>
+		</div>
+	</ng-container>
+	<ng-container #createLawyer *ngIf="showCreateLawyer()">
+		<app-lawyer-create
+			[officeId]="officeId"
+			(saved)="onLawyerSaved()"
+			(cancelled)="onLawyerCancelled()"
+		></app-lawyer-create>
+	</ng-container>
+	<ng-container #updateLawyer *ngIf="showUpdateLawyer()">
+		<app-lawyer-update
+			[lawyerId]="selectedLawyerId"
+			[officeId]="officeId"
+			(saved)="onLawyerSaved()"
+			(cancelled)="onLawyerCancelled()"
+		></app-lawyer-update>
+	</ng-container>
+</div>

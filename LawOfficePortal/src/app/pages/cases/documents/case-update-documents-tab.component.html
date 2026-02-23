@@ -1,0 +1,37 @@
+<div class="table-wrapper">
+	<ng-container>
+		<div class="table-wrapper-header">
+			<button type="button" class="primary-button" (click)="fileInput.click()" [disabled]="isLoading()">Upload Document</button>
+			<input #fileInput type="file" style="display: none;" (change)="onFileSelected($event)" [disabled]="isLoading()" />
+		</div>
+
+		<div *ngIf="isLoading()" class="loading-message">
+			<p>Loading documents...</p>
+		</div>
+
+		<div *ngIf="errorMessage()" class="error-message">
+			<p>{{ errorMessage() }}</p>
+		</div>
+
+		<div *ngIf="!isLoading() && !errorMessage()">
+			<table class="clients-table" *ngIf="hasDocuments(); else noDocuments">
+				<thead>
+					<tr>
+						<th>Name</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let document of documentsList()" (click)="downloadDocument(document)" class="clickable-row">
+						<td>{{ document.name }}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<ng-template #noDocuments>
+				<div class="no-data-message">
+					<p>No documents found.</p>
+				</div>
+			</ng-template>
+		</div>
+	</ng-container>
+</div>

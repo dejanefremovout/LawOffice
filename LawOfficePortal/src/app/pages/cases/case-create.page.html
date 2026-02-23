@@ -1,0 +1,149 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Create New Case</h2>
+      <p class="page-subtitle">Add a new case to your office.</p>
+    </div>
+  </div>
+
+  <div class="popup-notification" *ngIf="errorMessage()">
+    <div class="popup-notification-content">
+      <span class="notification-icon">⚠</span>
+      <span class="notification-text">{{ errorMessage() }}</span>
+      <button class="notification-close" (click)="closeError()" aria-label="Close error">&times;</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <form class="case-form" (ngSubmit)="save()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="identificationNumber">ID Number <span class="required">*</span></label>
+          <input
+            type="text"
+            id="identificationNumber"
+            name="identificationNumber"
+            [(ngModel)]="identificationNumber"
+            required
+            [disabled]="isSaving()"
+            placeholder="Enter identification number"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="year">Year</label>
+          <input
+            type="number"
+            id="year"
+            name="year"
+            [(ngModel)]="year"
+            min="1900"
+            max="2100"
+            [disabled]="isSaving()"
+            placeholder="Enter year"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="description"
+          [disabled]="isSaving()"
+          rows="4"
+          placeholder="Enter case description"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="clientIds">Clients</label>
+        <select
+          id="clientIds"
+          name="clientIds"
+          [(ngModel)]="clientIds"
+          [disabled]="isSaving()"
+          multiple
+        >
+          <option *ngFor="let client of clientsList()" [value]="client.id">
+            {{ client.firstName }} {{ client.lastName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="opposingPartyIds">Opposing Parties</label>
+        <select
+          id="opposingPartyIds"
+          name="opposingPartyIds"
+          [(ngModel)]="opposingPartyIds"
+          [disabled]="isSaving()"
+          multiple
+        >
+          <option *ngFor="let opposingParty of opposingPartiesList()" [value]="opposingParty.id">
+            {{ opposingParty.firstName }} {{ opposingParty.lastName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">City</label>
+          <input
+            type="text"
+            id="city"
+            name="city"
+            [(ngModel)]="city"
+            [disabled]="isSaving()"
+            placeholder="Enter city"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="competentCourt">Competent Court</label>
+          <input
+            type="text"
+            id="competentCourt"
+            name="competentCourt"
+            [(ngModel)]="competentCourt"
+            [disabled]="isSaving()"
+            placeholder="Enter competent court"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="judge">Judge</label>
+          <input
+            type="text"
+            id="judge"
+            name="judge"
+            [(ngModel)]="judge"
+            [disabled]="isSaving()"
+            placeholder="Enter judge"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="ghost-button"
+          (click)="cancel()"
+          [disabled]="isSaving()"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="primary-button"
+          [disabled]="isSaving()"
+        >
+          {{ isSaving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,115 @@
+<section class="page">
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Create New Opposing Party</h2>
+    <p class="page-subtitle">Add a new opposing party to your office.</p>
+  </div>
+</div>
+<div class="error-banner" *ngIf="errorMessage()">
+    <div class="error-banner-content">
+      <span class="error-icon">⚠</span>
+      <span class="error-text">{{ errorMessage() }}</span>
+      <button class="error-close" (click)="closeError()" aria-label="Close error">&times;</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <form class="opposing-party-form" (ngSubmit)="save()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="firstName" 
+            name="firstName" 
+            [(ngModel)]="firstName"
+            required
+            [disabled]="isSaving()"
+            placeholder="Enter first name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="lastName" 
+            name="lastName" 
+            [(ngModel)]="lastName"
+            required
+            [disabled]="isSaving()"
+            placeholder="Enter last name"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="identificationNumber">ID Number</label>
+          <input 
+            type="text" 
+            id="identificationNumber" 
+            name="identificationNumber" 
+            [(ngModel)]="identificationNumber"
+            [disabled]="isSaving()"
+            placeholder="Enter identification number"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            [(ngModel)]="phone"
+            [disabled]="isSaving()"
+            placeholder="Enter phone number"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input 
+          type="text" 
+          id="address" 
+          name="address" 
+          [(ngModel)]="address"
+          [disabled]="isSaving()"
+          placeholder="Enter address"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          [(ngModel)]="description"
+          [disabled]="isSaving()"
+          rows="4"
+          placeholder="Enter description or notes about the opposing party"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="ghost-button" 
+          (click)="cancel()"
+          [disabled]="isSaving()"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="primary-button" 
+          [disabled]="isSaving()"
+        >
+          {{ isSaving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
