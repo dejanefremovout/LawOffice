@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './OfficeManagement/OfficeManagement.Api' # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '10.0.x' # set this to the dotnet version to use
 
 jobs:
@@ -49,5 +49,4 @@ jobs:
         with:
           app-name: 'func-lawoffice-officemanagement-dev'
           slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'          

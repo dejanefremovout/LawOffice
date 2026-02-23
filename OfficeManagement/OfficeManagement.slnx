@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/deploy/">
+    <File Path="../.github/workflows/master_func-lawoffice-officemanagement-dev.yml" />
+  </Folder>
   <Project Path="../LawOffice.Domain/LawOffice.Domain.csproj" />
   <Project Path="OfficeManagement.Api/OfficeManagement.Api.csproj" />
   <Project Path="OfficeManagement.Application/OfficeManagement.Application.csproj" Id="19cc0575-cef0-4fbc-8cbc-02f58ce26677" />
