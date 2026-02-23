@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/deploy/">
+    <File Path="../.github/workflows/master_func-lawoffice-partymanagement-dev.yml" />
+  </Folder>
   <Project Path="../LawOffice.Domain/LawOffice.Domain.csproj" />
   <Project Path="PartyManagement.Api/PartyManagement.Api.csproj" />
   <Project Path="PartyManagement.Application/PartyManagement.Application.csproj" Id="19cc0575-cef0-4fbc-8cbc-02f58ce26677" />
