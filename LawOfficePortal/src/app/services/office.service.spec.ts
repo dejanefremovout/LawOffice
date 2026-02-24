@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('OfficeService', () => {
   let service: OfficeService;
+  
 
   beforeEach(() => {
     // Clear all cookies before each test
