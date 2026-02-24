@@ -3,9 +3,9 @@
  */
 
 export const API_BASE_URL = {
-  OFFICE_MANAGEMENT: 'http://localhost:7206',
-  PARTY_MANAGEMENT: 'http://localhost:7207',
-  CASE_MANAGEMENT: 'http://localhost:7208'
+  OFFICE_MANAGEMENT: 'https://func-lawoffice-officemanagement-dev.azurewebsites.net',
+  PARTY_MANAGEMENT: 'https://func-lawoffice-partymanagement-dev.azurewebsites.net',
+  CASE_MANAGEMENT: 'https://func-lawoffice-casemanagement-dev.azurewebsites.net'
 };
 
 export const API_ENDPOINTS = {
