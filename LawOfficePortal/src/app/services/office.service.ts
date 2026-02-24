@@ -113,7 +113,7 @@ export class OfficeService {
    * Create a new office
    */
   createOffice(office: Omit<Office, 'id'>): Observable<Office> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/api/office`;
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}${API_ENDPOINTS.CREATE_OFFICE}`;
     return this.http.post<Office>(url, office);
   }
 
@@ -121,7 +121,7 @@ export class OfficeService {
    * Update an existing office
    */
   updateOffice(office: Office): Observable<Office> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/api/office`;
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}${API_ENDPOINTS.UPDATE_OFFICE}`;
     return this.http.put<Office>(url, office);
   }
 }

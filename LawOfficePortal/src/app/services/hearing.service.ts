@@ -14,7 +14,7 @@ export class HearingService {
    * Get all hearings for a specific case
    */
   getHearings(officeId: string, caseId: string): Observable<Hearing[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/hearing/${officeId}/case/${caseId}`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/${officeId}/case/${caseId}`;
     return this.http.get<Hearing[]>(url);
   }
 
@@ -22,7 +22,7 @@ export class HearingService {
    * Get a specific hearing by ID
    */
   getHearing(officeId: string, hearingId: string): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/hearing/${officeId}/${hearingId}`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/${officeId}/${hearingId}`;
     return this.http.get<Hearing>(url);
   }
 
@@ -30,7 +30,7 @@ export class HearingService {
    * Create a new hearing
    */
   createHearing(hearing: Omit<Hearing, 'id'>): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/hearing`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing`;
     return this.http.post<Hearing>(url, hearing);
   }
 
@@ -38,7 +38,7 @@ export class HearingService {
    * Update an existing hearing
    */
   updateHearing(hearing: Hearing): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/hearing`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing`;
     return this.http.put<Hearing>(url, hearing);
   }
 }

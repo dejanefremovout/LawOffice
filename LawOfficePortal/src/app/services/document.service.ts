@@ -14,7 +14,7 @@ export class DocumentService {
    * Get all documents for a specific case
    */
   getDocuments(officeId: string, caseId: string): Observable<Document[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/documentFile/${officeId}/case/${caseId}`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/${officeId}/case/${caseId}`;
     return this.http.get<Document[]>(url);
   }
 
@@ -22,7 +22,7 @@ export class DocumentService {
    * Get a specific document by ID
    */
   getDocument(officeId: string, documentId: string): Observable<Document> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/documentFile/${officeId}/${documentId}`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/${officeId}/${documentId}`;
     return this.http.get<Document>(url);
   }
 
@@ -30,7 +30,7 @@ export class DocumentService {
    * Create a new document
    */
   createDocument(document: Omit<Document, 'id' | 'uri'>): Observable<Document> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/api/documentFile`;
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile`;
     return this.http.post<Document>(url, document);
   }
 

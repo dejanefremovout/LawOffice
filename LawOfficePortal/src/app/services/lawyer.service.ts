@@ -14,7 +14,7 @@ export class LawyerService {
    * Get all lawyers for a specific case
    */
   getLawyers(officeId: string): Observable<Lawyer[]> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/api/lawyer/${officeId}`;
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer/${officeId}`;
     return this.http.get<Lawyer[]>(url);
   }
 
@@ -22,7 +22,7 @@ export class LawyerService {
    * Get a specific lawyer by ID
    */
   getLawyer(officeId: string, lawyerId: string): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/api/lawyer/${officeId}/${lawyerId}`;
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer/${officeId}/${lawyerId}`;
     return this.http.get<Lawyer>(url);
   }
 
@@ -30,7 +30,7 @@ export class LawyerService {
    * Create a new lawyer
    */
   createLawyer(lawyer: Omit<Lawyer, 'id'>): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/api/lawyer`;
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer`;
     return this.http.post<Lawyer>(url, lawyer);
   }
 
@@ -38,7 +38,7 @@ export class LawyerService {
    * Update an existing lawyer
    */
   updateLawyer(lawyer: Lawyer): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/api/lawyer`;
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer`;
     return this.http.put<Lawyer>(url, lawyer);
   }
 }
