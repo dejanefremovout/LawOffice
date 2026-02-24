@@ -14,7 +14,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     private readonly IHearingService _hearingService = hearingService;
 
     [Function("GetHearing")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/{officeId}/{hearingId}")] HttpRequest req, string officeId, string hearingId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "hearing/{officeId}/{hearingId}")] HttpRequest req, string officeId, string hearingId)
     {
         try
         {
@@ -50,7 +50,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     }
 
     [Function("GetAllHearings")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/{officeId}/case/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "hearing/{officeId}/case/{caseId}")] HttpRequest req, string officeId, string caseId)
     {
         try
         {
@@ -81,7 +81,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     }
 
     [Function("PostHearing")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "hearing")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "hearing")] HttpRequest req)
     {
         try
         {
@@ -109,7 +109,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     }
 
     [Function("PutHearing")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "hearing")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "hearing")] HttpRequest req)
     {
         try
         {
@@ -137,7 +137,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     }
 
     [Function("DeleteHearing")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "hearing/{officeId}/{hearingId}")] HttpRequest req, string officeId, string hearingId)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "hearing/{officeId}/{hearingId}")] HttpRequest req, string officeId, string hearingId)
     {
         try
         {

@@ -14,7 +14,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     private readonly IOpposingPartyService _opposingPartyService = opposingPartyService;
 
     [Function("GetOpposingParty")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{officeId}/{opposingPartyId}")] HttpRequest req, string officeId, string opposingPartyId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "opposingParty/{officeId}/{opposingPartyId}")] HttpRequest req, string officeId, string opposingPartyId)
     {
         try
         {
@@ -45,7 +45,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     }
 
     [Function("GetAllOpposingParties")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "opposingParty/{officeId}")] HttpRequest req, string officeId)
     {
         try
         {
@@ -71,7 +71,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     }
 
     [Function("PostOpposingParty")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "opposingParty")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "opposingParty")] HttpRequest req)
     {
         try
         {
@@ -99,7 +99,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     }
 
     [Function("PutOpposingParty")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "opposingParty")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "opposingParty")] HttpRequest req)
     {
         try
         {

@@ -14,7 +14,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
     private readonly ILawyerService _lawyerService = lawyerService;
 
     [Function("GetLawyer")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer/{officeId}/{lawyerId}")] HttpRequest req, string officeId, string lawyerId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "lawyer/{officeId}/{lawyerId}")] HttpRequest req, string officeId, string lawyerId)
     {
         try
         {
@@ -50,7 +50,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
     }
 
     [Function("GetAllLawyers")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "lawyer/{officeId}")] HttpRequest req, string officeId)
     {
         try
         {
@@ -76,7 +76,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
     }
 
     [Function("PostLawyer")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "lawyer")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "lawyer")] HttpRequest req)
     {
         try
         {
@@ -104,7 +104,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
     }
 
     [Function("PutLawyer")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "lawyer")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "lawyer")] HttpRequest req)
     {
         try
         {

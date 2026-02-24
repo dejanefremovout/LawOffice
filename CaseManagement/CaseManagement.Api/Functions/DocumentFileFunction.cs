@@ -14,7 +14,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     private readonly IDocumentFileService _documentFileService = documentFileService;
 
     [Function("GetDocumentFile")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/{officeId}/{documentFileId}")] HttpRequest req, string officeId, string documentFileId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "documentFile/{officeId}/{documentFileId}")] HttpRequest req, string officeId, string documentFileId)
     {
         try
         {
@@ -50,7 +50,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     }
 
     [Function("GetAllDocumentFiles")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/{officeId}/case/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "documentFile/{officeId}/case/{caseId}")] HttpRequest req, string officeId, string caseId)
     {
         try
         {
@@ -81,7 +81,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     }
 
     [Function("PostDocumentFile")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "documentFile")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "documentFile")] HttpRequest req)
     {
         try
         {
@@ -109,7 +109,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     }
 
     [Function("PutDocumentFile")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "documentFile")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "documentFile")] HttpRequest req)
     {
         try
         {
@@ -137,7 +137,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     }
 
     [Function("DeleteDocumentFile")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "documentFile/{officeId}/{documentFileId}")] HttpRequest req, string officeId, string documentFileId)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "documentFile/{officeId}/{documentFileId}")] HttpRequest req, string officeId, string documentFileId)
     {
         try
         {
