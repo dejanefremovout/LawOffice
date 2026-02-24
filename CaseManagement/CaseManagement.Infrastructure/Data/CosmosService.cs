@@ -5,8 +5,7 @@ namespace CaseManagement.Infrastructure.Data;
 public class CosmosService : ICosmosService
 {
     private readonly CosmosClient _cosmosClient;
-    //private const string _cosmosDatabaseId = "casemanagement";
-    private const string _cosmosDatabaseId = "officemanagement";
+    private const string _cosmosDatabaseId = "casemanagement";
 
     public CosmosService(CosmosClient cosmosClient)
     {
