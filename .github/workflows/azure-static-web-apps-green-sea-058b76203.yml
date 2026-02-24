@@ -2,10 +2,6 @@ name: Azure Static Web Apps CI/CD
 
 on:
   workflow_dispatch:
-    branches:
-      - master
-    paths:
-      - 'LawOfficePortal/**'
   push:
     branches:
       - master
@@ -21,14 +17,40 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    environment: LawOfficeEnvironment
     permissions:
        id-token: write
        contents: read
+    env:
+      MASTER_OFFICE_MANAGEMENT_URL: ${{ vars.MASTER_OFFICE_MANAGEMENT_URL }}
+      MASTER_PARTY_MANAGEMENT_URL: ${{ vars.MASTER_PARTY_MANAGEMENT_URL }}
+      MASTER_CASE_MANAGEMENT_URL: ${{ vars.MASTER_CASE_MANAGEMENT_URL }}
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
+      - name: Generate runtime config.js
+        shell: bash
+        run: |
+          OFFICE_MANAGEMENT_URL="$MASTER_OFFICE_MANAGEMENT_URL"
+          PARTY_MANAGEMENT_URL="$MASTER_PARTY_MANAGEMENT_URL"
+          CASE_MANAGEMENT_URL="$MASTER_CASE_MANAGEMENT_URL"
+
+          if [ -z "$OFFICE_MANAGEMENT_URL" ] || [ -z "$PARTY_MANAGEMENT_URL" ] || [ -z "$CASE_MANAGEMENT_URL" ]; then
+            echo "Missing required MASTER API base URL values"
+            exit 1
+          fi
+
+          cat > LawOfficePortal/public/config.js <<EOF
+          window.__env = {
+            API_BASE_URL: {
+              OFFICE_MANAGEMENT: '$OFFICE_MANAGEMENT_URL',
+              PARTY_MANAGEMENT: '$PARTY_MANAGEMENT_URL',
+              CASE_MANAGEMENT: '$CASE_MANAGEMENT_URL'
+            }
+          };
+          EOF
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token
@@ -62,4 +84,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_SEA_058B76203 }}
           action: "close"

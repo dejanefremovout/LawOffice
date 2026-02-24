@@ -2,10 +2,48 @@
  * API Configuration Constants
  */
 
+type ApiBaseUrlConfig = {
+  OFFICE_MANAGEMENT: string;
+  PARTY_MANAGEMENT: string;
+  CASE_MANAGEMENT: string;
+};
+
+type RuntimeEnvConfig = {
+  API_BASE_URL?: Partial<ApiBaseUrlConfig>;
+};
+
+const DEFAULT_API_BASE_URL: ApiBaseUrlConfig = {
+  OFFICE_MANAGEMENT: 'http://localhost:7206',
+  PARTY_MANAGEMENT: 'http://localhost:7207',
+  CASE_MANAGEMENT: 'http://localhost:7208'
+};
+
+const getRuntimeEnv = (): RuntimeEnvConfig => {
+  const globalConfig = (globalThis as { __env?: RuntimeEnvConfig }).__env;
+
+  return globalConfig ?? {};
+};
+
+const getApiBaseUrl = (): ApiBaseUrlConfig => {
+  const runtimeApiBaseUrl = getRuntimeEnv().API_BASE_URL;
+
+  return {
+    OFFICE_MANAGEMENT: runtimeApiBaseUrl?.OFFICE_MANAGEMENT ?? DEFAULT_API_BASE_URL.OFFICE_MANAGEMENT,
+    PARTY_MANAGEMENT: runtimeApiBaseUrl?.PARTY_MANAGEMENT ?? DEFAULT_API_BASE_URL.PARTY_MANAGEMENT,
+    CASE_MANAGEMENT: runtimeApiBaseUrl?.CASE_MANAGEMENT ?? DEFAULT_API_BASE_URL.CASE_MANAGEMENT
+  };
+};
+
 export const API_BASE_URL = {
-  OFFICE_MANAGEMENT: 'https://func-lawoffice-officemanagement-dev.azurewebsites.net',
-  PARTY_MANAGEMENT: 'https://func-lawoffice-partymanagement-dev.azurewebsites.net',
-  CASE_MANAGEMENT: 'https://func-lawoffice-casemanagement-dev.azurewebsites.net'
+  get OFFICE_MANAGEMENT(): string {
+    return getApiBaseUrl().OFFICE_MANAGEMENT;
+  },
+  get PARTY_MANAGEMENT(): string {
+    return getApiBaseUrl().PARTY_MANAGEMENT;
+  },
+  get CASE_MANAGEMENT(): string {
+    return getApiBaseUrl().CASE_MANAGEMENT;
+  }
 };
 
 export const API_ENDPOINTS = {
