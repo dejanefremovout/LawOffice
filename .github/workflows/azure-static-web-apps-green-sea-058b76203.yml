@@ -2,6 +2,10 @@ name: Azure Static Web Apps CI/CD
 
 on:
   workflow_dispatch:
+    branches:
+      - master
+    paths:
+      - 'LawOfficePortal/**'
   push:
     branches:
       - master
