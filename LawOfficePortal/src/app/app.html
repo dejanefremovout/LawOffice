@@ -18,6 +18,7 @@
         <span class="menu-icon home"></span>
         <span class="menu-label">Home</span>
       </a>
+      @if (isLoggedIn()) {
       <a class="menu-item" routerLink="/clients" routerLinkActive="active">
         <span class="menu-icon clients"></span>
         <span class="menu-label">Clients</span>
@@ -34,6 +35,7 @@
         <span class="menu-icon office"></span>
         <span class="menu-label">Office</span>
       </a>
+      }
     </nav>
   </aside>
 
@@ -49,6 +51,14 @@
       </div>
     </header> -->
     <div class="content-body">
+      <div class="content-actions">
+        @if (!isLoggedIn()) {
+          <button class="primary-button" (click)="login()" type="button">Sign In / Sign Up</button>
+        }
+        @if (isLoggedIn()) {
+          <button class="primary-button" (click)="logout()" type="button">Logout</button>
+        }
+      </div>
       <router-outlet></router-outlet>
     </div>
   </section>

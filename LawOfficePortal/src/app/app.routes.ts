@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { MsalGuard } from '@azure/msal-angular';
 
 export const routes: Routes = [
 	{
@@ -48,7 +49,8 @@ export const routes: Routes = [
 	},
 	{
 		path: 'office',
-		loadComponent: () => import('./pages/office/office.page').then((m) => m.OfficePageComponent)
+		loadComponent: () => import('./pages/office/office.page').then((m) => m.OfficePageComponent), 
+    	canActivate: [MsalGuard] 
 	},
 	{
 		path: '**',
