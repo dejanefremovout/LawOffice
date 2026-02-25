@@ -38,10 +38,6 @@ export class ClientsPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const officeId = this.officeService.officeId();
-    if (officeId) {
-      this.loadClients(officeId);
-    }
   }
 
   private loadClients(officeId: string): void {

@@ -38,10 +38,6 @@ export class CasesPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const officeId = this.officeService.officeId();
-    if (officeId) {
-      this.loadCases(officeId);
-    }
   }
 
   private loadCases(officeId: string): void {

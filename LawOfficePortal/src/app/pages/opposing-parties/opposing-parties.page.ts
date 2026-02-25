@@ -38,10 +38,6 @@ export class OpposingPartiesPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const officeId = this.officeService.officeId();
-    if (officeId) {
-      this.loadOpposingParties(officeId);
-    }
   }
 
   private loadOpposingParties(officeId: string): void {
