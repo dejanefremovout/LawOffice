@@ -13,7 +13,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     auth: {
       clientId: 'a9a5990c-f11e-49df-a582-a2c1416456cf',
       authority: 'https://lawofficecustomers.ciamlogin.com',
-      redirectUri: 'http://localhost:4200',
+      redirectUri: 'https://green-sea-058b76203.4.azurestaticapps.net',
     },
     cache: {
       cacheLocation: BrowserCacheLocation.LocalStorage,
