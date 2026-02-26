@@ -25,6 +25,7 @@ jobs:
       MASTER_OFFICE_MANAGEMENT_URL: ${{ vars.MASTER_OFFICE_MANAGEMENT_URL }}
       MASTER_PARTY_MANAGEMENT_URL: ${{ vars.MASTER_PARTY_MANAGEMENT_URL }}
       MASTER_CASE_MANAGEMENT_URL: ${{ vars.MASTER_CASE_MANAGEMENT_URL }}
+      MASTER_REDIRECT_URL: ${{ vars.MASTER_REDIRECT_URL }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,8 +37,9 @@ jobs:
           OFFICE_MANAGEMENT_URL="$MASTER_OFFICE_MANAGEMENT_URL"
           PARTY_MANAGEMENT_URL="$MASTER_PARTY_MANAGEMENT_URL"
           CASE_MANAGEMENT_URL="$MASTER_CASE_MANAGEMENT_URL"
+          REDIRECT_URL="$MASTER_REDIRECT_URL"
 
-          if [ -z "$OFFICE_MANAGEMENT_URL" ] || [ -z "$PARTY_MANAGEMENT_URL" ] || [ -z "$CASE_MANAGEMENT_URL" ]; then
+          if [ -z "$OFFICE_MANAGEMENT_URL" ] || [ -z "$PARTY_MANAGEMENT_URL" ] || [ -z "$CASE_MANAGEMENT_URL" ] || [ -z "$REDIRECT_URL" ]; then
             echo "Missing required MASTER API base URL values"
             exit 1
           fi
@@ -48,7 +50,8 @@ jobs:
               OFFICE_MANAGEMENT: '$OFFICE_MANAGEMENT_URL',
               PARTY_MANAGEMENT: '$PARTY_MANAGEMENT_URL',
               CASE_MANAGEMENT: '$CASE_MANAGEMENT_URL'
-            }
+            },
+            REDIRECT_URL: '$REDIRECT_URL'
           };
           EOF
       - name: Install OIDC Client from Core Package
