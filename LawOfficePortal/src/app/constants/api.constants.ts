@@ -10,6 +10,7 @@ type ApiBaseUrlConfig = {
 
 type RuntimeEnvConfig = {
   API_BASE_URL?: Partial<ApiBaseUrlConfig>;
+  REDIRECT_URL?: string;
 };
 
 const DEFAULT_API_BASE_URL: ApiBaseUrlConfig = {
@@ -17,6 +18,8 @@ const DEFAULT_API_BASE_URL: ApiBaseUrlConfig = {
   PARTY_MANAGEMENT: 'http://localhost:7207/api',
   CASE_MANAGEMENT: 'http://localhost:7208/api'
 };
+
+const DEFAULT_REDIRECT_URL = 'http://localhost:4200';
 
 const getRuntimeEnv = (): RuntimeEnvConfig => {
   const globalConfig = (globalThis as { __env?: RuntimeEnvConfig }).__env;
@@ -34,6 +37,10 @@ const getApiBaseUrl = (): ApiBaseUrlConfig => {
   };
 };
 
+const getRedirectUrl = (): string => {
+  return getRuntimeEnv().REDIRECT_URL ?? DEFAULT_REDIRECT_URL;
+};
+
 export const API_BASE_URL = {
   get OFFICE_MANAGEMENT(): string {
     return getApiBaseUrl().OFFICE_MANAGEMENT;
@@ -45,6 +52,8 @@ export const API_BASE_URL = {
     return getApiBaseUrl().CASE_MANAGEMENT;
   }
 };
+
+export const REDIRECT_URL = getRedirectUrl();
 
 export const API_ENDPOINTS = {
   GET_OFFICE: (officeId: string) => `/office/${officeId}`,

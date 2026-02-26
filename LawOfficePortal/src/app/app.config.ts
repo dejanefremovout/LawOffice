@@ -6,14 +6,14 @@ import { MsalModule, MSAL_INSTANCE, MSAL_GUARD_CONFIG, MsalGuardConfiguration, M
 
 
 import { routes } from './app.routes';
-import { API_BASE_URL } from './constants/api.constants';
+import { API_BASE_URL, REDIRECT_URL } from './constants/api.constants';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
     auth: {
       clientId: 'a9a5990c-f11e-49df-a582-a2c1416456cf',
       authority: 'https://lawofficecustomers.ciamlogin.com',
-      redirectUri: 'https://green-sea-058b76203.4.azurestaticapps.net',
+      redirectUri: REDIRECT_URL,
     },
     cache: {
       cacheLocation: BrowserCacheLocation.LocalStorage,
