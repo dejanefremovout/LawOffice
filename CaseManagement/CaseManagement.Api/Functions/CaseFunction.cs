@@ -14,7 +14,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     private readonly ICaseService _caseService = caseService;
 
     [Function("GetCase")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "case/{officeId}/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{officeId}/{caseId}")] HttpRequest req, string officeId, string caseId)
     {
         try
         {
@@ -50,7 +50,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     }
 
     [Function("GetAllCases")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "case/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{officeId}")] HttpRequest req, string officeId)
     {
         try
         {
@@ -76,7 +76,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     }
 
     [Function("PostCase")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "case")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "case")] HttpRequest req)
     {
         try
         {
@@ -104,7 +104,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     }
 
     [Function("PutCase")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "case")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "case")] HttpRequest req)
     {
         try
         {
@@ -132,7 +132,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     }
 
     [Function("DeleteCase")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "case/{officeId}/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "case/{officeId}/{caseId}")] HttpRequest req, string officeId, string caseId)
     {
         try
         {

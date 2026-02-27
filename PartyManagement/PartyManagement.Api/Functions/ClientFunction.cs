@@ -14,7 +14,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     private readonly IClientService _clientService = clientService;
 
     [Function("GetClient")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "client/{officeId}/{clientId}")] HttpRequest req, string officeId, string clientId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{officeId}/{clientId}")] HttpRequest req, string officeId, string clientId)
     {
         try
         {
@@ -45,7 +45,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     }
 
     [Function("GetAllClients")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "client/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{officeId}")] HttpRequest req, string officeId)
     {
         try
         {
@@ -71,7 +71,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     }
 
     [Function("PostClient")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "client")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "client")] HttpRequest req)
     {
         try
         {
@@ -99,7 +99,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     }
 
     [Function("PutClient")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "client")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "client")] HttpRequest req)
     {
         try
         {
