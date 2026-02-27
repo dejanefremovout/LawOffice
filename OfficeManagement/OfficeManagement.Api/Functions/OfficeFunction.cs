@@ -14,7 +14,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     private readonly IOfficeService _officeService = officeService;
 
     [Function("GetOffice")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "office/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "office/{officeId}")] HttpRequest req, string officeId)
     {
         try
         {
@@ -45,7 +45,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     }
 
     [Function("PostOffice")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "office")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "office")] HttpRequest req)
     {
         try
         {
@@ -73,7 +73,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     }
 
     [Function("PutOffice")]
-    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "office")] HttpRequest req)
+    public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "office")] HttpRequest req)
     {
         try
         {
