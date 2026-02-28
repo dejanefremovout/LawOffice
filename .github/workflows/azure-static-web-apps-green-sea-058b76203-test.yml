@@ -1,0 +1,91 @@
+name: Azure Static Web Apps CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test
+    paths:
+      - 'LawOfficePortal/**'
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - test
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    environment: LawOfficeEnvironment
+    permissions:
+       id-token: write
+       contents: read
+    env:
+      TEST_OFFICE_MANAGEMENT_URL: ${{ vars.TEST_OFFICE_MANAGEMENT_URL }}
+      TEST_PARTY_MANAGEMENT_URL: ${{ vars.TEST_PARTY_MANAGEMENT_URL }}
+      TEST_CASE_MANAGEMENT_URL: ${{ vars.TEST_CASE_MANAGEMENT_URL }}
+      TEST_REDIRECT_URL: ${{ vars.TEST_REDIRECT_URL }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+      - name: Generate runtime config.js
+        shell: bash
+        run: |
+          OFFICE_MANAGEMENT_URL="$TEST_OFFICE_MANAGEMENT_URL"
+          PARTY_MANAGEMENT_URL="$TEST_PARTY_MANAGEMENT_URL"
+          CASE_MANAGEMENT_URL="$TEST_CASE_MANAGEMENT_URL"
+          REDIRECT_URL="$TEST_REDIRECT_URL"
+
+          if [ -z "$OFFICE_MANAGEMENT_URL" ] || [ -z "$PARTY_MANAGEMENT_URL" ] || [ -z "$CASE_MANAGEMENT_URL" ] || [ -z "$REDIRECT_URL" ]; then
+            echo "Missing required TEST API base URL values"
+            exit 1
+          fi
+
+          cat > LawOfficePortal/public/config.js <<EOF
+          window.__env = {
+            API_BASE_URL: {
+              OFFICE_MANAGEMENT: '$OFFICE_MANAGEMENT_URL',
+              PARTY_MANAGEMENT: '$PARTY_MANAGEMENT_URL',
+              CASE_MANAGEMENT: '$CASE_MANAGEMENT_URL'
+            },
+            REDIRECT_URL: '$REDIRECT_URL'
+          };
+          EOF
+      - name: Install OIDC Client from Core Package
+        run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: Get Id Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+           script: |
+               const coredemo = require('@actions/core')
+               return await coredemo.getIDToken()
+           result-encoding: string
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_SEA_058B76203 }}
+          action: "upload"
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "./LawOfficePortal" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "dist/lawyer-office-portal/browser" # Built app content directory - optional
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          ###### End of Repository/Build Configurations ######
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_SEA_058B76203 }}
+          action: "close"
