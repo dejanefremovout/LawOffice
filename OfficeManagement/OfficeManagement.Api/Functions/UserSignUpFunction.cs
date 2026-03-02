@@ -35,9 +35,8 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
         }
 
         var appId = _configuration["EntraAppId"];
-        var attrsProperty = data.GetProperty("attrs");
-        var userEmail = attrsProperty.GetProperty($"extension_{appId}_InvitationCode").GetString();
-        var userInvitationCode = attrsProperty.GetProperty($"extension_{appId}_InvitationCode").GetString();
+        var userEmail = data.GetProperty("attrs").GetProperty($"extension_{appId}_InvitationCode").GetString();
+        var userInvitationCode = data.GetProperty("attrs").GetProperty($"extension_{appId}_InvitationCode").GetString();
         
         if (!string.IsNullOrWhiteSpace(userInvitationCode))
         {
@@ -78,8 +77,8 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
             });
         }
 
-        var officeName = attrsProperty.GetProperty($"extension_{appId}_OfficeName").GetString();
-        var userDisplayName = attrsProperty.GetProperty("displayName").GetString();
+        var officeName = data.GetProperty("attrs").GetProperty($"extension_{appId}_OfficeName").GetString();
+        var userDisplayName = data.GetProperty("attrs").GetProperty("displayName").GetString();
 
         if (!string.IsNullOrWhiteSpace(officeName))
         {

@@ -34,6 +34,8 @@ public class LawyerService(ILawyerRepository lawyerRepository,
 
         lawyer = await _lawyerRepository.Add(lawyer);
 
+        // Send an email to the lawyer with the invitation code (not implemented here)
+
         return new LawyerModel(lawyer);
     }
 
