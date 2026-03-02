@@ -1,0 +1,35 @@
+<!--
+  APIM global policy template.
+  Tokens replaced at deployment time by Bicep:
+    {{SWA_ORIGIN}}  - Static Web App origin URL
+    {{JWT_SECTION}} - JWT validation block (empty when Entra ID is not configured)
+-->
+<policies>
+  <inbound>
+    <cors allow-credentials="true">
+      <allowed-origins>
+        <origin>{{SWA_ORIGIN}}</origin>
+        <origin>http://localhost:4200</origin>
+      </allowed-origins>
+      <allowed-methods preflight-result-max-age="300">
+        <method>GET</method>
+        <method>POST</method>
+        <method>PUT</method>
+        <method>PATCH</method>
+        <method>DELETE</method>
+      </allowed-methods>
+      <allowed-headers>
+        <header>*</header>
+      </allowed-headers>
+      <expose-headers>
+        <header>*</header>
+      </expose-headers>
+    </cors>
+    {{JWT_SECTION}}
+  </inbound>
+  <backend>
+    <forward-request />
+  </backend>
+  <outbound />
+  <on-error />
+</policies>

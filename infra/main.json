@@ -1,0 +1,625 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.40.2.10011",
+      "templateHash": "5511358126530802650"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for all resources."
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "allowedValues": [
+        "dev",
+        "test",
+        "prod"
+      ],
+      "metadata": {
+        "description": "Environment short name used for resource naming."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Common tags applied to all resources."
+      }
+    },
+    "apimPublisherEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "API Management publisher email address."
+      }
+    },
+    "jwtOpenIdConfigUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Entra ID OpenID Configuration URL for APIM JWT validation. Leave empty to skip JWT validation."
+      }
+    },
+    "jwtAudience": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Entra ID audience (application client ID) for JWT validation."
+      }
+    },
+    "jwtIssuer": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Entra ID token issuer URL for JWT validation."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('stlawoffice{0}', parameters('environmentName'))]",
+      "metadata": {
+        "description": "Storage account name. Default: stlawoffice<env>."
+      }
+    },
+    "cosmosAccountName": {
+      "type": "string",
+      "defaultValue": "[format('cos-lawoffice-{0}', parameters('environmentName'))]",
+      "metadata": {
+        "description": "Cosmos DB account name. Default: cos-lawoffice-<env>."
+      }
+    },
+    "staticWebAppName": {
+      "type": "string",
+      "defaultValue": "[format('swa-lawoffice-portal-{0}', parameters('environmentName'))]",
+      "metadata": {
+        "description": "Static Web App name. Default: swa-lawoffice-portal-<env>."
+      }
+    },
+    "staticWebAppRepositoryUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Repository URL for SWA GitHub integration. Leave empty to skip."
+      }
+    },
+    "staticWebAppBranch": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Repository branch for SWA."
+      }
+    }
+  },
+  "variables": {
+    "$fxv#0": "<!--\r\n  APIM global policy template.\r\n  Tokens replaced at deployment time by Bicep:\r\n    {{SWA_ORIGIN}}  - Static Web App origin URL\r\n    {{JWT_SECTION}} - JWT validation block (empty when Entra ID is not configured)\r\n-->\r\n<policies>\r\n  <inbound>\r\n    <cors allow-credentials=\"true\">\r\n      <allowed-origins>\r\n        <origin>{{SWA_ORIGIN}}</origin>\r\n        <origin>http://localhost:4200</origin>\r\n      </allowed-origins>\r\n      <allowed-methods preflight-result-max-age=\"300\">\r\n        <method>GET</method>\r\n        <method>POST</method>\r\n        <method>PUT</method>\r\n        <method>PATCH</method>\r\n        <method>DELETE</method>\r\n      </allowed-methods>\r\n      <allowed-headers>\r\n        <header>*</header>\r\n      </allowed-headers>\r\n      <expose-headers>\r\n        <header>*</header>\r\n      </expose-headers>\r\n    </cors>\r\n    {{JWT_SECTION}}\r\n  </inbound>\r\n  <backend>\r\n    <forward-request />\r\n  </backend>\r\n  <outbound />\r\n  <on-error />\r\n</policies>\r\n",
+    "prefix": "lawoffice",
+    "microservices": [
+      {
+        "key": "casemanagement",
+        "displayName": "CaseManagement",
+        "apiPath": "case",
+        "needsBlobStorage": true
+      },
+      {
+        "key": "officemanagement",
+        "displayName": "OfficeManagement",
+        "apiPath": "office",
+        "needsBlobStorage": false
+      },
+      {
+        "key": "partymanagement",
+        "displayName": "PartyManagement",
+        "apiPath": "party",
+        "needsBlobStorage": false
+      }
+    ],
+    "cosmosDatabases": [
+      {
+        "name": "casemanagement",
+        "containers": [
+          {
+            "name": "cases",
+            "partitionKeyPath": "/officeId"
+          },
+          {
+            "name": "documentfiles",
+            "partitionKeyPath": "/officeId"
+          },
+          {
+            "name": "hearings",
+            "partitionKeyPath": "/officeId"
+          }
+        ]
+      },
+      {
+        "name": "officemanagement",
+        "containers": [
+          {
+            "name": "lawyers",
+            "partitionKeyPath": "/officeId"
+          },
+          {
+            "name": "offices",
+            "partitionKeyPath": "/id"
+          }
+        ]
+      },
+      {
+        "name": "partymanagement",
+        "containers": [
+          {
+            "name": "clients",
+            "partitionKeyPath": "/officeId"
+          },
+          {
+            "name": "opposingparties",
+            "partitionKeyPath": "/officeId"
+          }
+        ]
+      }
+    ],
+    "jwtPolicyFragment": "[if(not(empty(parameters('jwtOpenIdConfigUrl'))), format('<validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized. Access token is missing or invalid.\"><openid-config url=\"{0}\" /><audiences><audience>{1}</audience></audiences><issuers><issuer>{2}</issuer></issuers></validate-jwt>', parameters('jwtOpenIdConfigUrl'), parameters('jwtAudience'), parameters('jwtIssuer')), '')]"
+  },
+  "resources": {
+    "logAnalytics": {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "[format('log-{0}-{1}', variables('prefix'), parameters('environmentName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    "appInsights": {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[format('appi-{0}-{1}', variables('prefix'), parameters('environmentName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('log-{0}-{1}', variables('prefix'), parameters('environmentName')))]"
+      },
+      "dependsOn": [
+        "logAnalytics"
+      ]
+    },
+    "storageAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2025-01-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": false,
+        "allowSharedKeyAccess": true,
+        "supportsHttpsTrafficOnly": true,
+        "accessTier": "Hot",
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Allow"
+        }
+      }
+    },
+    "cosmosAccount": {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2024-11-15",
+      "name": "[parameters('cosmosAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "publicNetworkAccess": "Enabled",
+        "minimalTlsVersion": "Tls12",
+        "enableAutomaticFailover": true,
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [
+          {
+            "locationName": "[parameters('location')]",
+            "failoverPriority": 0,
+            "isZoneRedundant": false
+          }
+        ],
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ]
+      }
+    },
+    "appServicePlan": {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2024-11-01",
+      "name": "[format('asp-{0}-{1}', variables('prefix'), parameters('environmentName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "functionapp",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic"
+      },
+      "properties": {}
+    },
+    "funcApps": {
+      "copy": {
+        "name": "funcApps",
+        "count": "[length(variables('microservices'))]"
+      },
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2024-11-01",
+      "name": "[format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "functionapp",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('asp-{0}-{1}', variables('prefix'), parameters('environmentName')))]",
+        "httpsOnly": true,
+        "clientAffinityEnabled": false,
+        "publicNetworkAccess": "Enabled",
+        "keyVaultReferenceIdentity": "SystemAssigned",
+        "siteConfig": {
+          "alwaysOn": false,
+          "http20Enabled": false,
+          "minTlsVersion": "1.2",
+          "scmMinTlsVersion": "1.2",
+          "ftpsState": "FtpsOnly",
+          "functionAppScaleLimit": 200,
+          "minimumElasticInstanceCount": 0,
+          "appSettings": "[concat(createArray(createObject('name', 'AzureWebJobsStorage', 'value', format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys('storageAccount', '2025-01-01').keys[0].value)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'dotnet-isolated'), createObject('name', 'WEBSITE_RUN_FROM_PACKAGE', 'value', '1'), createObject('name', 'CosmosSettings:ConnectionString', 'value', listConnectionStrings('cosmosAccount', '2024-11-15').connectionStrings[0].connectionString), createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference('appInsights').ConnectionString)), if(variables('microservices')[copyIndex()].needsBlobStorage, createArray(createObject('name', 'BlobSettings:ConnectionString', 'value', format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys('storageAccount', '2025-01-01').keys[0].value))), createArray()))]"
+        }
+      },
+      "dependsOn": [
+        "appInsights",
+        "appServicePlan",
+        "cosmosAccount",
+        "storageAccount"
+      ]
+    },
+    "funcFtpPolicies": {
+      "copy": {
+        "name": "funcFtpPolicies",
+        "count": "[length(variables('microservices'))]"
+      },
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2024-11-01",
+      "name": "[format('{0}/{1}', format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName')), 'ftp')]",
+      "properties": {
+        "allow": false
+      },
+      "dependsOn": [
+        "[format('funcApps[{0}]', copyIndex())]"
+      ]
+    },
+    "funcScmPolicies": {
+      "copy": {
+        "name": "funcScmPolicies",
+        "count": "[length(variables('microservices'))]"
+      },
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2024-11-01",
+      "name": "[format('{0}/{1}', format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName')), 'scm')]",
+      "properties": {
+        "allow": false
+      },
+      "dependsOn": [
+        "[format('funcApps[{0}]', copyIndex())]"
+      ]
+    },
+    "staticWebApp": {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2024-11-01",
+      "name": "[parameters('staticWebAppName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "Free",
+        "tier": "Free"
+      },
+      "properties": {
+        "repositoryUrl": "[if(empty(parameters('staticWebAppRepositoryUrl')), null(), parameters('staticWebAppRepositoryUrl'))]",
+        "branch": "[if(empty(parameters('staticWebAppBranch')), null(), parameters('staticWebAppBranch'))]",
+        "provider": "[if(not(empty(parameters('staticWebAppRepositoryUrl'))), 'GitHub', null())]",
+        "stagingEnvironmentPolicy": "Enabled",
+        "allowConfigFileUpdates": true,
+        "enterpriseGradeCdnStatus": "Disabled"
+      }
+    },
+    "apim": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[format('apim-{0}-{1}', variables('prefix'), parameters('environmentName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "Consumption",
+        "capacity": 0
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "publisherName": "LawOffice",
+        "publisherEmail": "[parameters('apimPublisherEmail')]",
+        "notificationSenderEmail": "apimgmt-noreply@mail.windowsazure.com",
+        "publicNetworkAccess": "Enabled",
+        "virtualNetworkType": "None",
+        "disableGateway": false,
+        "customProperties": {
+          "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls10": "False",
+          "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls11": "False",
+          "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls10": "False",
+          "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls11": "False",
+          "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Ssl30": "False"
+        }
+      }
+    },
+    "apimGlobalPolicy": {
+      "type": "Microsoft.ApiManagement/service/policies",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[format('{0}/{1}', format('apim-{0}-{1}', variables('prefix'), parameters('environmentName')), 'policy')]",
+      "properties": {
+        "format": "xml",
+        "value": "[replace(replace(variables('$fxv#0'), '{{SWA_ORIGIN}}', format('https://{0}', reference('staticWebApp').defaultHostname)), '{{JWT_SECTION}}', variables('jwtPolicyFragment'))]"
+      },
+      "dependsOn": [
+        "apim",
+        "staticWebApp"
+      ]
+    },
+    "apimApis": {
+      "copy": {
+        "name": "apimApis",
+        "count": "[length(variables('microservices'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[format('{0}/{1}', format('apim-{0}-{1}', variables('prefix'), parameters('environmentName')), variables('microservices')[copyIndex()].displayName)]",
+      "properties": {
+        "displayName": "[variables('microservices')[copyIndex()].displayName]",
+        "apiRevision": "1",
+        "description": "[format('Import from \"func-{0}-{1}-{2}\" Function App', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))]",
+        "subscriptionRequired": false,
+        "path": "[variables('microservices')[copyIndex()].apiPath]",
+        "protocols": [
+          "https"
+        ],
+        "isCurrent": true
+      },
+      "dependsOn": [
+        "apim"
+      ]
+    },
+    "apimNamedValues": {
+      "copy": {
+        "name": "apimNamedValues",
+        "count": "[length(variables('microservices'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[format('{0}/{1}', format('apim-{0}-{1}', variables('prefix'), parameters('environmentName')), format('func-{0}-{1}-{2}-key', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName')))]",
+      "properties": {
+        "displayName": "[format('func-{0}-{1}-{2}-key', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))]",
+        "tags": [
+          "key",
+          "function",
+          "auto"
+        ],
+        "secret": true,
+        "value": "[listKeys(format('{0}/host/default', resourceId('Microsoft.Web/sites', format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName')))), '2024-11-01').functionKeys.default]"
+      },
+      "dependsOn": [
+        "apim",
+        "[format('funcApps[{0}]', copyIndex())]"
+      ]
+    },
+    "apimBackends": {
+      "copy": {
+        "name": "apimBackends",
+        "count": "[length(variables('microservices'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[format('{0}/{1}', format('apim-{0}-{1}', variables('prefix'), parameters('environmentName')), format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName')))]",
+      "properties": {
+        "description": "[format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))]",
+        "url": "[format('https://{0}/api', reference(format('funcApps[{0}]', copyIndex())).defaultHostName)]",
+        "protocol": "http",
+        "resourceId": "[format('{0}{1}', environment().resourceManager, substring(resourceId('Microsoft.Web/sites', format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))), 1, sub(length(resourceId('Microsoft.Web/sites', format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName')))), 1)))]",
+        "credentials": {
+          "header": {
+            "x-functions-key": [
+              "[format('{{{{func-{0}-{1}-{2}-key}}}}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))]"
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "apim",
+        "[format('apimNamedValues[{0}]', copyIndex())]",
+        "[format('funcApps[{0}]', copyIndex())]",
+        "[format('funcApps[{0}]', copyIndex())]",
+        "[format('funcApps[{0}]', copyIndex())]"
+      ]
+    },
+    "cosmosSqlDatabases": {
+      "copy": {
+        "name": "cosmosSqlDatabases",
+        "count": "[length(variables('cosmosDatabases'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('cosmosSqlDatabases-{0}-{1}', copyIndex(), uniqueString('cosmosSqlDatabases', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "cosmosAccountName": {
+            "value": "[parameters('cosmosAccountName')]"
+          },
+          "databaseName": {
+            "value": "[variables('cosmosDatabases')[copyIndex()].name]"
+          },
+          "containers": {
+            "value": "[variables('cosmosDatabases')[copyIndex()].containers]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.40.2.10011",
+              "templateHash": "1716435595122267927"
+            }
+          },
+          "parameters": {
+            "cosmosAccountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Cosmos DB account name to create the database under."
+              }
+            },
+            "databaseName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the SQL database."
+              }
+            },
+            "containers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "partitionKeyPath": {
+                    "type": "string"
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Container definitions for this database."
+              }
+            }
+          },
+          "resources": {
+            "cosmosAccount": {
+              "existing": true,
+              "type": "Microsoft.DocumentDB/databaseAccounts",
+              "apiVersion": "2024-11-15",
+              "name": "[parameters('cosmosAccountName')]"
+            },
+            "database": {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+              "apiVersion": "2024-11-15",
+              "name": "[format('{0}/{1}', parameters('cosmosAccountName'), parameters('databaseName'))]",
+              "properties": {
+                "resource": {
+                  "id": "[parameters('databaseName')]"
+                }
+              }
+            },
+            "sqlContainers": {
+              "copy": {
+                "name": "sqlContainers",
+                "count": "[length(parameters('containers'))]"
+              },
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+              "apiVersion": "2024-11-15",
+              "name": "[format('{0}/{1}/{2}', parameters('cosmosAccountName'), parameters('databaseName'), parameters('containers')[copyIndex()].name)]",
+              "properties": {
+                "resource": {
+                  "id": "[parameters('containers')[copyIndex()].name]",
+                  "partitionKey": {
+                    "paths": [
+                      "[parameters('containers')[copyIndex()].partitionKeyPath]"
+                    ],
+                    "kind": "Hash",
+                    "version": 2
+                  }
+                }
+              },
+              "dependsOn": [
+                "database"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "cosmosAccount"
+      ]
+    }
+  },
+  "outputs": {
+    "storageAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+    },
+    "cosmosAccountEndpoint": {
+      "type": "string",
+      "value": "[reference('cosmosAccount').documentEndpoint]"
+    },
+    "functionAppNames": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "copy": {
+        "count": "[length(variables('microservices'))]",
+        "input": "[format('func-{0}-{1}-{2}', variables('prefix'), variables('microservices')[copyIndex()].key, parameters('environmentName'))]"
+      }
+    },
+    "functionAppHostNames": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "copy": {
+        "count": "[length(variables('microservices'))]",
+        "input": "[reference(format('funcApps[{0}]', copyIndex())).defaultHostName]"
+      }
+    },
+    "apimGatewayUrl": {
+      "type": "string",
+      "value": "[reference('apim').gatewayUrl]"
+    },
+    "staticWebAppDefaultHostname": {
+      "type": "string",
+      "value": "[reference('staticWebApp').defaultHostname]"
+    },
+    "appInsightsConnectionString": {
+      "type": "string",
+      "value": "[reference('appInsights').ConnectionString]"
+    }
+  }
+}
