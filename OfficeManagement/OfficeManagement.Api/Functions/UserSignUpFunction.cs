@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ public class UserSignUpFunction
     }
 
     [Function("UserSignUpFunction")]
-    public async Task<HttpResponseData> Run(HttpRequestData req, FunctionContext executionContext)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, Route = "usersignup")] HttpRequestData req, FunctionContext executionContext)
     {
         // 1. Parse Entra Request
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
