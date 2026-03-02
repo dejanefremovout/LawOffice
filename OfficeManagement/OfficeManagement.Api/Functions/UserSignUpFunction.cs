@@ -57,7 +57,11 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
 
         if (!string.IsNullOrWhiteSpace(userInvitationCode) && !string.IsNullOrWhiteSpace(userEmail))
         {
-            bool isValid = await _lawyerService.ValidateInvitationCode(userEmail, userInvitationCode);
+            var validity = await _lawyerService.ValidateInvitationCode(userEmail, userInvitationCode);
+            bool isValid = validity.Item1;
+            var lawyerCode = validity.Item2.InvitationCode;
+
+            _logger.LogWarning("User {UserEmail} is signing up with invitation code {UserInvitationCode}. Working code: {LawyerCode}", userEmail, userInvitationCode, lawyerCode);
 
             if (!isValid)
             {
