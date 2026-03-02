@@ -9,5 +9,5 @@ public interface ILawyerService
     Task<IEnumerable<LawyerModel>> GetAll(string officeId);
     Task<LawyerModel> Create(LawyerCreateModel lawyerModel);
     Task<LawyerModel> Update(LawyerModel lawyerModel);
-    Task<Tuple<bool, Lawyer>> ValidateInvitationCode(string lawyerEmail, string invitationCode);
+    Task<Tuple<bool, Lawyer?>> ValidateInvitationCode(string lawyerEmail, string invitationCode);
 }

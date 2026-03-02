@@ -67,7 +67,7 @@ public class LawyerRepository(ICosmosService cosmosService) : ILawyerRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
 
-        var query = _container.GetItemQueryIterator<Lawyer>(new QueryDefinition("SELECT * FROM c WHERE c.Email = @email")
+        var query = _container.GetItemQueryIterator<Lawyer>(new QueryDefinition("SELECT * FROM c WHERE c.email = @email")
             .WithParameter("@email", email));
 
         while (query.HasMoreResults)

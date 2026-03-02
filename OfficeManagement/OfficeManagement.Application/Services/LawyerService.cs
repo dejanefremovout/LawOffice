@@ -52,9 +52,9 @@ public class LawyerService(ILawyerRepository lawyerRepository,
         return new LawyerModel(lawyer);
     }
 
-    public async Task<Tuple<bool, Lawyer>> ValidateInvitationCode(string lawyerEmail, string invitationCode)
+    public async Task<Tuple<bool, Lawyer?>> ValidateInvitationCode(string lawyerEmail, string invitationCode)
     {
         Lawyer? lawyer = await _lawyerRepository.GetByEmail(lawyerEmail);
-        return new Tuple<bool, Lawyer>(lawyer is not null && lawyer.ValidateInvitationCode(invitationCode), lawyer);
+        return new Tuple<bool, Lawyer?>(lawyer is not null && lawyer.ValidateInvitationCode(invitationCode), lawyer);
     }
 }
