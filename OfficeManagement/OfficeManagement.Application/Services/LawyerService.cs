@@ -30,6 +30,8 @@ public class LawyerService(ILawyerRepository lawyerRepository,
 
         Lawyer lawyer = Lawyer.New(office, lawyerModel.FirstName, lawyerModel.LastName, lawyerModel.Email);
 
+        lawyer.GenerateNewInvitationCode();
+
         lawyer = await _lawyerRepository.Add(lawyer);
 
         return new LawyerModel(lawyer);
@@ -46,5 +48,11 @@ public class LawyerService(ILawyerRepository lawyerRepository,
         lawyer = await _lawyerRepository.Update(lawyer);
 
         return new LawyerModel(lawyer);
+    }
+
+    public async Task<bool> ValidateInvitationCode(string lawyerEmail, string invitationCode)
+    {
+        Lawyer? lawyer = await _lawyerRepository.GetByEmail(lawyerEmail);
+        return lawyer is not null && lawyer.ValidateInvitationCode(invitationCode);
     }
 }

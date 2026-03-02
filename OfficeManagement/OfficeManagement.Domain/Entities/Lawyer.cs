@@ -21,6 +21,9 @@ public class Lawyer : Entity
     [JsonProperty("email")]
     public string Email { get; private set; }
 
+    [JsonProperty("invitationCode")]
+    public string? InvitationCode { get; private set; }
+
     public Lawyer(string id, string officeId, bool active, string firstName, string lastName, string email)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -65,6 +68,32 @@ public class Lawyer : Entity
     public void SetActive(bool active)
     {
         Active = active;
+    }
+
+    public void GenerateNewInvitationCode()
+    {
+        var code = GenerateRandomCode();
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        InvitationCode = code.Trim();
+    }
+
+    public static string GenerateRandomCode(int length = 8)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(length, 1);
+
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var random = new Random();
+        var code = new string(Enumerable.Range(0, length)
+            .Select(_ => chars[random.Next(chars.Length)])
+            .ToArray());
+
+        return code;
+    }
+
+    public bool ValidateInvitationCode(string code)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        return InvitationCode == code.Trim();
     }
 
     private static void ValidateEmail(string email)

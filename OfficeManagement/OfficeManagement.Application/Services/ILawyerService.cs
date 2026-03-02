@@ -8,4 +8,5 @@ public interface ILawyerService
     Task<IEnumerable<LawyerModel>> GetAll(string officeId);
     Task<LawyerModel> Create(LawyerCreateModel lawyerModel);
     Task<LawyerModel> Update(LawyerModel lawyerModel);
+    Task<bool> ValidateInvitationCode(string lawyerEmail, string invitationCode);
 }
