@@ -23,6 +23,11 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "usersignup")] HttpRequest req)
     {
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        const int maxLoggedPayloadLength = 8000;
+        var loggedPayload = requestBody.Length > maxLoggedPayloadLength
+            ? $"{requestBody[..maxLoggedPayloadLength]}... [truncated]"
+            : requestBody;
+        _logger.LogInformation("Incoming AttributeCollectionSubmit payload: {Payload}", loggedPayload);
 
         JsonElement data;
         try
@@ -35,7 +40,7 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
         }
 
         var appId = _configuration["EntraAppId"];
-        var userEmail = data.GetProperty("attrs").GetProperty($"extension_{appId}_InvitationCode").GetString();
+        var userEmail = data.GetProperty("attrs").GetProperty("email").GetString();
         var userInvitationCode = data.GetProperty("attrs").GetProperty($"extension_{appId}_InvitationCode").GetString();
         
         if (!string.IsNullOrWhiteSpace(userInvitationCode))
