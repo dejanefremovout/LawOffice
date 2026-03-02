@@ -31,8 +31,9 @@ public class UserSignUpFunction
         // 2. Extract User Input (The "Invitation Code")
         // Note: The actual JSON path depends on your extension App ID
         var appId = _configuration["EntraAppId"];
-        var userCode = data.GetProperty("data").GetProperty("userSignUpInfo")
-                           .GetProperty("attributes").GetProperty($"extension_{appId}_InvitationCode").GetString();
+        //var userCode = data.GetProperty("data").GetProperty("userSignUpInfo")
+        //                   .GetProperty("attributes").GetProperty($"extension_{appId}_InvitationCode").GetString();
+        //var userInvitationCode = data.GetProperty("attrs").GetProperty($"extension_{appId}_InvitationCode").GetString();
 
         // 3. Validate against your DB (Pseudo-code)
         // const string VALID_CODE = "LAW-2026-X"; 
