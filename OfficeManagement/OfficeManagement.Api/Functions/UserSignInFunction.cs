@@ -40,7 +40,7 @@ public class UserSignInFunction(ILogger<UserSignInFunction> logger,
         _logger.LogWarning("Passed JsonSerializer.Deserialize");
 
         if (!root.TryGetProperty("data", out var calloutData)
-            || !calloutData.TryGetProperty("user", out _))
+            || !calloutData.TryGetProperty("authenticationContext", out _))
         {
             return new BadRequestObjectResult(new { error = "Invalid TokenIssuanceStart payload shape." });
         }
@@ -73,19 +73,37 @@ public class UserSignInFunction(ILogger<UserSignInFunction> logger,
 
     private static string? GetUserEmail(JsonElement calloutData)
     {
-        if (calloutData.TryGetProperty("user", out var user)
-            && user.ValueKind == JsonValueKind.Object)
+        if (calloutData.TryGetProperty("authenticationContext", out var authenticationContext)
+            && authenticationContext.ValueKind == JsonValueKind.Object
+            && authenticationContext.TryGetProperty("user", out var contextUser)
+            && contextUser.ValueKind == JsonValueKind.Object)
         {
-            if (user.TryGetProperty("userPrincipalName", out var userPrincipalName)
+            if (contextUser.TryGetProperty("mail", out var mail)
+                && mail.ValueKind == JsonValueKind.String)
+            {
+                return mail.GetString();
+            }
+
+            if (contextUser.TryGetProperty("userPrincipalName", out var userPrincipalName)
                 && userPrincipalName.ValueKind == JsonValueKind.String)
             {
                 return userPrincipalName.GetString();
             }
+        }
 
+        if (calloutData.TryGetProperty("user", out var user)
+            && user.ValueKind == JsonValueKind.Object)
+        {
             if (user.TryGetProperty("mail", out var mail)
                 && mail.ValueKind == JsonValueKind.String)
             {
                 return mail.GetString();
+            }
+
+            if (user.TryGetProperty("userPrincipalName", out var userPrincipalName)
+                && userPrincipalName.ValueKind == JsonValueKind.String)
+            {
+                return userPrincipalName.GetString();
             }
         }
 
