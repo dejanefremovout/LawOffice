@@ -14,10 +14,21 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     private readonly IOfficeService _officeService = officeService;
 
     [Function("GetOffice")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "office/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "office")] HttpRequest req)
     {
         try
         {
+            foreach (var header in req.Headers)
+            {
+                _logger.LogWarning($"{header.Key}: {string.Join(", ", header.Value)}");
+            }
+
+            if (!req.Headers.TryGetValue("extension_OfficeId", out var officeIdValues))
+            {
+                return new BadRequestObjectResult("extension_OfficeId header is required.");
+            }
+            var officeId = officeIdValues.First();
+
             if (string.IsNullOrWhiteSpace(officeId))
             {
                 return new BadRequestObjectResult("officeId route parameter is required.");

@@ -20,13 +20,6 @@ public class UserSignInFunction(ILogger<UserSignInFunction> logger,
     {
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-        const int maxLoggedPayloadLength = 8000;
-        var loggedPayload = requestBody.Length > maxLoggedPayloadLength
-            ? $"{requestBody[..maxLoggedPayloadLength]}... [truncated]"
-            : requestBody;
-        _logger.LogWarning("Incoming TokenIssuanceStart payload: {Payload}", loggedPayload);
-
-
         JsonElement root;
         try
         {
@@ -37,19 +30,13 @@ public class UserSignInFunction(ILogger<UserSignInFunction> logger,
             return new BadRequestObjectResult(new { error = "Invalid request payload." });
         }
 
-        _logger.LogWarning("Passed JsonSerializer.Deserialize");
-
         if (!root.TryGetProperty("data", out var calloutData)
             || !calloutData.TryGetProperty("authenticationContext", out _))
         {
             return new BadRequestObjectResult(new { error = "Invalid TokenIssuanceStart payload shape." });
         }
 
-        _logger.LogWarning("Passed getting data");
-
         var userEmail = GetUserEmail(calloutData);
-
-        _logger.LogWarning("Passed getting user email {UserEmail}", userEmail);
 
         if (!string.IsNullOrWhiteSpace(userEmail))
         {
@@ -57,16 +44,11 @@ public class UserSignInFunction(ILogger<UserSignInFunction> logger,
 
             if (lawyer is null)
             {
-                _logger.LogWarning("Passed getting lawyer, and it's null");
                 return BuildBlockResponse("User with this email doesn't exist. Please contact your administrator.");
             }
 
-            _logger.LogWarning("Passed getting lawyer with officeId {OfficeId}", lawyer.OfficeId);
-
             return BuildContinueResponse(lawyer.OfficeId);
         }
-
-        _logger.LogWarning("The user email is invalid oh no");
 
         return BuildBlockResponse("The user email is invalid. Please contact your administrator.");
     }
