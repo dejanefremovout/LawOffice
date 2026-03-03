@@ -10,4 +10,5 @@ public interface ILawyerService
     Task<LawyerModel> Update(LawyerModel lawyerModel);
     Task<bool> ValidateInvitationCode(string lawyerEmail, string invitationCode);
     Task<bool> UserWithEmailExist(string lawyerEmail);
+    Task<LawyerModel?> GetByEmail(string lawyerEmail);
 }

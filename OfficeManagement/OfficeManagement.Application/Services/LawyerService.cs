@@ -68,4 +68,10 @@ public class LawyerService(ILawyerRepository lawyerRepository,
         Lawyer? lawyer = await _lawyerRepository.GetByEmail(lawyerEmail);
         return lawyer is not null;
     }
+
+    public async Task<LawyerModel?> GetByEmail(string lawyerEmail)
+    {
+        Lawyer? lawyer = await _lawyerRepository.GetByEmail(lawyerEmail);
+        return lawyer is null ? null : new LawyerModel(lawyer);
+    }
 }

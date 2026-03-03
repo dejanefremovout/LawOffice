@@ -23,12 +23,7 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "usersignup")] HttpRequest req)
     {
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        const int maxLoggedPayloadLength = 8000;
-        var loggedPayload = requestBody.Length > maxLoggedPayloadLength
-            ? $"{requestBody[..maxLoggedPayloadLength]}... [truncated]"
-            : requestBody;
-        _logger.LogTrace("Incoming AttributeCollectionSubmit payload: {Payload}", loggedPayload);
-
+        
         JsonElement root;
         try
         {
