@@ -28,6 +28,11 @@ public class LawyerService(ILawyerRepository lawyerRepository,
     {
         Office? office = await _officeRepository.Get(lawyerModel.OfficeId) ?? throw new ArgumentException("Office not found");
 
+        if (await UserWithEmailExist(lawyerModel.Email))
+        {
+            throw new ArgumentException("Lawyer with email already exist.");
+        }
+
         Lawyer lawyer = Lawyer.New(office, lawyerModel.FirstName, lawyerModel.LastName, lawyerModel.Email);
 
         lawyer.GenerateNewInvitationCode();
@@ -52,9 +57,15 @@ public class LawyerService(ILawyerRepository lawyerRepository,
         return new LawyerModel(lawyer);
     }
 
-    public async Task<Tuple<bool, Lawyer?>> ValidateInvitationCode(string lawyerEmail, string invitationCode)
+    public async Task<bool> ValidateInvitationCode(string lawyerEmail, string invitationCode)
     {
         Lawyer? lawyer = await _lawyerRepository.GetByEmail(lawyerEmail);
-        return new Tuple<bool, Lawyer?>(lawyer is not null && lawyer.ValidateInvitationCode(invitationCode), lawyer);
+        return lawyer is not null && lawyer.ValidateInvitationCode(invitationCode);
+    }
+
+    public async Task<bool> UserWithEmailExist(string lawyerEmail)
+    {
+        Lawyer? lawyer = await _lawyerRepository.GetByEmail(lawyerEmail);
+        return lawyer is not null;
     }
 }

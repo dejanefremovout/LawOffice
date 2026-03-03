@@ -57,13 +57,7 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
 
         if (!string.IsNullOrWhiteSpace(userInvitationCode) && !string.IsNullOrWhiteSpace(userEmail))
         {
-            _logger.LogWarning("User {UserEmail} is signing up with invitation code {UserInvitationCode}.", userEmail, userInvitationCode);
-
-            var validity = await _lawyerService.ValidateInvitationCode(userEmail, userInvitationCode);
-            bool isValid = validity.Item1;
-            var lawyerCode = validity.Item2?.InvitationCode;
-
-            _logger.LogWarning("User {UserEmail} is signing up with invitation code {UserInvitationCode}. Working code: {LawyerCode}", userEmail, userInvitationCode, lawyerCode);
+            bool isValid = await _lawyerService.ValidateInvitationCode(userEmail, userInvitationCode);
 
             if (!isValid)
             {
@@ -75,6 +69,13 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
 
         if (!string.IsNullOrWhiteSpace(officeName) && !string.IsNullOrWhiteSpace(userEmail))
         {
+            bool userWithEmailExist = await _lawyerService.UserWithEmailExist(userEmail);
+
+            if (userWithEmailExist)
+            {
+                return BuildBlockResponse("Office can't be registered for a user with existing email. Please contact your administrator.");
+            }
+
             var officeModel = new OfficeCreateModel()
             {
                 Name = officeName
