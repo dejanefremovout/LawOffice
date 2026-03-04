@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OfficeManagement.Api.Extensions;
 using OfficeManagement.Application.Services;
 using OfficeManagement.Domain.ViewModels;
 
@@ -18,16 +19,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     {
         try
         {
-            if (!req.Headers.TryGetValue("X-Office-Id", out var officeIdValues))
-            {
-                return new BadRequestObjectResult("Office Id header is required.");
-            }
-            var officeId = officeIdValues.First();
-
-            if (string.IsNullOrWhiteSpace(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             OfficeModel? result = await _officeService.Get(officeId);
 
@@ -50,34 +42,6 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
         }
     }
 
-    [Function("PostOffice")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "office")] HttpRequest req)
-    {
-        try
-        {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var officeModel = JsonConvert.DeserializeObject<OfficeCreateModel>(requestBody);
-
-            if (officeModel == null)
-            {
-                return new BadRequestObjectResult("Invalid request body.");
-            }
-
-            OfficeModel result = await _officeService.Create(officeModel);
-            return new CreatedResult($"/office/{result.Id}", result);
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogWarning(ex, "Invalid argument provided when creating office.");
-            return new BadRequestObjectResult(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating office.");
-            return new BadRequestObjectResult(ex.Message);
-        }
-    }
-
     [Function("PutOffice")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "office")] HttpRequest req)
     {
@@ -90,6 +54,8 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
             {
                 return new BadRequestObjectResult("Invalid request body.");
             }
+
+            req.ValidateOfficeId(officeModel.Id);
 
             OfficeModel result = await _officeService.Update(officeModel);
             return new OkObjectResult(result);

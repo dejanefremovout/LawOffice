@@ -1,10 +1,11 @@
+using CaseManagement.Api.Extensions;
+using CaseManagement.Application.Services;
+using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using CaseManagement.Application.Services;
-using CaseManagement.Domain.ViewModels;
 
 namespace CaseManagement.Api.Functions;
 
@@ -14,14 +15,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     private readonly ICaseService _caseService = caseService;
 
     [Function("GetCase")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{officeId}/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{caseId}")] HttpRequest req, string caseId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(caseId))
             {
@@ -50,14 +48,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     }
 
     [Function("GetAllCases")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case")] HttpRequest req)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             IEnumerable<CaseModel> result = await _caseService.GetAll(officeId);
 
@@ -88,6 +83,8 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(caseModel.OfficeId);
+
             CaseModel result = await _caseService.Create(caseModel);
             return new CreatedResult($"/case/{result.Id}", result);
         }
@@ -116,6 +113,8 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(caseModel.OfficeId);
+
             CaseModel result = await _caseService.Update(caseModel);
             return new OkObjectResult(result);
         }
@@ -132,14 +131,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     }
 
     [Function("DeleteCase")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "case/{officeId}/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "case/{caseId}")] HttpRequest req, string caseId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(caseId))
             {

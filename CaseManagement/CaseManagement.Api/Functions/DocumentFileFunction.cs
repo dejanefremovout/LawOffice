@@ -1,10 +1,11 @@
+using CaseManagement.Api.Extensions;
+using CaseManagement.Application.Services;
+using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using CaseManagement.Application.Services;
-using CaseManagement.Domain.ViewModels;
 
 namespace CaseManagement.Api.Functions;
 
@@ -14,14 +15,11 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     private readonly IDocumentFileService _documentFileService = documentFileService;
 
     [Function("GetDocumentFile")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/{officeId}/{documentFileId}")] HttpRequest req, string officeId, string documentFileId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/{documentFileId}")] HttpRequest req, string documentFileId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(documentFileId))
             {
@@ -50,14 +48,11 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     }
 
     [Function("GetAllDocumentFiles")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/{officeId}/case/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/case/{caseId}")] HttpRequest req, string caseId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(caseId))
             {
@@ -93,6 +88,8 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(documentFileModel.OfficeId);
+
             DocumentFileModel result = await _documentFileService.Create(documentFileModel);
             return new CreatedResult($"/documentFile/{result.Id}", result);
         }
@@ -121,6 +118,8 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(documentFileModel.OfficeId);
+
             DocumentFileModel result = await _documentFileService.Update(documentFileModel);
             return new OkObjectResult(result);
         }
@@ -137,14 +136,11 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
     }
 
     [Function("DeleteDocumentFile")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "documentFile/{officeId}/{documentFileId}")] HttpRequest req, string officeId, string documentFileId)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "documentFile/{documentFileId}")] HttpRequest req, string documentFileId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(documentFileId))
             {

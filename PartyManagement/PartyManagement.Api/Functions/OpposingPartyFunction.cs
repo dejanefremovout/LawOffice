@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using PartyManagement.Api.Extensions;
 using PartyManagement.Application.Services;
 using PartyManagement.Domain.ViewModels;
 
@@ -14,14 +15,11 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     private readonly IOpposingPartyService _opposingPartyService = opposingPartyService;
 
     [Function("GetOpposingParty")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{officeId}/{opposingPartyId}")] HttpRequest req, string officeId, string opposingPartyId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{opposingPartyId}")] HttpRequest req, string opposingPartyId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(opposingPartyId))
             {
@@ -45,14 +43,11 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     }
 
     [Function("GetAllOpposingParties")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty")] HttpRequest req)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             IEnumerable<PartyModel> result = await _opposingPartyService.GetAll(officeId);
 
@@ -83,6 +78,8 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(opposingPartyModel.OfficeId);
+
             PartyModel result = await _opposingPartyService.Create(opposingPartyModel);
             return new CreatedResult($"/opposingParty/{result.OfficeId}/{result.Id}", result);
         }
@@ -110,6 +107,8 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
             {
                 return new BadRequestObjectResult("Invalid request body.");
             }
+
+            req.ValidateOfficeId(opposingPartyModel.OfficeId);
 
             PartyModel result = await _opposingPartyService.Update(opposingPartyModel);
             return new OkObjectResult(result);

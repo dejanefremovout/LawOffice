@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using PartyManagement.Api.Extensions;
 using PartyManagement.Application.Services;
 using PartyManagement.Domain.ViewModels;
 
@@ -14,14 +15,11 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     private readonly IClientService _clientService = clientService;
 
     [Function("GetClient")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{officeId}/{clientId}")] HttpRequest req, string officeId, string clientId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{clientId}")] HttpRequest req, string clientId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(clientId))
             {
@@ -45,14 +43,11 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     }
 
     [Function("GetAllClients")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client")] HttpRequest req)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             IEnumerable<PartyModel> result = await _clientService.GetAll(officeId);
 
@@ -83,6 +78,8 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(clientModel.OfficeId);
+
             PartyModel result = await _clientService.Create(clientModel);
             return new CreatedResult($"/client/{result.OfficeId}/{result.Id}", result);
         }
@@ -110,6 +107,8 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
             {
                 return new BadRequestObjectResult("Invalid request body.");
             }
+
+            req.ValidateOfficeId(clientModel.OfficeId);
 
             PartyModel result = await _clientService.Update(clientModel);
             return new OkObjectResult(result);

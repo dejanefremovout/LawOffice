@@ -1,10 +1,11 @@
+using CaseManagement.Api.Extensions;
+using CaseManagement.Application.Services;
+using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using CaseManagement.Application.Services;
-using CaseManagement.Domain.ViewModels;
 
 namespace CaseManagement.Api.Functions;
 
@@ -14,14 +15,11 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     private readonly IHearingService _hearingService = hearingService;
 
     [Function("GetHearing")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/{officeId}/{hearingId}")] HttpRequest req, string officeId, string hearingId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/{hearingId}")] HttpRequest req, string hearingId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(hearingId))
             {
@@ -50,14 +48,11 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     }
 
     [Function("GetAllHearings")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/{officeId}/case/{caseId}")] HttpRequest req, string officeId, string caseId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/case/{caseId}")] HttpRequest req, string caseId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(caseId))
             {
@@ -93,6 +88,8 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(hearingModel.OfficeId);
+
             HearingModel result = await _hearingService.Create(hearingModel);
             return new CreatedResult($"/hearing/{result.Id}", result);
         }
@@ -121,6 +118,8 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(hearingModel.OfficeId);
+
             HearingModel result = await _hearingService.Update(hearingModel);
             return new OkObjectResult(result);
         }
@@ -137,14 +136,11 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
     }
 
     [Function("DeleteHearing")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "hearing/{officeId}/{hearingId}")] HttpRequest req, string officeId, string hearingId)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "hearing/{hearingId}")] HttpRequest req, string hearingId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrEmpty(hearingId))
             {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OfficeManagement.Api.Extensions;
 using OfficeManagement.Application.Services;
 using OfficeManagement.Domain.ViewModels;
 
@@ -14,14 +15,11 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
     private readonly ILawyerService _lawyerService = lawyerService;
 
     [Function("GetLawyer")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer/{officeId}/{lawyerId}")] HttpRequest req, string officeId, string lawyerId)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer/{lawyerId}")] HttpRequest req, string lawyerId)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             if (string.IsNullOrWhiteSpace(lawyerId))
             {
@@ -50,14 +48,11 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
     }
 
     [Function("GetAllLawyers")]
-    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer/{officeId}")] HttpRequest req, string officeId)
+    public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer")] HttpRequest req)
     {
         try
         {
-            if (string.IsNullOrEmpty(officeId))
-            {
-                return new BadRequestObjectResult("officeId route parameter is required.");
-            }
+            var officeId = req.GetOfficeId();
 
             IEnumerable<LawyerModel> result = await _lawyerService.GetAll(officeId);
 
@@ -88,6 +83,8 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
+            req.ValidateOfficeId(lawyerModel.OfficeId);
+
             LawyerModel result = await _lawyerService.Create(lawyerModel);
             return new CreatedResult($"/lawyer/{result.Id}", result);
         }
@@ -115,6 +112,8 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
             {
                 return new BadRequestObjectResult("Invalid request body.");
             }
+
+            req.ValidateOfficeId(lawyerModel.OfficeId);
 
             LawyerModel result = await _lawyerService.Update(lawyerModel);
             return new OkObjectResult(result);
