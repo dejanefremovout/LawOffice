@@ -55,7 +55,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(officeModel.Id);
+            officeModel = officeModel with { Id = req.GetOfficeId()};
 
             OfficeModel result = await _officeService.Update(officeModel);
             return new OkObjectResult(result);

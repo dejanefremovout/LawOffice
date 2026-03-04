@@ -13,16 +13,16 @@ export class DocumentService {
   /**
    * Get all documents for a specific case
    */
-  getDocuments(officeId: string, caseId: string): Observable<Document[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/${officeId}/case/${caseId}`;
+  getDocuments(caseId: string): Observable<Document[]> {
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/case/${caseId}`;
     return this.http.get<Document[]>(url);
   }
 
   /**
    * Get a specific document by ID
    */
-  getDocument(officeId: string, documentId: string): Observable<Document> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/${officeId}/${documentId}`;
+  getDocument(documentId: string): Observable<Document> {
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/${documentId}`;
     return this.http.get<Document>(url);
   }
 

@@ -13,16 +13,16 @@ export class OpposingPartyService {
   /**
    * Get all opposing parties for a specific office
    */
-  getOpposingParties(officeId: string): Observable<OpposingParty[]> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_OPPOSING_PARTIES(officeId)}`;
+  getOpposingParties(): Observable<OpposingParty[]> {
+    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_OPPOSING_PARTIES}`;
     return this.http.get<OpposingParty[]>(url);
   }
 
   /**
    * Get a specific opposing party by ID
    */
-  getOpposingParty(officeId: string, opposingPartyId: string): Observable<OpposingParty> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_OPPOSING_PARTY(officeId, opposingPartyId)}`;
+  getOpposingParty(opposingPartyId: string): Observable<OpposingParty> {
+    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_OPPOSING_PARTY(opposingPartyId)}`;
     return this.http.get<OpposingParty>(url);
   }
 

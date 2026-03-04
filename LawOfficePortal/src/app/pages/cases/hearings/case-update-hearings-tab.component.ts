@@ -3,7 +3,6 @@ import { CaseUpdateHearingCreateComponent } from './case-update-hearing-create.c
 import { CaseUpdateHearingUpdateComponent } from './case-update-hearing-update.component';
 import { CommonModule } from '@angular/common';
 import { HearingService } from '../../../services/hearing.service';
-import { OfficeService } from '../../../services/office.service';
 import { ActivatedRoute } from '@angular/router';
 import { Hearing } from '../../../models/hearing.model';
 
@@ -19,7 +18,6 @@ export class CaseUpdateHearingsTabComponent implements OnInit {
   private loading = signal<boolean>(false);
   private error = signal<string | null>(null);
   public caseId!: string;
-  public officeId!: string;
   public selectedHearingId!: string;
 
   readonly hearingsList = this.hearings.asReadonly();
@@ -31,26 +29,23 @@ export class CaseUpdateHearingsTabComponent implements OnInit {
 
   constructor(
     private hearingService: HearingService,
-    private officeService: OfficeService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    const officeId = this.officeService.officeId();
     const caseId = this.route.snapshot.paramMap.get('id');
-    if (!officeId || !caseId) {
-      this.error.set('Office ID or Case ID is missing.');
+    if (!caseId) {
+      this.error.set('Case ID is missing.');
       return;
     }
     this.caseId = caseId;
-    this.officeId = officeId;
-    this.loadHearings(officeId, caseId);
+    this.loadHearings(caseId);
   }
 
-  private loadHearings(officeId: string, caseId: string): void {
+  private loadHearings(caseId: string): void {
     this.loading.set(true);
     this.error.set(null);
-    this.hearingService.getHearings(officeId, caseId).subscribe({
+    this.hearingService.getHearings(caseId).subscribe({
       next: (data) => {
         this.hearings.set(data);
         this.loading.set(false);
@@ -74,7 +69,7 @@ export class CaseUpdateHearingsTabComponent implements OnInit {
   onHearingSaved(): void {
     this.showCreateHearing.set(false);
     this.showUpdateHearing.set(false);
-    this.loadHearings(this.officeId, this.caseId);
+    this.loadHearings(this.caseId);
   }
 
   onHearingCancelled(): void {

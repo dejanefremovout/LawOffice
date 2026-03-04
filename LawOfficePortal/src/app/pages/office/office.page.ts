@@ -31,7 +31,6 @@ export class OfficePageComponent implements OnInit {
   readonly isLoading = this.loading.asReadonly();
 
   // Form fields
-  officeId: string = '';
   form: OfficeUpdateForm = {
     name: '',
     address: null,
@@ -43,35 +42,17 @@ export class OfficePageComponent implements OnInit {
     private officeService: OfficeService
   ) {
     effect(() => {
-      // this.officeId = this.officeService.officeId();
-      // if (officeId) {
-      //   this.clientService.getClients(officeId).subscribe({
-      //     next: (clientsList) => this.clients.set(clientsList),
-      //     error: (err) => console.error('Error loading clients:', err)
-      //   });
-      //   this.opposingPartyService.getOpposingParties(officeId).subscribe({
-      //     next: (opposingPartiesList) => this.opposingParties.set(opposingPartiesList),
-      //     error: (err) => console.error('Error loading opposing parties:', err)
-      //   });
-      // }
     });
   }
 
   ngOnInit(): void {
-    this.officeId = this.officeService.officeId()!;
-
-    if (!this.officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      this.loading.set(false);
-      return;
-    }
     this.loadOffice();
   }
 
   private loadOffice(): void {
     this.loading.set(true);
 
-    this.officeService.getOffice(this.officeId).subscribe({
+    this.officeService.getOffice().subscribe({
       next: (officeData) => {
         this.form = {
           name: officeData.name,
@@ -98,7 +79,6 @@ export class OfficePageComponent implements OnInit {
     this.errorBanner.set(null);
 
     const updatedOffice: Office = {
-      id: this.officeId,
       name: this.form.name,
       address: this.form.address || null
     };

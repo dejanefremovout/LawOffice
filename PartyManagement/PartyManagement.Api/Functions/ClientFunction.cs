@@ -78,7 +78,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(clientModel.OfficeId);
+            clientModel = clientModel with { OfficeId = req.GetOfficeId() };
 
             PartyModel result = await _clientService.Create(clientModel);
             return new CreatedResult($"/client/{result.OfficeId}/{result.Id}", result);
@@ -108,7 +108,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(clientModel.OfficeId);
+            clientModel = clientModel with { OfficeId = req.GetOfficeId() };
 
             PartyModel result = await _clientService.Update(clientModel);
             return new OkObjectResult(result);

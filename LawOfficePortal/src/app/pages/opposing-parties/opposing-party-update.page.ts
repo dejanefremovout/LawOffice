@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
-import { OfficeService } from '../../services/office.service';
 import { OpposingParty } from '../../models/opposing-party.model';
 import { OpposingPartyService } from '../../services/opposing-party.service';
 
@@ -36,7 +35,6 @@ export class OpposingPartyUpdatePageComponent implements OnInit {
     private opposingPartyService: OpposingPartyService,
     private router: Router,
     private route: ActivatedRoute,
-    private officeService: OfficeService
   ) {}
 
   ngOnInit(): void {
@@ -53,17 +51,9 @@ export class OpposingPartyUpdatePageComponent implements OnInit {
   }
 
   private loadOpposingParty(id: string): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      this.loading.set(false);
-      return;
-    }
-
     this.loading.set(true);
 
-    this.opposingPartyService.getOpposingParty(officeId, id).subscribe({
+    this.opposingPartyService.getOpposingParty(id).subscribe({
       next: (opposingParty) => {
         this.firstName = opposingParty.firstName;
         this.lastName = opposingParty.lastName;
@@ -82,13 +72,6 @@ export class OpposingPartyUpdatePageComponent implements OnInit {
   }
 
   save(): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      return;
-    }
-
     if (!this.opposingPartyId) {
       this.errorBanner.set('Opposing Party ID is missing.');
       return;
@@ -105,7 +88,6 @@ export class OpposingPartyUpdatePageComponent implements OnInit {
 
     const updatedOpposingParty: OpposingParty = {
       id: this.opposingPartyId,
-      officeId,
       firstName: this.firstName,
       lastName: this.lastName,
       address: this.address || null,

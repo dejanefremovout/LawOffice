@@ -13,7 +13,6 @@ import { HearingService } from '../../../services/hearing.service';
 })
 export class CaseUpdateHearingCreateComponent {
   @Input() caseId!: string;
-  @Input() officeId!: string;
   @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 
@@ -31,8 +30,8 @@ export class CaseUpdateHearingCreateComponent {
   constructor(private hearingService: HearingService) {}
 
   save(): void {
-    if (!this.caseId || !this.officeId) {
-      this.errorBanner.set('Case ID or Office ID is missing.');
+    if (!this.caseId) {
+      this.errorBanner.set('Case ID is missing.');
       return;
     }
 
@@ -49,7 +48,6 @@ export class CaseUpdateHearingCreateComponent {
 
     const newHearing = {
       caseId: this.caseId,
-      officeId: this.officeId,
       courtroom: this.courtroom,
       description: this.description,
       date: hearingDate,

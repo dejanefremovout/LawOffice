@@ -39,7 +39,6 @@
 	</ng-container>
 	<ng-container #createLawyer *ngIf="showCreateLawyer()">
 		<app-lawyer-create
-			[officeId]="officeId"
 			(saved)="onLawyerSaved()"
 			(cancelled)="onLawyerCancelled()"
 		></app-lawyer-create>
@@ -47,7 +46,6 @@
 	<ng-container #updateLawyer *ngIf="showUpdateLawyer()">
 		<app-lawyer-update
 			[lawyerId]="selectedLawyerId"
-			[officeId]="officeId"
 			(saved)="onLawyerSaved()"
 			(cancelled)="onLawyerCancelled()"
 		></app-lawyer-update>

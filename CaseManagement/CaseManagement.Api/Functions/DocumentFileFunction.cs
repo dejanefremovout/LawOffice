@@ -3,6 +3,7 @@ using CaseManagement.Application.Services;
 using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -88,7 +89,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(documentFileModel.OfficeId);
+            documentFileModel = documentFileModel with { OfficeId = req.GetOfficeId() };
 
             DocumentFileModel result = await _documentFileService.Create(documentFileModel);
             return new CreatedResult($"/documentFile/{result.Id}", result);
@@ -118,7 +119,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(documentFileModel.OfficeId);
+            documentFileModel = documentFileModel with { OfficeId = req.GetOfficeId() };
 
             DocumentFileModel result = await _documentFileService.Update(documentFileModel);
             return new OkObjectResult(result);

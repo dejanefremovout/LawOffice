@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { OfficeService } from '../../services/office.service';
 import { OpposingPartyService } from '../../services/opposing-party.service';
 import { OpposingParty } from '../../models/opposing-party.model';
 
@@ -32,17 +31,9 @@ export class OpposingPartyCreatePageComponent {
   constructor(
     private opposingPartyService: OpposingPartyService,
     private router: Router,
-    private officeService: OfficeService
   ) {}
 
   save(): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      return;
-    }
-
     // Basic validation
     if (!this.firstName || !this.lastName) {
       this.errorBanner.set('First Name and Last Name are required fields.');
@@ -53,7 +44,6 @@ export class OpposingPartyCreatePageComponent {
     this.errorBanner.set(null);
 
     const newOpposingParty: Omit<OpposingParty, 'id'> = {
-      officeId,
       firstName: this.firstName,
       lastName: this.lastName,
       address: this.address || null,

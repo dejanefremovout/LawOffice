@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { OfficeService } from '../../services/office.service';
 import { CaseService } from '../../services/case.service';
 import { ClientService } from '../../services/client.service';
 import { Case } from '../../models/case.model';
@@ -43,33 +42,22 @@ export class CaseCreatePageComponent {
   constructor(
     private caseService: CaseService,
     private router: Router,
-    private officeService: OfficeService,
     private clientService: ClientService,
     private opposingPartyService: OpposingPartyService
   ) {
     effect(() => {
-      const officeId = this.officeService.officeId();
-      if (officeId) {
-        this.clientService.getClients(officeId).subscribe({
-          next: (clients) => this.clients.set(clients),
-          error: (err) => console.error('Error loading clients:', err)
-        });
-        this.opposingPartyService.getOpposingParties(officeId).subscribe({
-          next: (opposingParties) => this.opposingParties.set(opposingParties),
-          error: (err) => console.error('Error loading opposing parties:', err)
-        });
-      }
+      this.clientService.getClients().subscribe({
+        next: (clients) => this.clients.set(clients),
+        error: (err) => console.error('Error loading clients:', err)
+      });
+      this.opposingPartyService.getOpposingParties().subscribe({
+        next: (opposingParties) => this.opposingParties.set(opposingParties),
+        error: (err) => console.error('Error loading opposing parties:', err)
+      });
     });
   }
 
   save(): void {
-    const officeId = this.officeService.officeId();
-
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      return;
-    }
-
     if (!this.identificationNumber || !this.clientIds.length) {
       this.errorBanner.set('Identification Number and Clients are required fields.');
       return;
@@ -79,7 +67,6 @@ export class CaseCreatePageComponent {
     this.errorBanner.set(null);
 
     const newCase: Omit<Case, 'id'> = {
-      officeId,
       clientIds: this.clientIds,
       opposingPartyIds: this.opposingPartyIds,
       identificationNumber: this.identificationNumber,

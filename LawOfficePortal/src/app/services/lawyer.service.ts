@@ -13,16 +13,16 @@ export class LawyerService {
   /**
    * Get all lawyers for a specific case
    */
-  getLawyers(officeId: string): Observable<Lawyer[]> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer/${officeId}`;
+  getLawyers(): Observable<Lawyer[]> {
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer`;
     return this.http.get<Lawyer[]>(url);
   }
 
   /**
    * Get a specific lawyer by ID
    */
-  getLawyer(officeId: string, lawyerId: string): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer/${officeId}/${lawyerId}`;
+  getLawyer(lawyerId: string): Observable<Lawyer> {
+    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer/${lawyerId}`;
     return this.http.get<Lawyer>(url);
   }
 

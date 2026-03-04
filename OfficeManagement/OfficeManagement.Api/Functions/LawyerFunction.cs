@@ -83,7 +83,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(lawyerModel.OfficeId);
+            lawyerModel = lawyerModel with { OfficeId = req.GetOfficeId() };
 
             LawyerModel result = await _lawyerService.Create(lawyerModel);
             return new CreatedResult($"/lawyer/{result.Id}", result);
@@ -113,7 +113,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(lawyerModel.OfficeId);
+            lawyerModel = lawyerModel with { OfficeId = req.GetOfficeId() };
 
             LawyerModel result = await _lawyerService.Update(lawyerModel);
             return new OkObjectResult(result);

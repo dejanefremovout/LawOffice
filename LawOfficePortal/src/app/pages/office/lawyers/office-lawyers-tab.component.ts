@@ -3,8 +3,6 @@ import { LawyerCreateComponent } from './office-lawyer-create.component';
 import { LawyerUpdateComponent } from './office-lawyer-update.component';
 import { CommonModule } from '@angular/common';
 import { LawyerService } from '../../../services/lawyer.service';
-import { OfficeService } from '../../../services/office.service';
-import { ActivatedRoute } from '@angular/router';
 import { Lawyer } from '../../../models/lawyer.model';
 
 @Component({
@@ -18,7 +16,6 @@ export class OfficeLawyersTabComponent implements OnInit {
   private lawyers = signal<Lawyer[]>([]);
   private loading = signal<boolean>(false);
   private error = signal<string | null>(null);
-  public officeId!: string;
   public selectedLawyerId!: string;
 
   readonly lawyersList = this.lawyers.asReadonly();
@@ -30,24 +27,16 @@ export class OfficeLawyersTabComponent implements OnInit {
 
   constructor(
     private lawyerService: LawyerService,
-    private officeService: OfficeService,
-    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    const officeId = this.officeService.officeId();
-    if (!officeId) {
-      this.error.set('Office ID is missing.');
-      return;
-    }
-    this.officeId = officeId;
-    this.loadLawyers(officeId);
+    this.loadLawyers();
   }
 
-  private loadLawyers(officeId: string): void {
+  private loadLawyers(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.lawyerService.getLawyers(officeId).subscribe({
+    this.lawyerService.getLawyers().subscribe({
       next: (data) => {
         this.lawyers.set(data);
         this.loading.set(false);
@@ -71,7 +60,7 @@ export class OfficeLawyersTabComponent implements OnInit {
   onLawyerSaved(): void {
     this.showCreateLawyer.set(false);
     this.showUpdateLawyer.set(false);
-    this.loadLawyers(this.officeId);
+    this.loadLawyers();
   }
 
   onLawyerCancelled(): void {

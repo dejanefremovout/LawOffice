@@ -3,7 +3,6 @@
  */
 export interface Case {
   id: string;
-  officeId: string;
   clientIds: string[];
   opposingPartyIds: string[];
   identificationNumber: string;

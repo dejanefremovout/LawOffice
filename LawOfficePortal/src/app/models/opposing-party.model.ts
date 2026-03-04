@@ -4,7 +4,6 @@
   
 export interface OpposingParty {
   id: string;
-  officeId: string;
   firstName: string;
   lastName: string;
   address: string | null;

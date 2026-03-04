@@ -13,7 +13,6 @@ import { LawyerService } from '../../../services/lawyer.service';
 })
 export class LawyerUpdateComponent {
   @Input() lawyerId!: string;
-  @Input() officeId!: string;
   @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 
@@ -31,17 +30,12 @@ export class LawyerUpdateComponent {
   constructor(private lawyerService: LawyerService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    if (!this.lawyerId || !this.officeId) {
-      this.errorBanner.set('Lawyer ID or Office ID is missing.');
-      return;
-    }
-
     this.loadLawyer();
   }
 
   private loadLawyer(): void {
     this.saving.set(true);
-    this.lawyerService.getLawyer(this.officeId, this.lawyerId).subscribe({
+    this.lawyerService.getLawyer(this.lawyerId).subscribe({
       next: (lawyer) => {
         this.firstName = lawyer.firstName;
         this.lastName = lawyer.lastName;
@@ -59,8 +53,8 @@ export class LawyerUpdateComponent {
   }
 
   save(): void {
-    if (!this.lawyerId || !this.officeId) {
-      this.errorBanner.set('Lawyer ID or Office ID is missing.');
+    if (!this.lawyerId) {
+      this.errorBanner.set('Lawyer ID is missing.');
       return;
     }
 
@@ -74,7 +68,6 @@ export class LawyerUpdateComponent {
 
     const updatedLawyer = {
       id: this.lawyerId,
-      officeId: this.officeId,
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email

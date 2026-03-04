@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -12,7 +12,6 @@ import { LawyerService } from '../../../services/lawyer.service';
   styleUrls: ['./office-lawyer-create.component.scss']
 })
 export class LawyerCreateComponent {
-  @Input() officeId!: string;
   @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 
@@ -30,11 +29,6 @@ export class LawyerCreateComponent {
   constructor(private lawyerService: LawyerService) {}
 
   save(): void {
-    if (!this.officeId) {
-      this.errorBanner.set('Office ID is missing.');
-      return;
-    }
-
     if (!this.firstName || !this.lastName || !this.email ) {
       this.errorBanner.set('All fields are required.');
       return;
@@ -44,7 +38,6 @@ export class LawyerCreateComponent {
     this.errorBanner.set(null);
 
     const newLawyer = {
-      officeId: this.officeId,
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email

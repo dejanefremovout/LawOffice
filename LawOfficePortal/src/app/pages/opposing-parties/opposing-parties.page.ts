@@ -2,7 +2,6 @@ import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { signal, computed } from '@angular/core';
-import { OfficeService } from '../../services/office.service';
 import { OpposingPartyService } from '../../services/opposing-party.service';
 import { OpposingParty } from '../../models/opposing-party.model';
 
@@ -24,27 +23,23 @@ export class OpposingPartiesPageComponent implements OnInit {
   readonly hasOpposingParties = computed(() => this.opposingPartiesList().length > 0);
 
   constructor(
-    private officeService: OfficeService,
     private opposingPartyService: OpposingPartyService,
     private router: Router
   ) {
     // Auto-fetch clients when officeId changes
     effect(() => {
-      const officeId = this.officeService.officeId();
-      if (officeId) {
-        this.loadOpposingParties(officeId);
-      }
+      this.loadOpposingParties();
     });
   }
 
   ngOnInit(): void {
   }
 
-  private loadOpposingParties(officeId: string): void {
+  private loadOpposingParties(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.opposingPartyService.getOpposingParties(officeId).subscribe({
+    this.opposingPartyService.getOpposingParties().subscribe({
       next: (data) => {
         this.opposingParties.set(data);
         this.loading.set(false);

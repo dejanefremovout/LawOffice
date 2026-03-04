@@ -13,16 +13,16 @@ export class CaseService {
   /**
    * Get all cases for a specific office
    */
-  getCases(officeId: string): Observable<Case[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}${API_ENDPOINTS.GET_CASES(officeId)}`;
+  getCases(): Observable<Case[]> {
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}${API_ENDPOINTS.GET_CASES}`;
     return this.http.get<Case[]>(url);
   }
 
   /**
    * Get a specific case by ID
    */
-  getCase(officeId: string, caseId: string): Observable<Case> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}${API_ENDPOINTS.GET_CASE(officeId, caseId)}`;
+  getCase(caseId: string): Observable<Case> {
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}${API_ENDPOINTS.GET_CASE(caseId)}`;
     return this.http.get<Case>(url);
   }
 

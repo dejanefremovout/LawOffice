@@ -1,7 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DocumentService } from '../../../services/document.service';
-import { OfficeService } from '../../../services/office.service';
 import { ActivatedRoute } from '@angular/router';
 import { Document } from '../../../models/document.model';
 
@@ -17,7 +16,6 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
   private loading = signal<boolean>(false);
   private error = signal<string | null>(null);
   public caseId!: string;
-  public officeId!: string;
   public selectedDocumentId!: string;
 
   readonly documentsList = this.documents.asReadonly();
@@ -27,26 +25,23 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
 
   constructor(
     private documentService: DocumentService,
-    private officeService: OfficeService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    const officeId = this.officeService.officeId();
     const caseId = this.route.snapshot.paramMap.get('id');
-    if (!officeId || !caseId) {
-      this.error.set('Office ID or Case ID is missing.');
+    if (!caseId) {
+      this.error.set('Case ID is missing.');
       return;
     }
     this.caseId = caseId;
-    this.officeId = officeId;
-    this.loadDocuments(officeId, caseId);
+    this.loadDocuments(caseId);
   }
 
-  private loadDocuments(officeId: string, caseId: string): void {
+  private loadDocuments(caseId: string): void {
     this.loading.set(true);
     this.error.set(null);
-    this.documentService.getDocuments(officeId, caseId).subscribe({
+    this.documentService.getDocuments(caseId).subscribe({
       next: (data) => {
         this.documents.set(data);
         this.loading.set(false);
@@ -63,33 +58,9 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
       return;
     }
 
-    this.documentService.getDocument(document.officeId, document.id).subscribe({
+    this.documentService.getDocument(document.id).subscribe({
         next: (document) => {
           this.documentService.downloadFileFromBlob(document.uri!, document.name);
-          
-          // this.documentService.downloadFileFromBlob(document.uri!, document.name).subscribe({
-          //   next: () => {
-          //     this.loadDocuments(this.officeId, this.caseId);
-          //     this.loading.set(false);
-          //   },
-          //   error: (err) => {
-          //     this.loading.set(false);
-          //     let errorMsg = 'Failed to upload document.';
-
-          //     if (err.error?.message) {
-          //       errorMsg += err.error.message;
-          //     } else if (err.error?.title) {
-          //       errorMsg += err.error.title;
-          //     } else if (err.message) {
-          //       errorMsg += err.message;
-          //     } else {
-          //       errorMsg += 'Please try again.';
-          //     }
-
-          //     this.error.set(errorMsg);
-          //     console.error('Error uploading document:', err);
-          //   }
-          // });
         },
         error: (err) => {
           this.loading.set(false);
@@ -121,7 +92,6 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
     if (file) {
       const newDocument = {
         caseId: this.caseId,
-        officeId: this.officeId,
         name: file.name,
       };
 
@@ -129,7 +99,7 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
         next: (document) => {
           this.documentService.uploadFileToBlob(document.uri!, file, file.type).subscribe({
             next: () => {
-              this.loadDocuments(this.officeId, this.caseId);
+              this.loadDocuments(this.caseId);
               this.loading.set(false);
             },
             error: (err) => {

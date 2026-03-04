@@ -46,7 +46,6 @@
 	<ng-container #createHearing *ngIf="showCreateHearing()">
 		<app-case-update-hearing-create
 			[caseId]="caseId"
-			[officeId]="officeId"
 			(saved)="onHearingSaved()"
 			(cancelled)="onHearingCancelled()"
 		></app-case-update-hearing-create>
@@ -55,7 +54,6 @@
 		<app-case-update-hearing-update
 			[hearingId]="selectedHearingId"
 			[caseId]="caseId"
-			[officeId]="officeId"
 			(saved)="onHearingSaved()"
 			(cancelled)="onHearingCancelled()"
 		></app-case-update-hearing-update>

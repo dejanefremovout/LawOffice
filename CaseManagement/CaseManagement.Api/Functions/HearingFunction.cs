@@ -88,7 +88,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(hearingModel.OfficeId);
+            hearingModel = hearingModel with { OfficeId = req.GetOfficeId() };
 
             HearingModel result = await _hearingService.Create(hearingModel);
             return new CreatedResult($"/hearing/{result.Id}", result);
@@ -118,7 +118,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(hearingModel.OfficeId);
+            hearingModel = hearingModel with { OfficeId = req.GetOfficeId() };
 
             HearingModel result = await _hearingService.Update(hearingModel);
             return new OkObjectResult(result);

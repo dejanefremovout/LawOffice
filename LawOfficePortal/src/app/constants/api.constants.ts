@@ -56,22 +56,21 @@ export const API_BASE_URL = {
 export const REDIRECT_URL = getRedirectUrl();
 
 export const API_ENDPOINTS = {
-  GET_OFFICE: (officeId: string) => `/office/${officeId}`,
-  CREATE_OFFICE: '/office',
+  GET_OFFICE: `/office`,
   UPDATE_OFFICE: '/office',
 
-  GET_CLIENTS: (officeId: string) => `/client/${officeId}`,
-  GET_CLIENT: (officeId: string, clientId: string) => `/client/${officeId}/${clientId}`,
+  GET_CLIENTS: `/client`,
+  GET_CLIENT: (clientId: string) => `/client/${clientId}`,
   CREATE_CLIENT: '/client',
   UPDATE_CLIENT: '/client',
 
-  GET_OPPOSING_PARTIES: (officeId: string) => `/opposingParty/${officeId}`,
-  GET_OPPOSING_PARTY: (officeId: string, opposingPartyId: string) => `/opposingParty/${officeId}/${opposingPartyId}`,
+  GET_OPPOSING_PARTIES: `/opposingParty`,
+  GET_OPPOSING_PARTY: (opposingPartyId: string) => `/opposingParty/${opposingPartyId}`,
   CREATE_OPPOSING_PARTY: '/opposingParty',
   UPDATE_OPPOSING_PARTY: '/opposingParty',
 
-  GET_CASES: (officeId: string) => `/case/${officeId}`,
-  GET_CASE: (officeId: string, caseId: string) => `/case/${officeId}/${caseId}`,
+  GET_CASES: `/case`,
+  GET_CASE: (caseId: string) => `/case/${caseId}`,
   CREATE_CASE: '/case',
   UPDATE_CASE: '/case'
 };

@@ -2,7 +2,6 @@ import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { signal, computed } from '@angular/core';
-import { OfficeService } from '../../services/office.service';
 import { CaseService } from '../../services/case.service';
 import { Case } from '../../models/case.model';
 
@@ -24,27 +23,22 @@ export class CasesPageComponent implements OnInit {
   readonly hasCases = computed(() => this.casesList().length > 0);
 
   constructor(
-    private officeService: OfficeService,
     private caseService: CaseService,
     private router: Router
   ) {
-    // Auto-fetch cases when officeId changes
     effect(() => {
-      const officeId = this.officeService.officeId();
-      if (officeId) {
-        this.loadCases(officeId);
-      }
+      this.loadCases();
     });
   }
 
   ngOnInit(): void {
   }
 
-  private loadCases(officeId: string): void {
+  private loadCases(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.caseService.getCases(officeId).subscribe({
+    this.caseService.getCases().subscribe({
       next: (data) => {
         this.cases.set(data);
         this.loading.set(false);

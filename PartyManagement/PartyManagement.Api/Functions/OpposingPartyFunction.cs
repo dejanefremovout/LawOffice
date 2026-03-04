@@ -78,7 +78,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(opposingPartyModel.OfficeId);
+            opposingPartyModel = opposingPartyModel with { OfficeId = req.GetOfficeId() };
 
             PartyModel result = await _opposingPartyService.Create(opposingPartyModel);
             return new CreatedResult($"/opposingParty/{result.OfficeId}/{result.Id}", result);
@@ -108,7 +108,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(opposingPartyModel.OfficeId);
+            opposingPartyModel = opposingPartyModel with { OfficeId = req.GetOfficeId() };
 
             PartyModel result = await _opposingPartyService.Update(opposingPartyModel);
             return new OkObjectResult(result);

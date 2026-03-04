@@ -13,16 +13,16 @@ export class HearingService {
   /**
    * Get all hearings for a specific case
    */
-  getHearings(officeId: string, caseId: string): Observable<Hearing[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/${officeId}/case/${caseId}`;
+  getHearings(caseId: string): Observable<Hearing[]> {
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/case/${caseId}`;
     return this.http.get<Hearing[]>(url);
   }
 
   /**
    * Get a specific hearing by ID
    */
-  getHearing(officeId: string, hearingId: string): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/${officeId}/${hearingId}`;
+  getHearing(hearingId: string): Observable<Hearing> {
+    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/${hearingId}`;
     return this.http.get<Hearing>(url);
   }
 

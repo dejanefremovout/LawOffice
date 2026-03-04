@@ -13,16 +13,16 @@ export class ClientService {
   /**
    * Get all clients for a specific office
    */
-  getClients(officeId: string): Observable<Client[]> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_CLIENTS(officeId)}`;
+  getClients(): Observable<Client[]> {
+    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_CLIENTS}`;
     return this.http.get<Client[]>(url);
   }
 
   /**
    * Get a specific client by ID
    */
-  getClient(officeId: string, clientId: string): Observable<Client> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_CLIENT(officeId, clientId)}`;
+  getClient(clientId: string): Observable<Client> {
+    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_CLIENT(clientId)}`;
     return this.http.get<Client>(url);
   }
 

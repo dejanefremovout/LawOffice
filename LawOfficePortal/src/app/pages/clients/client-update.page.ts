@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
-import { OfficeService } from '../../services/office.service';
 import { ClientService } from '../../services/client.service';
 import { Client } from '../../models/client.model';
 
@@ -36,7 +35,6 @@ export class ClientUpdatePageComponent implements OnInit {
     private clientService: ClientService,
     private router: Router,
     private route: ActivatedRoute,
-    private officeService: OfficeService
   ) {}
 
   ngOnInit(): void {
@@ -53,17 +51,9 @@ export class ClientUpdatePageComponent implements OnInit {
   }
 
   private loadClient(id: string): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      this.loading.set(false);
-      return;
-    }
-
     this.loading.set(true);
 
-    this.clientService.getClient(officeId, id).subscribe({
+    this.clientService.getClient(id).subscribe({
       next: (client) => {
         this.firstName = client.firstName;
         this.lastName = client.lastName;
@@ -82,13 +72,6 @@ export class ClientUpdatePageComponent implements OnInit {
   }
 
   save(): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      return;
-    }
-
     if (!this.clientId) {
       this.errorBanner.set('Client ID is missing.');
       return;
@@ -105,7 +88,6 @@ export class ClientUpdatePageComponent implements OnInit {
 
     const updatedClient: Client = {
       id: this.clientId,
-      officeId,
       firstName: this.firstName,
       lastName: this.lastName,
       address: this.address || null,

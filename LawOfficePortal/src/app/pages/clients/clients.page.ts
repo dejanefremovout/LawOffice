@@ -2,7 +2,6 @@ import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { signal, computed } from '@angular/core';
-import { OfficeService } from '../../services/office.service';
 import { ClientService } from '../../services/client.service';
 import { Client } from '../../models/client.model';
 
@@ -24,27 +23,23 @@ export class ClientsPageComponent implements OnInit {
   readonly hasClients = computed(() => this.clientsList().length > 0);
 
   constructor(
-    private officeService: OfficeService,
     private clientService: ClientService,
     private router: Router
   ) {
     // Auto-fetch clients when officeId changes
     effect(() => {
-      const officeId = this.officeService.officeId();
-      if (officeId) {
-        this.loadClients(officeId);
-      }
+      this.loadClients();
     });
   }
 
   ngOnInit(): void {
   }
 
-  private loadClients(officeId: string): void {
+  private loadClients(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.clientService.getClients(officeId).subscribe({
+    this.clientService.getClients().subscribe({
       next: (data) => {
         this.clients.set(data);
         this.loading.set(false);

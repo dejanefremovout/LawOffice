@@ -14,7 +14,6 @@ import { HearingService } from '../../../services/hearing.service';
 export class CaseUpdateHearingUpdateComponent {
   @Input() hearingId!: string;
   @Input() caseId!: string;
-  @Input() officeId!: string;
   @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 
@@ -33,8 +32,8 @@ export class CaseUpdateHearingUpdateComponent {
   constructor(private hearingService: HearingService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    if (!this.hearingId || !this.caseId || !this.officeId) {
-      this.errorBanner.set('Hearing ID, Case ID, or Office ID is missing.');
+    if (!this.hearingId || !this.caseId) {
+      this.errorBanner.set('Hearing ID or Case ID is missing.');
       return;
     }
 
@@ -43,7 +42,7 @@ export class CaseUpdateHearingUpdateComponent {
 
   private loadHearing(): void {
     this.saving.set(true);
-    this.hearingService.getHearing(this.officeId, this.hearingId).subscribe({
+    this.hearingService.getHearing(this.hearingId).subscribe({
       next: (hearing) => {
         this.courtroom = hearing.courtroom;
         this.description = hearing.description;
@@ -62,8 +61,8 @@ export class CaseUpdateHearingUpdateComponent {
   }
 
   save(): void {
-    if (!this.hearingId || !this.caseId || !this.officeId) {
-      this.errorBanner.set('Hearing ID, Case ID, or Office ID is missing.');
+    if (!this.hearingId || !this.caseId) {
+      this.errorBanner.set('Hearing ID or Case ID is missing.');
       return;
     }
 
@@ -81,7 +80,6 @@ export class CaseUpdateHearingUpdateComponent {
     const updatedHearing = {
       id: this.hearingId,
       caseId: this.caseId,
-      officeId: this.officeId,
       courtroom: this.courtroom,
       description: this.description,
       date: hearingDate,

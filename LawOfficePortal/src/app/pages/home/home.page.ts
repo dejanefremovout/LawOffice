@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { OfficeService } from '../../services/office.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-home-page',
@@ -7,10 +6,4 @@ import { OfficeService } from '../../services/office.service';
   styleUrl: './home.page.scss'
 })
 export class HomePageComponent {
-  // Inject the office service
-  protected readonly officeService = inject(OfficeService);
-
-  // Access the office ID signal directly in the component
-  protected readonly officeId = this.officeService.officeId;
-  protected readonly hasOfficeId = this.officeService.hasOfficeId;
 }

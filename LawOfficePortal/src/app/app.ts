@@ -1,6 +1,5 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { OfficeService } from './services/office.service';
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { InteractionStatus } from '@azure/msal-browser';
 import { filter } from 'rxjs';
@@ -12,17 +11,12 @@ import { filter } from 'rxjs';
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
-  private readonly officeService = inject(OfficeService);
   private readonly authService = inject(MsalService);
   private readonly msalBroadcastService = inject(MsalBroadcastService);
   protected readonly isMenuCollapsed = signal(false);
   protected readonly isLoggedIn = signal(false);
 
   constructor() {
-    // Initialize office ID on app start - TODO: Move to login flow
-    if (!this.officeService.hasOfficeId()) {
-      this.officeService.setOfficeId('59769a1c-3e26-4523-a6b5-6040e5b49edb');
-    }
   }
 
   toggleMenu(): void {

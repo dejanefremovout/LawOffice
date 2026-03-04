@@ -83,7 +83,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(caseModel.OfficeId);
+            caseModel = caseModel with { OfficeId = req.GetOfficeId() };
 
             CaseModel result = await _caseService.Create(caseModel);
             return new CreatedResult($"/case/{result.Id}", result);
@@ -113,7 +113,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
                 return new BadRequestObjectResult("Invalid request body.");
             }
 
-            req.ValidateOfficeId(caseModel.OfficeId);
+            caseModel = caseModel with { OfficeId = req.GetOfficeId() };
 
             CaseModel result = await _caseService.Update(caseModel);
             return new OkObjectResult(result);

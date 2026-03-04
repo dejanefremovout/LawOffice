@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
-import { OfficeService } from '../../services/office.service';
 import { CaseService } from '../../services/case.service';
 import { ClientService } from '../../services/client.service';
 import { OpposingPartyService } from '../../services/opposing-party.service';
@@ -61,20 +60,16 @@ export class CaseUpdatePageComponent implements OnInit {
     private opposingPartyService: OpposingPartyService,
     private router: Router,
     private route: ActivatedRoute,
-    private officeService: OfficeService
   ) {
     effect(() => {
-      const officeId = this.officeService.officeId();
-      if (officeId) {
-        this.clientService.getClients(officeId).subscribe({
-          next: (clientsList) => this.clients.set(clientsList),
-          error: (err) => console.error('Error loading clients:', err)
-        });
-        this.opposingPartyService.getOpposingParties(officeId).subscribe({
-          next: (opposingPartiesList) => this.opposingParties.set(opposingPartiesList),
-          error: (err) => console.error('Error loading opposing parties:', err)
-        });
-      }
+      this.clientService.getClients().subscribe({
+        next: (clientsList) => this.clients.set(clientsList),
+        error: (err) => console.error('Error loading clients:', err)
+      });
+      this.opposingPartyService.getOpposingParties().subscribe({
+        next: (opposingPartiesList) => this.opposingParties.set(opposingPartiesList),
+        error: (err) => console.error('Error loading opposing parties:', err)
+      });
     });
   }
 
@@ -92,17 +87,9 @@ export class CaseUpdatePageComponent implements OnInit {
   }
 
   private loadCase(id: string): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      this.loading.set(false);
-      return;
-    }
-
     this.loading.set(true);
 
-    this.caseService.getCase(officeId, id).subscribe({
+    this.caseService.getCase(id).subscribe({
       next: (caseData) => {
         this.form = {
           identificationNumber: caseData.identificationNumber,
@@ -126,13 +113,6 @@ export class CaseUpdatePageComponent implements OnInit {
   }
 
   save(): void {
-    const officeId = this.officeService.officeId();
-    
-    if (!officeId) {
-      this.errorBanner.set('Office ID is not set. Please select an office first.');
-      return;
-    }
-
     if (!this.caseId) {
       this.errorBanner.set('Case ID is missing.');
       return;
@@ -149,7 +129,6 @@ export class CaseUpdatePageComponent implements OnInit {
 
     const updatedCase: Case = {
       id: this.caseId,
-      officeId,
       clientIds: this.form.clientIds,
       opposingPartyIds: this.form.opposingPartyIds,
       identificationNumber: this.form.identificationNumber,

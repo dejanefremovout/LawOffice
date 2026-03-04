@@ -17,18 +17,4 @@ public static class HttpRequestExtensions
         }
         return officeId;
     }
-
-    public static void ValidateOfficeId(this HttpRequest req, string officeId)
-    {
-        if (string.IsNullOrWhiteSpace(officeId))
-        {
-            throw new ArgumentException("Office Id header cannot be empty.");
-        }
-        var headerOfficeId = req.GetOfficeId();
-        if (string.IsNullOrWhiteSpace(headerOfficeId))
-        {
-            throw new ArgumentException("Office Id header cannot be empty.");
-        }
-        throw new ArgumentException("Office Id is not valid.");
-    }
 }
