@@ -7,6 +7,7 @@ import { MsalModule, MSAL_INSTANCE, MSAL_GUARD_CONFIG, MsalGuardConfiguration, M
 
 import { routes } from './app.routes';
 import { API_BASE_URL, REDIRECT_URL } from './constants/api.constants';
+import { ApimSimulatorInterceptor } from './apim-simulator-interceptor';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
@@ -72,6 +73,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: MSAL_GUARD_CONFIG,
       useFactory: MSALGuardConfigFactory,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApimSimulatorInterceptor,
+      multi: true
     },
     MsalService,
     MsalGuard,

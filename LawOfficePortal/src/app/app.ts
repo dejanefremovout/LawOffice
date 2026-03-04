@@ -44,7 +44,9 @@ export class App implements OnInit {
   }
 
   login() {
-    this.authService.loginRedirect();
+    this.authService.loginRedirect({
+      scopes: ['openid', 'profile', 'api://a9a5990c-f11e-49df-a582-a2c1416456cf/access_as_user']
+    });
   }
 
   logout() {
