@@ -72,5 +72,8 @@ export const API_ENDPOINTS = {
   GET_CASES: `/case`,
   GET_CASE: (caseId: string) => `/case/${caseId}`,
   CREATE_CASE: '/case',
-  UPDATE_CASE: '/case'
+  UPDATE_CASE: '/case',
+  COUNT_CASES: '/cases/count',
+  LAST_CASES: (count: number) => `/cases/last/${count}`,
+  UPCOMING_HEARINGS: (count: number) => `/cases/hearings/${count}`
 };

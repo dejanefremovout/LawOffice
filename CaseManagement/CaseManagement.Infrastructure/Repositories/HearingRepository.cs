@@ -64,6 +64,30 @@ public class HearingRepository(ICosmosService cosmosService) : IHearingRepositor
         return results;
     }
 
+    public async Task<IEnumerable<Hearing>> GetUpcomingHearings(string officeId, int count)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(count);
+
+        var currentDate = DateTime.UtcNow;
+        var queryDefinition = new QueryDefinition(
+            "SELECT TOP @count * FROM c WHERE c.officeId = @officeId AND c.date >= @currentDate ORDER BY c.date ASC")
+            .WithParameter("@officeId", officeId)
+            .WithParameter("@currentDate", currentDate)
+            .WithParameter("@count", count);
+
+        var query = _container.GetItemQueryIterator<Hearing>(queryDefinition);
+        List<Hearing> results = [];
+
+        while (query.HasMoreResults)
+        {
+            var feed = await query.ReadNextAsync();
+            results.AddRange(feed.Resource);
+        }
+
+        return results;
+    }
+
     public async Task Delete(string hearingId, string officeId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(hearingId);

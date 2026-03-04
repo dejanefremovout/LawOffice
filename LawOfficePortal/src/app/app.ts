@@ -1,8 +1,8 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, effect, signal, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
-import { InteractionStatus } from '@azure/msal-browser';
-import { filter } from 'rxjs';
+import { MsalService } from '@azure/msal-angular';
+import { AuthStateService } from './services/auth-state.service';
+import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +12,21 @@ import { filter } from 'rxjs';
 })
 export class App implements OnInit {
   private readonly authService = inject(MsalService);
-  private readonly msalBroadcastService = inject(MsalBroadcastService);
+  private readonly authStateService = inject(AuthStateService);
+  private readonly userService = inject(UserService);
   protected readonly isMenuCollapsed = signal(false);
-  protected readonly isLoggedIn = signal(false);
+  protected readonly isLoggedIn = this.authStateService.isLoggedIn;
+  protected readonly preferredUsername = signal('');
 
   constructor() {
+    effect(() => {
+      if (!this.isLoggedIn()) {
+        this.preferredUsername.set('');
+        return;
+      }
+
+      void this.updateUserClaims();
+    });
   }
 
   toggleMenu(): void {
@@ -32,15 +42,18 @@ export class App implements OnInit {
       console.error('Redirect error:', error);
     }
 
-    this.updateLoginState();
-
-    this.msalBroadcastService.inProgress$
-      .pipe(filter((status) => status === InteractionStatus.None))
-      .subscribe(() => this.updateLoginState());
+    this.authStateService.startMonitoring();
+    this.authStateService.refreshLoginState();
   }
 
-  private updateLoginState(): void {
-    this.isLoggedIn.set(this.authService.instance.getAllAccounts().length > 0);
+  private async updateUserClaims(): Promise<void> {
+    if (!this.isLoggedIn()) {
+      this.preferredUsername.set('');
+      return;
+    }
+
+    const preferredUsername = await this.userService.getPreferredUsername();
+    this.preferredUsername.set(preferredUsername ?? '');
   }
 
   login() {

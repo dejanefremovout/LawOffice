@@ -11,4 +11,6 @@ public interface IPartyService
     Task<PartyModel> Create(PartyCreateModel partyModel);
 
     Task<PartyModel> Update(PartyModel partyModel);
+
+    Task<int> GetCount(string officeId);
 }

@@ -4,9 +4,10 @@ using CaseManagement.Domain.ViewModels;
 
 namespace CaseManagement.Application.Services;
 
-public class CaseService(ICaseRepository caseRepository) : ICaseService
+public class CaseService(ICaseRepository caseRepository, IHearingRepository hearingRepository) : ICaseService
 {
     private readonly ICaseRepository _caseRepository = caseRepository;
+    private readonly IHearingRepository _hearingRepository = hearingRepository;
 
     public async Task<CaseModel?> Get(string caseId, string officeId)
     {
@@ -50,5 +51,34 @@ public class CaseService(ICaseRepository caseRepository) : ICaseService
         _ = await _caseRepository.Get(caseId, officeId) ?? throw new ArgumentException("Case not found");
 
         await _caseRepository.Delete(caseId, officeId);
+    }
+
+    public async Task<CaseCountModel> GetCount(string officeId)
+    {
+        return new CaseCountModel
+        {
+            TotalCases = await _caseRepository.GetTotalCount(officeId),
+            ActiveCases = await _caseRepository.GetActiveCount(officeId)
+        };
+    }
+
+    public async Task<IEnumerable<CaseModel>> GetLastActiveCases(string officeId, int count)
+    {
+        IEnumerable<Case> cases = await _caseRepository.GetLastActiveCases(officeId, count);
+
+        return cases.Select(x => new CaseModel(x));
+    }
+
+    public async Task<IEnumerable<CaseHearingModel>> GetCasesWithUpcomingHearings(string officeId, int count)
+    {
+        IEnumerable<Hearing> hearings = await _hearingRepository.GetUpcomingHearings(officeId, count);
+        if (!hearings.Any())
+        {
+            return [];
+        }
+
+        IEnumerable<Case> cases = await _caseRepository.GetByIds(officeId, hearings.Select(x => x.CaseId));
+
+        return hearings.Select(hearing => new CaseHearingModel(cases.First(caseItem => caseItem.Id == hearing.CaseId), hearing));
     }
 }

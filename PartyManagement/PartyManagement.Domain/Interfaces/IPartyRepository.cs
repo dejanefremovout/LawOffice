@@ -14,4 +14,6 @@ public interface IPartyRepository : IRepository<Party>
     Task<bool> ExistByIdentificationNumber(string officeId, string identificationNumber, string? currentPartyId = null);
 
     Task<IEnumerable<Party>> GetAll(string officeId);
+
+    Task<int> GetCount(string officeId);
 }

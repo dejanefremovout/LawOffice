@@ -6,4 +6,5 @@ export interface Lawyer {
   firstName: string;
   lastName: string;
   email: string;
+  invitationCode?: string | null;
 }

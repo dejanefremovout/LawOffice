@@ -1,3 +1,46 @@
 .page {
   min-height: 100%;
 }
+
+.case-list li {
+  display: block;
+}
+
+.case-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.case-link:hover {
+  background: var(--panel-hover);
+}
+
+.case-link:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.case-id {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.case-description {
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.empty-case {
+  color: var(--text-muted);
+}

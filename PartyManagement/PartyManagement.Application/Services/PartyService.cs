@@ -55,4 +55,9 @@ public abstract class PartyService(IPartyRepository partyRepository) : IPartySer
 
         return new PartyModel(party);
     }
+
+    public async Task<int> GetCount(string officeId)
+    {
+        return await _partyRepository.GetCount(officeId);
+    }
 }

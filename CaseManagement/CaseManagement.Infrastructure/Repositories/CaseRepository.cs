@@ -63,6 +63,39 @@ public class CaseRepository(ICosmosService cosmosService) : ICaseRepository
         return results;
     }
 
+    public async Task<IEnumerable<Case>> GetByIds(string officeId, IEnumerable<string> caseIds)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+        ArgumentNullException.ThrowIfNull(caseIds);
+
+        List<string> caseIdList = caseIds.ToList();
+        if (!caseIdList.Any())
+        {
+            return [];
+        }
+
+        var idPlaceholders = string.Join(",", Enumerable.Range(0, caseIdList.Count).Select(i => $"@id{i}"));
+        var queryDefinition = new QueryDefinition(
+            $"SELECT * FROM c WHERE c.officeId = @officeId AND c.id IN ({idPlaceholders})")
+            .WithParameter("@officeId", officeId);
+
+        for (int i = 0; i < caseIdList.Count; i++)
+        {
+            _ = queryDefinition.WithParameter($"@id{i}", caseIdList[i]);
+        }
+
+        var query = _container.GetItemQueryIterator<Case>(queryDefinition);
+        List<Case> results = [];
+
+        while (query.HasMoreResults)
+        {
+            var feed = await query.ReadNextAsync();
+            results.AddRange(feed.Resource);
+        }
+
+        return results;
+    }
+
     public async Task Delete(string caseId, string officeId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
@@ -75,5 +108,71 @@ public class CaseRepository(ICosmosService cosmosService) : ICaseRepository
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
         }
+    }
+
+    public async Task<int> GetTotalCount(string officeId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+
+        var queryDefinition = new QueryDefinition(
+            "SELECT VALUE COUNT(1) FROM c WHERE c.officeId = @officeId")
+            .WithParameter("@officeId", officeId);
+
+        var query = _container.GetItemQueryIterator<int>(queryDefinition);
+
+        while (query.HasMoreResults)
+        {
+            var feed = await query.ReadNextAsync();
+            if (feed.Resource.Any())
+            {
+                return feed.Resource.First();
+            }
+        }
+
+        return 0;
+    }
+
+    public async Task<int> GetActiveCount(string officeId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+
+        var queryDefinition = new QueryDefinition(
+            "SELECT VALUE COUNT(1) FROM c WHERE c.officeId = @officeId AND c.active = true")
+            .WithParameter("@officeId", officeId);
+
+        var query = _container.GetItemQueryIterator<int>(queryDefinition);
+
+        while (query.HasMoreResults)
+        {
+            var feed = await query.ReadNextAsync();
+            if (feed.Resource.Any())
+            {
+                return feed.Resource.First();
+            }
+        }
+
+        return 0;
+    }
+
+    public async Task<IEnumerable<Case>> GetLastActiveCases(string officeId, int count)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(count);
+
+        var queryDefinition = new QueryDefinition(
+            "SELECT TOP @count * FROM c WHERE c.officeId = @officeId AND c.active = true ORDER BY c._ts DESC")
+            .WithParameter("@officeId", officeId)
+            .WithParameter("@count", count);
+
+        var query = _container.GetItemQueryIterator<Case>(queryDefinition);
+        List<Case> results = [];
+
+        while (query.HasMoreResults)
+        {
+            var feed = await query.ReadNextAsync();
+            results.AddRange(feed.Resource);
+        }
+
+        return results;
     }
 }

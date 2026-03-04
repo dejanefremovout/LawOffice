@@ -9,5 +9,6 @@ public interface IHearingRepository : IRepository<Hearing>
     Task<Hearing> Update(Hearing hearing);
     Task<Hearing?> Get(string hearingId, string officeId);
     Task<IEnumerable<Hearing>> GetAll(string caseId, string officeId);
+    Task<IEnumerable<Hearing>> GetUpcomingHearings(string officeId, int count);
     Task Delete(string hearingId, string officeId);
 }

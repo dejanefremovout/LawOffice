@@ -1,5 +1,6 @@
 using CaseManagement.Api.Extensions;
 using CaseManagement.Application.Services;
+using CaseManagement.Domain.Entities;
 using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -154,6 +155,57 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting case.");
+            return new BadRequestObjectResult(ex.Message);
+        }
+    }
+
+    [Function("GetCount")]
+    public async Task<IActionResult> GetCount([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/count")] HttpRequest req)
+    {
+        try
+        {
+            var officeId = req.GetOfficeId();
+
+            var result = await _caseService.GetCount(officeId);
+
+            return new OkObjectResult(result);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid argument provided when retrieving case count.");
+            return new BadRequestObjectResult(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving case count.");
+            return new BadRequestObjectResult(ex.Message);
+        }
+    }
+
+    [Function("GetLastCases")]
+    public async Task<IActionResult> GetLastCases([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/last/{count}")] HttpRequest req, int count)
+    {
+        try
+        {
+            if (count <= 0)
+            {
+                return new BadRequestObjectResult("Case count route parameter is required.");
+            }
+
+            var officeId = req.GetOfficeId();
+
+            IEnumerable<CaseModel> result = await _caseService.GetLastActiveCases(officeId, count);
+
+            return new OkObjectResult(result);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid argument provided when retrieving cases.");
+            return new BadRequestObjectResult(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving cases.");
             return new BadRequestObjectResult(ex.Message);
         }
     }

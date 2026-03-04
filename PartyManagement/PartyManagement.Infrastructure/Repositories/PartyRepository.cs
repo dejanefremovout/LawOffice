@@ -115,4 +115,26 @@ public abstract class PartyRepository : IPartyRepository
 
         return results;
     }
+
+    public async Task<int> GetCount(string officeId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+
+        var queryDefinition = new QueryDefinition(
+            "SELECT VALUE COUNT(1) FROM c WHERE c.officeId = @officeId")
+            .WithParameter("@officeId", officeId);
+
+        var query = _container.GetItemQueryIterator<int>(queryDefinition);
+
+        while (query.HasMoreResults)
+        {
+            var feed = await query.ReadNextAsync();
+            if (feed.Resource.Any())
+            {
+                return feed.Resource.First();
+            }
+        }
+
+        return 0;
+    }
 }

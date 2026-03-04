@@ -19,6 +19,7 @@
 						<th>First Name</th>
 						<th>Last Name</th>
 						<th>Email</th>
+						<th>Invitation Code</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -26,6 +27,7 @@
 						<td>{{ lawyer.firstName }}</td>
 						<td>{{ lawyer.lastName }}</td>
 						<td>{{ lawyer.email }}</td>
+						<td>{{ lawyer.invitationCode ?? '-' }}</td>
 					</tr>
 				</tbody>
 			</table>
