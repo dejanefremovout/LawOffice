@@ -2,6 +2,9 @@
 
 namespace CaseManagement.Domain.ViewModels;
 
+/// <summary>
+/// Document file descriptor returned by API and application services.
+/// </summary>
 public record DocumentFileModel
 {
     public DocumentFileModel()

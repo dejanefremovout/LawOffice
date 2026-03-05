@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace PartyManagement.Domain.Entities;
 
+/// <summary>
+/// Represents a person or organization participating in legal cases.
+/// </summary>
 public class Party : Entity
 {
     [JsonProperty("officeId")]
@@ -26,6 +29,9 @@ public class Party : Entity
     [JsonProperty("identificationNumber")]
     public string? IdentificationNumber { get; private set; }
 
+    /// <summary>
+    /// Initializes a party with validated values.
+    /// </summary>
     public Party(string id, string officeId, string firstName, string lastName, string? address, string? description, string? phone, string? identificationNumber)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -43,11 +49,17 @@ public class Party : Entity
         IdentificationNumber = identificationNumber?.Trim();
     }
 
+    /// <summary>
+    /// Factory method for creating a new party.
+    /// </summary>
     public static Party New(string officeId, string firstName, string lastName, string? address, string? description, string? phone, string? identificationNumber)
     {
         return new(Guid.NewGuid().ToString(), officeId, firstName, lastName, address, description, phone, identificationNumber);
     }
 
+    /// <summary>
+    /// Updates first and last name.
+    /// </summary>
     public void SetName(string firstName, string lastName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
@@ -57,21 +69,33 @@ public class Party : Entity
         LastName = lastName.Trim();
     }
 
+    /// <summary>
+    /// Updates address information.
+    /// </summary>
     public void SetAddress(string? address)
     {
         Address = address?.Trim();
     }
 
+    /// <summary>
+    /// Updates descriptive notes.
+    /// </summary>
     public void SetDescription(string? description)
     {
         Description = description?.Trim();
     }
 
+    /// <summary>
+    /// Updates phone information.
+    /// </summary>
     public void SetPhone(string? phone)
     {
         Phone = phone?.Trim();
     }
 
+    /// <summary>
+    /// Updates the party identification number.
+    /// </summary>
     public void SetIdentificationNumber(string? identificationNumber)
     {
         IdentificationNumber = identificationNumber?.Trim();

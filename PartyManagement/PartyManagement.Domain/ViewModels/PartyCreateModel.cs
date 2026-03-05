@@ -1,5 +1,8 @@
 ﻿namespace PartyManagement.Domain.ViewModels;
 
+/// <summary>
+/// Payload for creating a party record.
+/// </summary>
 public record PartyCreateModel
 {
     public required string OfficeId { get; init; }

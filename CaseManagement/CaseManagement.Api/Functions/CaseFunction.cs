@@ -10,11 +10,17 @@ using Newtonsoft.Json;
 
 namespace CaseManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for case management endpoints.
+/// </summary>
 public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService)
 {
     private readonly ILogger<CaseFunction> _logger = logger;
     private readonly ICaseService _caseService = caseService;
 
+    /// <summary>
+    /// Gets a case by identifier.
+    /// </summary>
     [Function("GetCase")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{caseId}")] HttpRequest req, string caseId)
     {
@@ -48,6 +54,9 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         }
     }
 
+    /// <summary>
+    /// Gets all cases for the current office.
+    /// </summary>
     [Function("GetAllCases")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case")] HttpRequest req)
     {
@@ -71,6 +80,9 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         }
     }
 
+    /// <summary>
+    /// Creates a new case.
+    /// </summary>
     [Function("PostCase")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "case")] HttpRequest req)
     {
@@ -101,6 +113,9 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         }
     }
 
+    /// <summary>
+    /// Updates an existing case.
+    /// </summary>
     [Function("PutCase")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "case")] HttpRequest req)
     {
@@ -131,6 +146,9 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         }
     }
 
+    /// <summary>
+    /// Deletes a case by identifier.
+    /// </summary>
     [Function("DeleteCase")]
     public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "case/{caseId}")] HttpRequest req, string caseId)
     {
@@ -159,6 +177,9 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         }
     }
 
+    /// <summary>
+    /// Returns case count aggregates for the current office.
+    /// </summary>
     [Function("GetCount")]
     public async Task<IActionResult> GetCount([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/count")] HttpRequest req)
     {
@@ -182,6 +203,9 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         }
     }
 
+    /// <summary>
+    /// Gets the most recent active cases.
+    /// </summary>
     [Function("GetLastCases")]
     public async Task<IActionResult> GetLastCases([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/last/{count}")] HttpRequest req, int count)
     {

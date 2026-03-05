@@ -5,16 +5,21 @@ using PartyManagement.Infrastructure.Extensions;
 
 namespace PartyManagement.Application.Extensions;
 
+/// <summary>
+/// Dependency injection registration for application layer services.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers application services and required infrastructure repositories.
+    /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        //Register Cosmos DB related services
+        // Register infrastructure repository dependencies.
         services.AddCosmosRepositories(configuration);
 
-        // Register services
-        //services.AddScoped<IPartyService, PartyService>();
+        // Register application services.
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IOpposingPartyService, OpposingPartyService>();
 

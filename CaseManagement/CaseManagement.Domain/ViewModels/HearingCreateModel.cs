@@ -1,5 +1,8 @@
 ﻿namespace CaseManagement.Domain.ViewModels;
 
+/// <summary>
+/// Payload for creating a hearing.
+/// </summary>
 public record HearingCreateModel
 {
     public string CaseId { get; init; } = string.Empty;

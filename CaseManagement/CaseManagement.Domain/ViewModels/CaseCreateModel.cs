@@ -1,5 +1,8 @@
 ﻿namespace CaseManagement.Domain.ViewModels;
 
+/// <summary>
+/// Payload for creating a new case.
+/// </summary>
 public record CaseCreateModel
 {
     public required string OfficeId { get; init; }

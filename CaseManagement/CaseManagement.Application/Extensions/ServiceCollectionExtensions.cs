@@ -5,15 +5,21 @@ using CaseManagement.Infrastructure.Extensions;
 
 namespace CaseManagement.Application.Extensions;
 
+/// <summary>
+/// Dependency injection registration for application layer services.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers application services and required infrastructure repositories.
+    /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        //Register Cosmos DB related services
+        // Register infrastructure repository dependencies.
         services.AddCosmosRepositories(configuration);
 
-        // Register services
+        // Register application services.
         services.AddScoped<ICaseService, CaseService>();
         services.AddScoped<IHearingService, HearingService>();
         services.AddScoped<IDocumentFileService, DocumentFileService>();

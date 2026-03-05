@@ -9,11 +9,17 @@ using PartyManagement.Domain.ViewModels;
 
 namespace PartyManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for client endpoints.
+/// </summary>
 public class ClientFunction(ILogger<ClientFunction> logger, IClientService clientService)
 {
     private readonly ILogger<ClientFunction> _logger = logger;
     private readonly IClientService _clientService = clientService;
 
+    /// <summary>
+    /// Gets a client by identifier.
+    /// </summary>
     [Function("GetClient")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{clientId}")] HttpRequest req, string clientId)
     {
@@ -42,6 +48,9 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         }
     }
 
+    /// <summary>
+    /// Gets all clients for the current office.
+    /// </summary>
     [Function("GetAllClients")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client")] HttpRequest req)
     {
@@ -65,6 +74,9 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         }
     }
 
+    /// <summary>
+    /// Creates a client.
+    /// </summary>
     [Function("PostClient")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "client")] HttpRequest req)
     {
@@ -95,6 +107,9 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         }
     }
 
+    /// <summary>
+    /// Updates a client.
+    /// </summary>
     [Function("PutClient")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "client")] HttpRequest req)
     {

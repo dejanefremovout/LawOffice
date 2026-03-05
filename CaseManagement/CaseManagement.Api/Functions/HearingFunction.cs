@@ -9,11 +9,17 @@ using Newtonsoft.Json;
 
 namespace CaseManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for hearing endpoints.
+/// </summary>
 public class HearingFunction(ILogger<HearingFunction> logger, IHearingService hearingService)
 {
     private readonly ILogger<HearingFunction> _logger = logger;
     private readonly IHearingService _hearingService = hearingService;
 
+    /// <summary>
+    /// Gets a hearing by identifier.
+    /// </summary>
     [Function("GetHearing")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/{hearingId}")] HttpRequest req, string hearingId)
     {
@@ -47,6 +53,9 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         }
     }
 
+    /// <summary>
+    /// Gets all hearings for a specific case.
+    /// </summary>
     [Function("GetAllHearings")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "hearing/case/{caseId}")] HttpRequest req, string caseId)
     {
@@ -75,6 +84,9 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         }
     }
 
+    /// <summary>
+    /// Creates a hearing.
+    /// </summary>
     [Function("PostHearing")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "hearing")] HttpRequest req)
     {
@@ -105,6 +117,9 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         }
     }
 
+    /// <summary>
+    /// Updates a hearing.
+    /// </summary>
     [Function("PutHearing")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "hearing")] HttpRequest req)
     {
@@ -135,6 +150,9 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         }
     }
 
+    /// <summary>
+    /// Deletes a hearing by identifier.
+    /// </summary>
     [Function("DeleteHearing")]
     public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "hearing/{hearingId}")] HttpRequest req, string hearingId)
     {

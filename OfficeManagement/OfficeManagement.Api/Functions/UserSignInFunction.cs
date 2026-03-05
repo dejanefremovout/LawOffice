@@ -9,12 +9,18 @@ using System.Text.Json;
 
 namespace OfficeManagement.Api.Functions;
 
+/// <summary>
+/// Handles Entra token issuance sign-in callout validation.
+/// </summary>
 public class UserSignInFunction(ILogger<UserSignInFunction> logger,
     ILawyerService lawyerService)
 {
     private readonly ILogger<UserSignInFunction> _logger = logger;
     private readonly ILawyerService _lawyerService = lawyerService;
 
+    /// <summary>
+    /// Validates the incoming sign-in payload and enriches token claims when allowed.
+    /// </summary>
     [Function("UserSignInFunction")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "usersignin")] HttpRequest req)
     {

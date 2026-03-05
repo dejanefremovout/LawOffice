@@ -2,6 +2,9 @@
 
 namespace CaseManagement.Domain.ViewModels;
 
+/// <summary>
+/// Hearing DTO returned by API and application services.
+/// </summary>
 public record HearingModel
 {
     public HearingModel()

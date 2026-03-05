@@ -9,11 +9,17 @@ using OfficeManagement.Domain.ViewModels;
 
 namespace OfficeManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for office endpoints.
+/// </summary>
 public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService officeService)
 {
     private readonly ILogger<OfficeFunction> _logger = logger;
     private readonly IOfficeService _officeService = officeService;
 
+    /// <summary>
+    /// Gets office details for the current office context.
+    /// </summary>
     [Function("GetOffice")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "office")] HttpRequest req)
     {
@@ -42,6 +48,9 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
         }
     }
 
+    /// <summary>
+    /// Updates office details for the current office context.
+    /// </summary>
     [Function("PutOffice")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "office")] HttpRequest req)
     {

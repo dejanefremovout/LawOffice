@@ -2,6 +2,9 @@
 
 namespace PartyManagement.Domain.ViewModels;
 
+/// <summary>
+/// Party DTO returned by API and application services.
+/// </summary>
 public record PartyModel
 {
     public PartyModel()

@@ -10,11 +10,17 @@ using Newtonsoft.Json;
 
 namespace CaseManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for document file endpoints.
+/// </summary>
 public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumentFileService documentFileService)
 {
     private readonly ILogger<DocumentFileFunction> _logger = logger;
     private readonly IDocumentFileService _documentFileService = documentFileService;
 
+    /// <summary>
+    /// Gets a document file descriptor by identifier.
+    /// </summary>
     [Function("GetDocumentFile")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/{documentFileId}")] HttpRequest req, string documentFileId)
     {
@@ -48,6 +54,9 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         }
     }
 
+    /// <summary>
+    /// Gets all document file descriptors for a case.
+    /// </summary>
     [Function("GetAllDocumentFiles")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "documentFile/case/{caseId}")] HttpRequest req, string caseId)
     {
@@ -76,6 +85,9 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         }
     }
 
+    /// <summary>
+    /// Creates a document file descriptor.
+    /// </summary>
     [Function("PostDocumentFile")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "documentFile")] HttpRequest req)
     {
@@ -106,6 +118,9 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         }
     }
 
+    /// <summary>
+    /// Updates a document file descriptor.
+    /// </summary>
     [Function("PutDocumentFile")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "documentFile")] HttpRequest req)
     {
@@ -136,6 +151,9 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         }
     }
 
+    /// <summary>
+    /// Deletes a document file descriptor by identifier.
+    /// </summary>
     [Function("DeleteDocumentFile")]
     public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "documentFile/{documentFileId}")] HttpRequest req, string documentFileId)
     {

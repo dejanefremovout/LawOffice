@@ -79,6 +79,7 @@ public class CaseService(ICaseRepository caseRepository, IHearingRepository hear
 
         IEnumerable<Case> cases = await _caseRepository.GetByIds(officeId, hearings.Select(x => x.CaseId));
 
+        // Pair each hearing with its case to return a single projection for dashboard-like views.
         return hearings.Select(hearing => new CaseHearingModel(cases.First(caseItem => caseItem.Id == hearing.CaseId), hearing));
     }
 }

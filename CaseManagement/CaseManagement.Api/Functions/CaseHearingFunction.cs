@@ -10,11 +10,17 @@ using Newtonsoft.Json;
 
 namespace CaseManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations that combine case and hearing data.
+/// </summary>
 public class CaseHearingFunction(ILogger<CaseFunction> logger, ICaseService caseService)
 {
     private readonly ILogger<CaseFunction> _logger = logger;
     private readonly ICaseService _caseService = caseService;
 
+    /// <summary>
+    /// Gets the next upcoming hearings projected with case identifiers.
+    /// </summary>
     [Function("GetCasesWithHearings")]
     public async Task<IActionResult> GetCasesWithHearings([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/hearings/{count}")] HttpRequest req, int count)
     {

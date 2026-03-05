@@ -9,6 +9,9 @@ using System.Text.Json;
 
 namespace OfficeManagement.Api.Functions;
 
+/// <summary>
+/// Handles Entra sign-up attribute collection callouts.
+/// </summary>
 public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
     IConfiguration configuration,
     ILawyerService lawyerService,
@@ -19,6 +22,9 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
     private readonly ILawyerService _lawyerService = lawyerService;
     private readonly IOfficeService _officeService = officeService;
 
+    /// <summary>
+    /// Validates invitation code or registers a new office during sign-up flow.
+    /// </summary>
     [Function("UserSignUpFunction")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "usersignup")] HttpRequest req)
     {

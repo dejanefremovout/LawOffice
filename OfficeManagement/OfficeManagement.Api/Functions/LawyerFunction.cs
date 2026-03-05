@@ -9,11 +9,17 @@ using OfficeManagement.Domain.ViewModels;
 
 namespace OfficeManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for lawyer endpoints.
+/// </summary>
 public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawyerService)
 {
     private readonly ILogger<LawyerFunction> _logger = logger;
     private readonly ILawyerService _lawyerService = lawyerService;
 
+    /// <summary>
+    /// Gets a lawyer by identifier.
+    /// </summary>
     [Function("GetLawyer")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer/{lawyerId}")] HttpRequest req, string lawyerId)
     {
@@ -47,6 +53,9 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         }
     }
 
+    /// <summary>
+    /// Gets all lawyers for the current office.
+    /// </summary>
     [Function("GetAllLawyers")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "lawyer")] HttpRequest req)
     {
@@ -70,6 +79,9 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         }
     }
 
+    /// <summary>
+    /// Creates a lawyer profile.
+    /// </summary>
     [Function("PostLawyer")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "lawyer")] HttpRequest req)
     {
@@ -100,6 +112,9 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         }
     }
 
+    /// <summary>
+    /// Updates a lawyer profile.
+    /// </summary>
     [Function("PutLawyer")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "lawyer")] HttpRequest req)
     {

@@ -9,12 +9,18 @@ using PartyManagement.Domain.ViewModels;
 
 namespace PartyManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for party aggregate metrics.
+/// </summary>
 public class PartyCountFunction(ILogger<PartyCountFunction> logger, IClientService clientService, IOpposingPartyService opposingPartyService)
 {
     private readonly ILogger<PartyCountFunction> _logger = logger;
     private readonly IClientService _clientService = clientService;
     private readonly IOpposingPartyService _opposingPartyService = opposingPartyService;
 
+    /// <summary>
+    /// Gets client and opposing party counts for the current office.
+    /// </summary>
     [Function("GetCount")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "party/count")] HttpRequest req)
     {

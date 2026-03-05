@@ -2,6 +2,9 @@
 
 namespace OfficeManagement.Domain.ViewModels;
 
+/// <summary>
+/// Office DTO returned by API and application services.
+/// </summary>
 public record OfficeModel
 {
     public OfficeModel()

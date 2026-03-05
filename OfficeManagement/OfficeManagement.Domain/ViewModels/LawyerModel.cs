@@ -2,6 +2,9 @@
 
 namespace OfficeManagement.Domain.ViewModels;
 
+/// <summary>
+/// Lawyer DTO returned by API and application services.
+/// </summary>
 public record LawyerModel
 {
     public LawyerModel()

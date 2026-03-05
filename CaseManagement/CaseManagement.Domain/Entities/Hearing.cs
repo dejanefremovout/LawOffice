@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace CaseManagement.Domain.Entities;
 
+/// <summary>
+/// Represents a scheduled hearing associated with a case.
+/// </summary>
 public class Hearing : Entity
 {
     [JsonProperty("officeId")]
@@ -23,6 +26,9 @@ public class Hearing : Entity
     [JsonProperty("held")]
     public bool Held { get; private set; }
 
+    /// <summary>
+    /// Initializes a hearing with validated domain values.
+    /// </summary>
     public Hearing(string id, string officeId, string caseId, string? courtroom, string? description, DateTime date, bool held)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -42,21 +48,33 @@ public class Hearing : Entity
         Held = held;
     }
 
+    /// <summary>
+    /// Factory method for creating a new hearing that is not yet held.
+    /// </summary>
     public static Hearing New(string officeId, string caseId, string? courtroom, string? description, DateTime date)
     {
         return new(Guid.NewGuid().ToString(), officeId, caseId, courtroom, description, date, false);
     }
 
+    /// <summary>
+    /// Sets the courtroom details.
+    /// </summary>
     public void SetCourtroom(string? courtroom)
     {
         Courtroom = courtroom;
     }
 
+    /// <summary>
+    /// Sets the hearing description.
+    /// </summary>
     public void SetDescription(string? description)
     {
         Description = description;
     }
 
+    /// <summary>
+    /// Sets the hearing date.
+    /// </summary>
     public void SetDate(DateTime date)
     {
         if (date == default)
@@ -66,6 +84,9 @@ public class Hearing : Entity
         Date = date;
     }
 
+    /// <summary>
+    /// Marks whether the hearing has been held.
+    /// </summary>
     public void SetHeld(bool held)
     {
         Held = held;

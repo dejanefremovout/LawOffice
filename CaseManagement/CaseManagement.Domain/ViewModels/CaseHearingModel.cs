@@ -2,6 +2,9 @@
 
 namespace CaseManagement.Domain.ViewModels;
 
+/// <summary>
+/// Projection of case and hearing data for upcoming hearing views.
+/// </summary>
 public record CaseHearingModel
 {
     public CaseHearingModel()

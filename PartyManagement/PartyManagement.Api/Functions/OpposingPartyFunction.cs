@@ -9,11 +9,17 @@ using PartyManagement.Domain.ViewModels;
 
 namespace PartyManagement.Api.Functions;
 
+/// <summary>
+/// HTTP-triggered operations for opposing party endpoints.
+/// </summary>
 public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOpposingPartyService opposingPartyService)
 {
     private readonly ILogger<OpposingPartyFunction> _logger = logger;
     private readonly IOpposingPartyService _opposingPartyService = opposingPartyService;
 
+    /// <summary>
+    /// Gets an opposing party by identifier.
+    /// </summary>
     [Function("GetOpposingParty")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{opposingPartyId}")] HttpRequest req, string opposingPartyId)
     {
@@ -42,6 +48,9 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         }
     }
 
+    /// <summary>
+    /// Gets all opposing parties for the current office.
+    /// </summary>
     [Function("GetAllOpposingParties")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty")] HttpRequest req)
     {
@@ -65,6 +74,9 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         }
     }
 
+    /// <summary>
+    /// Creates an opposing party.
+    /// </summary>
     [Function("PostOpposingParty")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "opposingParty")] HttpRequest req)
     {
@@ -95,6 +107,9 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         }
     }
 
+    /// <summary>
+    /// Updates an opposing party.
+    /// </summary>
     [Function("PutOpposingParty")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "opposingParty")] HttpRequest req)
     {

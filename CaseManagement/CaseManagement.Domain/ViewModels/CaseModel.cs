@@ -2,6 +2,9 @@
 
 namespace CaseManagement.Domain.ViewModels;
 
+/// <summary>
+/// Case DTO returned by application services and APIs.
+/// </summary>
 public record CaseModel
 {
     public CaseModel()
