@@ -53,6 +53,48 @@ var microservices = [
   { key: 'partymanagement', displayName: 'PartyManagement', apiPath: 'party', needsBlobStorage: false }
 ]
 
+// APIM operation definitions mapped to each microservice API
+var apimOperations = [
+  // CaseManagement
+  { serviceIndex: 0, operationId: 'get-case', displayName: 'Get Case', method: 'GET', urlTemplate: '/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'get-all-cases', displayName: 'Get All Cases', method: 'GET', urlTemplate: '/case', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'post-case', displayName: 'Create Case', method: 'POST', urlTemplate: '/case', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'put-case', displayName: 'Update Case', method: 'PUT', urlTemplate: '/case', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'delete-case', displayName: 'Delete Case', method: 'DELETE', urlTemplate: '/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'get-cases-count', displayName: 'Get Cases Count', method: 'GET', urlTemplate: '/cases/count', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'get-last-cases', displayName: 'Get Last Cases', method: 'GET', urlTemplate: '/cases/last/{count}', pathParameters: ['count'] }
+  { serviceIndex: 0, operationId: 'get-cases-with-hearings', displayName: 'Get Cases With Hearings', method: 'GET', urlTemplate: '/cases/hearings/{count}', pathParameters: ['count'] }
+  { serviceIndex: 0, operationId: 'get-document-file', displayName: 'Get Document File', method: 'GET', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
+  { serviceIndex: 0, operationId: 'get-all-document-files', displayName: 'Get All Document Files', method: 'GET', urlTemplate: '/documentFile/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'post-document-file', displayName: 'Create Document File', method: 'POST', urlTemplate: '/documentFile', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'put-document-file', displayName: 'Update Document File', method: 'PUT', urlTemplate: '/documentFile', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'delete-document-file', displayName: 'Delete Document File', method: 'DELETE', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
+  { serviceIndex: 0, operationId: 'get-hearing', displayName: 'Get Hearing', method: 'GET', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
+  { serviceIndex: 0, operationId: 'get-all-hearings', displayName: 'Get All Hearings', method: 'GET', urlTemplate: '/hearing/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'post-hearing', displayName: 'Create Hearing', method: 'POST', urlTemplate: '/hearing', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'put-hearing', displayName: 'Update Hearing', method: 'PUT', urlTemplate: '/hearing', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'delete-hearing', displayName: 'Delete Hearing', method: 'DELETE', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
+
+  // OfficeManagement
+  { serviceIndex: 1, operationId: 'get-lawyer', displayName: 'Get Lawyer', method: 'GET', urlTemplate: '/lawyer/{lawyerId}', pathParameters: ['lawyerId'] }
+  { serviceIndex: 1, operationId: 'get-all-lawyers', displayName: 'Get All Lawyers', method: 'GET', urlTemplate: '/lawyer', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'post-lawyer', displayName: 'Create Lawyer', method: 'POST', urlTemplate: '/lawyer', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'put-lawyer', displayName: 'Update Lawyer', method: 'PUT', urlTemplate: '/lawyer', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'get-office', displayName: 'Get Office', method: 'GET', urlTemplate: '/office', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'put-office', displayName: 'Update Office', method: 'PUT', urlTemplate: '/office', pathParameters: [] }
+
+  // PartyManagement
+  { serviceIndex: 2, operationId: 'get-party-count', displayName: 'Get Party Count', method: 'GET', urlTemplate: '/party/count', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'get-opposing-party', displayName: 'Get Opposing Party', method: 'GET', urlTemplate: '/opposingParty/{opposingPartyId}', pathParameters: ['opposingPartyId'] }
+  { serviceIndex: 2, operationId: 'get-all-opposing-parties', displayName: 'Get All Opposing Parties', method: 'GET', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'post-opposing-party', displayName: 'Create Opposing Party', method: 'POST', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'put-opposing-party', displayName: 'Update Opposing Party', method: 'PUT', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'get-client', displayName: 'Get Client', method: 'GET', urlTemplate: '/client/{clientId}', pathParameters: ['clientId'] }
+  { serviceIndex: 2, operationId: 'get-all-clients', displayName: 'Get All Clients', method: 'GET', urlTemplate: '/client', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'post-client', displayName: 'Create Client', method: 'POST', urlTemplate: '/client', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'put-client', displayName: 'Update Client', method: 'PUT', urlTemplate: '/client', pathParameters: [] }
+]
+
 // Cosmos DB database and container layout (mirrors microservice boundaries)
 var cosmosDatabases = [
   {
@@ -330,7 +372,7 @@ resource apimGlobalPolicy 'Microsoft.ApiManagement/service/policies@2024-06-01-p
   }
 }
 
-// APIM API definitions (operations are imported from Function Apps post-deployment)
+// APIM API definitions
 resource apimApis 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = [
   for svc in microservices: {
     parent: apim
@@ -338,11 +380,37 @@ resource apimApis 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = [
     properties: {
       displayName: svc.displayName
       apiRevision: '1'
-      description: 'Import from "func-${prefix}-${svc.key}-${environmentName}" Function App'
+      description: 'Managed via Bicep for "func-${prefix}-${svc.key}-${environmentName}" Function App'
       subscriptionRequired: false
       path: svc.apiPath
       protocols: ['https']
       isCurrent: true
+    }
+  }
+]
+
+// APIM API operations managed as code (mirrors Function HTTP triggers)
+resource apimApiOperations 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' = [
+  for op in apimOperations: {
+    parent: apimApis[op.serviceIndex]
+    name: op.operationId
+    properties: {
+      displayName: op.displayName
+      method: op.method
+      urlTemplate: op.urlTemplate
+      templateParameters: [
+        for paramName in op.pathParameters: {
+          name: paramName
+          description: '${paramName} path parameter'
+          type: 'string'
+          required: true
+        }
+      ]
+      responses: [
+        {
+          statusCode: 200
+        }
+      ]
     }
   }
 ]
@@ -378,6 +446,19 @@ resource apimBackends 'Microsoft.ApiManagement/service/backends@2024-06-01-previ
       }
     }
     dependsOn: [apimNamedValues[i]]
+  }
+]
+
+// APIM API policy to route each API to its Function backend
+resource apimApiPolicies 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = [
+  for (svc, i) in microservices: if (configureApimBackends) {
+    parent: apimApis[i]
+    name: 'policy'
+    properties: {
+      format: 'xml'
+      value: '<policies><inbound><base /><set-backend-service backend-id="func-${prefix}-${svc.key}-${environmentName}" /></inbound><backend><base /></backend><outbound><base /></outbound><on-error><base /></on-error></policies>'
+    }
+    dependsOn: [apimBackends[i]]
   }
 ]
 

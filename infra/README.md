@@ -65,8 +65,9 @@ az deployment group create \
 
 1. **Deploy Function App code** – use `func azure functionapp publish` or GitHub Actions.
 2. **Wire up APIM backends** – redeploy with `configureApimBackends = true` (add it to the `.bicepparam` file or pass via CLI). This calls `listKeys` on each Function App to configure APIM backends with host keys. It requires the Functions host runtime to be running, which only happens after code is published.
-3. **Import API operations into APIM** – open each API in the Azure Portal and use *Import Function App* to populate operations from the corresponding Function App.
-4. **Configure Entra ID CIAM** (if needed) – update `jwtOpenIdConfigUrl`, `jwtAudience`, and `jwtIssuer` in the `.bicepparam` file, then redeploy.
+3. **Configure Entra ID CIAM** (if needed) – update `jwtOpenIdConfigUrl`, `jwtAudience`, and `jwtIssuer` in the `.bicepparam` file, then redeploy.
+
+> **APIM operations are managed in Bicep:** all Function HTTP triggers are declared as `service/apis/operations` resources in `main.bicep`, so no manual *Import Function App* step is required after deployments.
 
 > **Note:** On first deploy to a new environment, leave `configureApimBackends` as `false` (the default). The APIM named values and backends depend on Function App host keys, which are unavailable until code is deployed. After publishing your Function App code, set `configureApimBackends = true` and redeploy.
 
