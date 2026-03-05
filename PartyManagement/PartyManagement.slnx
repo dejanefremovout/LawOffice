@@ -1,6 +1,11 @@
 <Solution>
-  <Folder Name="/deploy/">
+  <Folder Name="/Deploy/">
     <File Path="../.github/workflows/master_func-lawoffice-partymanagement-dev.yml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="PartyManagement.Api.Tests/PartyManagement.Api.Tests.csproj" />
+    <Project Path="PartyManagement.Application.Tests/PartyManagement.Application.Tests.csproj" />
+    <Project Path="PartyManagement.Domain.Tests/PartyManagement.Domain.Tests.csproj" />
   </Folder>
   <Project Path="../LawOffice.Domain/LawOffice.Domain.csproj" />
   <Project Path="PartyManagement.Api/PartyManagement.Api.csproj" />

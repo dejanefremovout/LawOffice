@@ -1,6 +1,11 @@
 <Solution>
-  <Folder Name="/deploy/">
+  <Folder Name="/Deploy/">
     <File Path="../.github/workflows/master_func-lawoffice-officemanagement-dev.yml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="OfficeManagement.Api.Tests/OfficeManagement.Api.Tests.csproj" />
+    <Project Path="OfficeManagement.Application.Tests/OfficeManagement.Application.Tests.csproj" />
+    <Project Path="OfficeManagement.Domain.Tests/OfficeManagement.Domain.Tests.csproj" />
   </Folder>
   <Project Path="../LawOffice.Domain/LawOffice.Domain.csproj" />
   <Project Path="OfficeManagement.Api/OfficeManagement.Api.csproj" />
