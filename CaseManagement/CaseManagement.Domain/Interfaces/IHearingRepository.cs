@@ -1,5 +1,4 @@
 ﻿using CaseManagement.Domain.Entities;
-using LawOffice.Domain.Interfaces;
 
 namespace CaseManagement.Domain.Interfaces;
 

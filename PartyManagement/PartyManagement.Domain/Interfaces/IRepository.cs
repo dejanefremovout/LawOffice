@@ -1,4 +1,4 @@
-﻿namespace LawOffice.Domain.Interfaces;
+﻿namespace PartyManagement.Domain.Interfaces;
 
 /// <summary>
 /// Marker interface for repository abstractions.

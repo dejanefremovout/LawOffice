@@ -1,5 +1,4 @@
-﻿using LawOffice.Domain.Interfaces;
-using PartyManagement.Domain.Entities;
+﻿using PartyManagement.Domain.Entities;
 
 namespace PartyManagement.Domain.Interfaces;
 

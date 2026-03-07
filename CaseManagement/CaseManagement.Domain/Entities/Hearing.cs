@@ -1,5 +1,4 @@
-﻿using LawOffice.Domain.Entities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace CaseManagement.Domain.Entities;
 

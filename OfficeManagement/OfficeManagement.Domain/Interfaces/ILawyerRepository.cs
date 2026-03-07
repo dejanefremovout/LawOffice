@@ -1,5 +1,4 @@
-﻿using LawOffice.Domain.Interfaces;
-using OfficeManagement.Domain.Entities;
+﻿using OfficeManagement.Domain.Entities;
 
 namespace OfficeManagement.Domain.Interfaces;
 

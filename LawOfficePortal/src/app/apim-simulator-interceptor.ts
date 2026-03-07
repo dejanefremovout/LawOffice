@@ -21,26 +21,34 @@ export class ApimSimulatorInterceptor implements HttpInterceptor {
   private readonly userService = inject(UserService);
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    
-    // 1. TRIGGER: Only run this if we are targeting Localhost
-    const isLocalApi = request.url.startsWith('http://localhost') || request.url.startsWith('https://localhost'); 
+    // Only run this behavior for local API endpoints.
+    const isLocalApi =
+      request.url.startsWith('http://localhost') ||
+      request.url.startsWith('https://localhost') ||
+      request.url.startsWith('http://127.0.0.1') ||
+      request.url.startsWith('https://127.0.0.1');
+
     if (!isLocalApi) {
       return next.handle(request);
     }
 
-    // 2. GET OFFICE ID: Resolve from access token via UserService
+    const withOfficeHeader = (officeId: string) =>
+      request.clone({
+        setHeaders: {
+          'X-Office-Id': officeId
+        }
+      });
+
+    // Resolve office id from token; if absent, forward request unchanged so backend fails as designed.
     return from(this.userService.getOfficeId()).pipe(
       switchMap((officeId) => {
-        if (officeId) {
-          const cloned = request.clone({
-            setHeaders: {
-              'X-Office-Id': officeId
-            }
-          });
-          return next.handle(cloned);
+        const resolvedOfficeId = officeId?.trim();
+
+        if (!resolvedOfficeId) {
+          return next.handle(request);
         }
 
-        return next.handle(request);
+        return next.handle(withOfficeHeader(resolvedOfficeId));
       }),
       catchError(() => next.handle(request))
     );

@@ -7,7 +7,6 @@
     <Project Path="PartyManagement.Application.Tests/PartyManagement.Application.Tests.csproj" />
     <Project Path="PartyManagement.Domain.Tests/PartyManagement.Domain.Tests.csproj" />
   </Folder>
-  <Project Path="../LawOffice.Domain/LawOffice.Domain.csproj" />
   <Project Path="PartyManagement.Api/PartyManagement.Api.csproj" />
   <Project Path="PartyManagement.Application/PartyManagement.Application.csproj" Id="19cc0575-cef0-4fbc-8cbc-02f58ce26677" />
   <Project Path="PartyManagement.Domain/PartyManagement.Domain.csproj" Id="39374205-8de5-4e98-8409-8de911eb58ad" />

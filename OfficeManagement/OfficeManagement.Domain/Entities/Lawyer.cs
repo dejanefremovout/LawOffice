@@ -1,5 +1,4 @@
-﻿using LawOffice.Domain.Entities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Net.Mail;
 
 namespace OfficeManagement.Domain.Entities;

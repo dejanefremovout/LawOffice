@@ -1,0 +1,143 @@
+services:
+  cosmos:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: lawoffice-cosmos
+    environment:
+      ACCEPT_EULA: "Y"
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: "10"
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
+    ports:
+      - "8081:8081"
+      - "10250-10255:10250-10255"
+    volumes:
+      - cosmos-data:/data
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: lawoffice-azurite
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --skipApiVersionCheck
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite-data:/data
+
+  azurite-cors:
+    image: mcr.microsoft.com/azure-cli:latest
+    container_name: lawoffice-azurite-cors
+    depends_on:
+      azurite:
+        condition: service_started
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        until az storage cors list --services b --connection-string "$${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}" > /dev/null; do
+          echo "Waiting for Azurite blob endpoint..."
+          sleep 2
+        done
+        az storage cors clear --services b --connection-string "$${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}"
+        az storage cors add --services b --methods GET OPTIONS PUT --origins "$${BLOB_CORS_ALLOWED_ORIGIN}" --allowed-headers x-ms-blob-type content-type --exposed-headers x-ms-request-id x-ms-version --max-age 3600 --connection-string "$${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}"
+        echo "Azurite blob CORS configured."
+    environment:
+      AZURE_WEBJOBS_STORAGE_CONNECTION_STRING: ${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}
+      BLOB_CORS_ALLOWED_ORIGIN: ${BLOB_CORS_ALLOWED_ORIGIN:-http://localhost:4200}
+    restart: "no"
+
+  cosmos-seeder:
+    build:
+      context: ./LocalDevelopment/CosmosSeeder
+      dockerfile: Dockerfile
+    container_name: lawoffice-cosmos-seeder
+    depends_on:
+      cosmos:
+        condition: service_started
+    environment:
+      COSMOS_CONNECTION_STRING: ${COSMOS_CONNECTION_STRING}
+      COSMOS_DISABLE_SSL_VALIDATION: "true"
+    restart: "no"
+
+  office-api:
+    build:
+      context: ./OfficeManagement
+      dockerfile: OfficeManagement.Api/Dockerfile.local
+    container_name: lawoffice-office-api
+    depends_on:
+      cosmos:
+        condition: service_started
+      azurite:
+        condition: service_started
+      cosmos-seeder:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      AzureWebJobsStorage: ${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}
+      FUNCTIONS_WORKER_RUNTIME: dotnet-isolated
+      CosmosSettings__ConnectionString: ${COSMOS_CONNECTION_STRING}
+    ports:
+      - "7206:80"
+
+  party-api:
+    build:
+      context: ./PartyManagement
+      dockerfile: PartyManagement.Api/Dockerfile.local
+    container_name: lawoffice-party-api
+    depends_on:
+      cosmos:
+        condition: service_started
+      azurite:
+        condition: service_started
+      cosmos-seeder:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      AzureWebJobsStorage: ${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}
+      FUNCTIONS_WORKER_RUNTIME: dotnet-isolated
+      CosmosSettings__ConnectionString: ${COSMOS_CONNECTION_STRING}
+    ports:
+      - "7207:80"
+
+  case-api:
+    build:
+      context: ./CaseManagement
+      dockerfile: CaseManagement.Api/Dockerfile.local
+    container_name: lawoffice-case-api
+    depends_on:
+      cosmos:
+        condition: service_started
+      azurite:
+        condition: service_started
+      azurite-cors:
+        condition: service_completed_successfully
+      cosmos-seeder:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      AzureWebJobsStorage: ${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}
+      FUNCTIONS_WORKER_RUNTIME: dotnet-isolated
+      CosmosSettings__ConnectionString: ${COSMOS_CONNECTION_STRING}
+      BlobSettings__ConnectionString: ${BLOB_SETTINGS_CONNECTION_STRING}
+      BlobSettings__PublicSasBaseUri: ${BLOB_PUBLIC_SAS_BASE_URI}
+    ports:
+      - "7208:80"
+
+  portal:
+    build:
+      context: ./LawOfficePortal
+      dockerfile: Dockerfile.local
+    container_name: lawoffice-portal
+    depends_on:
+      - office-api
+      - party-api
+      - case-api
+    ports:
+      - "4200:4200"
+
+volumes:
+  cosmos-data:
+  azurite-data:

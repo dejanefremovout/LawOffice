@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace LawOffice.Domain.Entities;
+namespace OfficeManagement.Domain.Entities;
 
 /// <summary>
 /// Base entity for persisted domain objects.
