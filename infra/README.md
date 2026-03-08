@@ -19,6 +19,7 @@ Infrastructure-as-Code for the **LawOffice B2C SaaS** demo project. Deploys a co
 |---|---|
 | `main.bicep` | Main template – all environment resources |
 | `main.dev.bicepparam` | DEV environment parameter values |
+| `main.master.bicepparam` | MASTER environment parameter values |
 | `main.test.bicepparam` | TEST environment parameter values |
 | `modules/cosmos-sql-database.bicep` | Module: Cosmos DB SQL database + containers |
 | `policies/apim-global-policy.xml` | APIM global policy template (CORS + optional JWT) |
@@ -61,6 +62,22 @@ az deployment group create \
   --parameters infra/main.test.bicepparam
 ```
 
+### MASTER environment example
+
+```bash
+az group create --name rg-lawoffice-master --location westeurope
+
+az deployment group what-if \
+  --resource-group rg-lawoffice-master \
+  --template-file infra/main.bicep \
+  --parameters infra/main.master.bicepparam
+
+az deployment group create \
+  --resource-group rg-lawoffice-master \
+  --template-file infra/main.bicep \
+  --parameters infra/main.master.bicepparam
+```
+
 ### Post-deployment steps
 
 1. **Deploy Function App code** – use `func azure functionapp publish` or GitHub Actions.
@@ -74,5 +91,5 @@ az deployment group create \
 ## Create a new environment
 
 1. Copy `main.test.bicepparam` → `main.<env>.bicepparam`
-2. Set `environmentName` and override any resource names if needed
+2. Set `environmentName` (`dev`, `test`, `prod`, or `master`) and override any resource names if needed
 3. Create a resource group and deploy as shown above

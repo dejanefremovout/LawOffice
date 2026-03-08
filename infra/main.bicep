@@ -6,7 +6,7 @@ targetScope = 'resourceGroup'
 param location string = resourceGroup().location
 
 @description('Environment short name used for resource naming.')
-@allowed(['dev', 'test', 'prod'])
+@allowed(['dev', 'test', 'prod', 'master'])
 param environmentName string
 
 @description('Common tags applied to all resources.')

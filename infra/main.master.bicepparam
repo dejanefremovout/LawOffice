@@ -1,24 +1,24 @@
 using './main.bicep'
 
-param environmentName = 'test'
+param environmentName = 'master'
 param apimPublisherEmail = 'dejan.efremov@outlook.com'
 
 param tags = {
   project: 'LawOffice'
-  env: 'test'
+  env: 'master'
   managedBy: 'bicep'
 }
 
-// Override names to match existing TEST resources
-param storageAccountName = 'stlawofficetestshared'
-param cosmosAccountName = 'cos-lawoffice-officemanagement-test'
-param staticWebAppName = 'purple-desert-0ca068003'
+// Resource names for MASTER environment
+param storageAccountName = 'stlawofficemastershared'
+param cosmosAccountName = 'cos-lawoffice-officemanagement-master'
+param staticWebAppName = 'swa-lawoffice-portal-master'
 
 // SWA GitHub integration
 param staticWebAppRepositoryUrl = 'https://github.com/dejanefremovout/LawOffice'
-param staticWebAppBranch = 'test'
+param staticWebAppBranch = 'master'
 
-// Same Entra ID CIAM tenant as DEV
+// Same Entra ID CIAM tenant as DEV/TEST
 param jwtOpenIdConfigUrl = 'https://lawofficecustomers.ciamlogin.com/f3863a43-68a6-4422-9e12-a14fd7e45a7f/v2.0/.well-known/openid-configuration'
 param jwtAudience = 'a9a5990c-f11e-49df-a582-a2c1416456cf'
 param jwtIssuer = 'https://lawofficecustomers.ciamlogin.com/f3863a43-68a6-4422-9e12-a14fd7e45a7f/v2.0'
