@@ -56,43 +56,43 @@ var microservices = [
 // APIM operation definitions mapped to each microservice API
 var apimOperations = [
   // CaseManagement
-  { serviceIndex: 0, operationId: 'get-case', displayName: 'Get Case', method: 'GET', urlTemplate: '/case/{caseId}', pathParameters: ['caseId'] }
-  { serviceIndex: 0, operationId: 'get-all-cases', displayName: 'Get All Cases', method: 'GET', urlTemplate: '/case', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'post-case', displayName: 'Create Case', method: 'POST', urlTemplate: '/case', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'put-case', displayName: 'Update Case', method: 'PUT', urlTemplate: '/case', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'delete-case', displayName: 'Delete Case', method: 'DELETE', urlTemplate: '/case/{caseId}', pathParameters: ['caseId'] }
-  { serviceIndex: 0, operationId: 'get-cases-count', displayName: 'Get Cases Count', method: 'GET', urlTemplate: '/cases/count', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'get-last-cases', displayName: 'Get Last Cases', method: 'GET', urlTemplate: '/cases/last/{count}', pathParameters: ['count'] }
-  { serviceIndex: 0, operationId: 'get-cases-with-hearings', displayName: 'Get Cases With Hearings', method: 'GET', urlTemplate: '/cases/hearings/{count}', pathParameters: ['count'] }
-  { serviceIndex: 0, operationId: 'get-document-file', displayName: 'Get Document File', method: 'GET', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
-  { serviceIndex: 0, operationId: 'get-all-document-files', displayName: 'Get All Document Files', method: 'GET', urlTemplate: '/documentFile/case/{caseId}', pathParameters: ['caseId'] }
-  { serviceIndex: 0, operationId: 'post-document-file', displayName: 'Create Document File', method: 'POST', urlTemplate: '/documentFile', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'put-document-file', displayName: 'Update Document File', method: 'PUT', urlTemplate: '/documentFile', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'delete-document-file', displayName: 'Delete Document File', method: 'DELETE', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
-  { serviceIndex: 0, operationId: 'get-hearing', displayName: 'Get Hearing', method: 'GET', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
-  { serviceIndex: 0, operationId: 'get-all-hearings', displayName: 'Get All Hearings', method: 'GET', urlTemplate: '/hearing/case/{caseId}', pathParameters: ['caseId'] }
-  { serviceIndex: 0, operationId: 'post-hearing', displayName: 'Create Hearing', method: 'POST', urlTemplate: '/hearing', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'put-hearing', displayName: 'Update Hearing', method: 'PUT', urlTemplate: '/hearing', pathParameters: [] }
-  { serviceIndex: 0, operationId: 'delete-hearing', displayName: 'Delete Hearing', method: 'DELETE', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
+  { serviceIndex: 0, operationId: 'get-getcase', displayName: 'GetCase', method: 'GET', urlTemplate: '/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'get-getallcases', displayName: 'GetAllCases', method: 'GET', urlTemplate: '/case', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'post-postcase', displayName: 'PostCase', method: 'POST', urlTemplate: '/case', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'put-putcase', displayName: 'PutCase', method: 'PUT', urlTemplate: '/case', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'delete-deletecase', displayName: 'DeleteCase', method: 'DELETE', urlTemplate: '/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'get-getcount', displayName: 'GetCount', method: 'GET', urlTemplate: '/cases/count', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'get-getlastcases', displayName: 'GetLastCases', method: 'GET', urlTemplate: '/cases/last/{count}', pathParameters: ['count'] }
+  { serviceIndex: 0, operationId: 'get-getcaseswithhearings', displayName: 'GetCasesWithHearings', method: 'GET', urlTemplate: '/cases/hearings/{count}', pathParameters: ['count'] }
+  { serviceIndex: 0, operationId: 'get-getdocumentfile', displayName: 'GetDocumentFile', method: 'GET', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
+  { serviceIndex: 0, operationId: 'get-getalldocumentfiles', displayName: 'GetAllDocumentFiles', method: 'GET', urlTemplate: '/documentFile/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'post-postdocumentfile', displayName: 'PostDocumentFile', method: 'POST', urlTemplate: '/documentFile', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'put-putdocumentfile', displayName: 'PutDocumentFile', method: 'PUT', urlTemplate: '/documentFile', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'delete-deletedocumentfile', displayName: 'DeleteDocumentFile', method: 'DELETE', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
+  { serviceIndex: 0, operationId: 'get-gethearing', displayName: 'GetHearing', method: 'GET', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
+  { serviceIndex: 0, operationId: 'get-getallhearings', displayName: 'GetAllHearings', method: 'GET', urlTemplate: '/hearing/case/{caseId}', pathParameters: ['caseId'] }
+  { serviceIndex: 0, operationId: 'post-posthearing', displayName: 'PostHearing', method: 'POST', urlTemplate: '/hearing', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'put-puthearing', displayName: 'PutHearing', method: 'PUT', urlTemplate: '/hearing', pathParameters: [] }
+  { serviceIndex: 0, operationId: 'delete-deletehearing', displayName: 'DeleteHearing', method: 'DELETE', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
 
   // OfficeManagement
-  { serviceIndex: 1, operationId: 'get-lawyer', displayName: 'Get Lawyer', method: 'GET', urlTemplate: '/lawyer/{lawyerId}', pathParameters: ['lawyerId'] }
-  { serviceIndex: 1, operationId: 'get-all-lawyers', displayName: 'Get All Lawyers', method: 'GET', urlTemplate: '/lawyer', pathParameters: [] }
-  { serviceIndex: 1, operationId: 'post-lawyer', displayName: 'Create Lawyer', method: 'POST', urlTemplate: '/lawyer', pathParameters: [] }
-  { serviceIndex: 1, operationId: 'put-lawyer', displayName: 'Update Lawyer', method: 'PUT', urlTemplate: '/lawyer', pathParameters: [] }
-  { serviceIndex: 1, operationId: 'get-office', displayName: 'Get Office', method: 'GET', urlTemplate: '/office', pathParameters: [] }
-  { serviceIndex: 1, operationId: 'put-office', displayName: 'Update Office', method: 'PUT', urlTemplate: '/office', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'get-getlawyer', displayName: 'GetLawyer', method: 'GET', urlTemplate: '/lawyer/{lawyerId}', pathParameters: ['lawyerId'] }
+  { serviceIndex: 1, operationId: 'get-getalllawyers', displayName: 'GetAllLawyers', method: 'GET', urlTemplate: '/lawyer', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'post-postlawyer', displayName: 'PostLawyer', method: 'POST', urlTemplate: '/lawyer', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'put-putlawyer', displayName: 'PutLawyer', method: 'PUT', urlTemplate: '/lawyer', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'get-getoffice', displayName: 'GetOffice', method: 'GET', urlTemplate: '/office', pathParameters: [] }
+  { serviceIndex: 1, operationId: 'put-putoffice', displayName: 'PutOffice', method: 'PUT', urlTemplate: '/office', pathParameters: [] }
 
   // PartyManagement
-  { serviceIndex: 2, operationId: 'get-party-count', displayName: 'Get Party Count', method: 'GET', urlTemplate: '/party/count', pathParameters: [] }
-  { serviceIndex: 2, operationId: 'get-opposing-party', displayName: 'Get Opposing Party', method: 'GET', urlTemplate: '/opposingParty/{opposingPartyId}', pathParameters: ['opposingPartyId'] }
-  { serviceIndex: 2, operationId: 'get-all-opposing-parties', displayName: 'Get All Opposing Parties', method: 'GET', urlTemplate: '/opposingParty', pathParameters: [] }
-  { serviceIndex: 2, operationId: 'post-opposing-party', displayName: 'Create Opposing Party', method: 'POST', urlTemplate: '/opposingParty', pathParameters: [] }
-  { serviceIndex: 2, operationId: 'put-opposing-party', displayName: 'Update Opposing Party', method: 'PUT', urlTemplate: '/opposingParty', pathParameters: [] }
-  { serviceIndex: 2, operationId: 'get-client', displayName: 'Get Client', method: 'GET', urlTemplate: '/client/{clientId}', pathParameters: ['clientId'] }
-  { serviceIndex: 2, operationId: 'get-all-clients', displayName: 'Get All Clients', method: 'GET', urlTemplate: '/client', pathParameters: [] }
-  { serviceIndex: 2, operationId: 'post-client', displayName: 'Create Client', method: 'POST', urlTemplate: '/client', pathParameters: [] }
-  { serviceIndex: 2, operationId: 'put-client', displayName: 'Update Client', method: 'PUT', urlTemplate: '/client', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'get-getcount', displayName: 'GetCount', method: 'GET', urlTemplate: '/party/count', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'get-getopposingparty', displayName: 'GetOpposingParty', method: 'GET', urlTemplate: '/opposingParty/{opposingPartyId}', pathParameters: ['opposingPartyId'] }
+  { serviceIndex: 2, operationId: 'get-getallopposingparties', displayName: 'GetAllOpposingParties', method: 'GET', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'post-postopposingparty', displayName: 'PostOpposingParty', method: 'POST', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'put-putopposingparty', displayName: 'PutOpposingParty', method: 'PUT', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'get-getclient', displayName: 'GetClient', method: 'GET', urlTemplate: '/client/{clientId}', pathParameters: ['clientId'] }
+  { serviceIndex: 2, operationId: 'get-getallclients', displayName: 'GetAllClients', method: 'GET', urlTemplate: '/client', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'post-postclient', displayName: 'PostClient', method: 'POST', urlTemplate: '/client', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'put-putclient', displayName: 'PutClient', method: 'PUT', urlTemplate: '/client', pathParameters: [] }
 ]
 
 // Cosmos DB database and container layout (mirrors microservice boundaries)
@@ -146,6 +146,10 @@ resource storageBlobService 'Microsoft.Storage/storageAccounts/blobServices@2025
   parent: storageAccount
   name: 'default'
   properties: {
+    containerDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
     cors: {
       corsRules: [
         {
@@ -154,20 +158,25 @@ resource storageBlobService 'Microsoft.Storage/storageAccounts/blobServices@2025
           ]
           allowedMethods: [
             'GET'
-            'OPTIONS'
             'PUT'
+            'OPTIONS'
+          ]
+          maxAgeInSeconds: 3600
+          exposedHeaders: [
+            'x-ms-request-id'
+            'x-ms-version'
           ]
           allowedHeaders: [
             'x-ms-blob-type'
             'content-type'
           ]
-          exposedHeaders: [
-            'x-ms-request-id'
-            'x-ms-version'
-          ]
-          maxAgeInSeconds: 3600
         }
       ]
+    }
+    deleteRetentionPolicy: {
+      allowPermanentDelete: false
+      enabled: true
+      days: 7
     }
   }
 }
@@ -197,6 +206,18 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' = {
     capabilities: [
       { name: 'EnableServerless' }
     ]
+    enableFreeTier: false
+    backupPolicy: {
+      type: 'Periodic'
+      periodicModeProperties: {
+        backupIntervalInMinutes: 240
+        backupRetentionIntervalInHours: 8
+        backupStorageRedundancy: 'Local'
+      }
+    }
+    capacity: {
+      totalThroughputLimit: 4000
+    }
   }
 }
 
@@ -232,7 +253,6 @@ resource funcApps 'Microsoft.Web/sites@2024-11-01' = [
     location: location
     tags: tags
     kind: 'functionapp'
-    identity: { type: 'SystemAssigned' }
     properties: {
       serverFarmId: appServicePlan.id
       httpsOnly: true
@@ -344,13 +364,16 @@ resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
       'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls10': 'False'
       'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls11': 'False'
       'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Ssl30': 'False'
+      'Microsoft.WindowsAzure.ApiManagement.Gateway.Protocols.Server.Http2': 'False'
     }
+    legacyPortalStatus: 'Disabled'
+    developerPortalStatus: 'Enabled'
   }
 }
 
 // APIM global policy – CORS (referencing SWA origin) + optional JWT validation
 var jwtPolicyFragment = !empty(jwtOpenIdConfigUrl)
-  ? '<validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid."><openid-config url="${jwtOpenIdConfigUrl}" /><audiences><audience>${jwtAudience}</audience></audiences><issuers><issuer>${jwtIssuer}</issuer></issuers></validate-jwt>'
+  ? '<validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid." output-token-variable-name="jwt-token"><openid-config url="${jwtOpenIdConfigUrl}" /><audiences><audience>${jwtAudience}</audience></audiences><issuers><issuer>${jwtIssuer}</issuer></issuers><required-claims><claim name="extension_OfficeId" match="any" /></required-claims></validate-jwt><set-header name="X-Office-Id" exists-action="override"><value>@{ var jwt = (Jwt)context.Variables["jwt-token"]; if (jwt.Claims.TryGetValue("extension_OfficeId", out var values)) { return values.FirstOrDefault(); } return ""; }</value></set-header>'
   : ''
 
 var apimPolicyXml = replace(
