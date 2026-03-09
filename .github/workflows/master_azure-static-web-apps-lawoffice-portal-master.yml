@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD - Master
+name: Frontend Master Azure Static Web Apps CI/CD - Master
 
 on:
   workflow_dispatch:
