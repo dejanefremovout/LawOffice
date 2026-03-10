@@ -6,6 +6,16 @@ Multi-tenant B2C SaaS platform for small law offices — manage cases, hearings,
 >
 > Create a new office account to explore the full feature set — no existing credentials required.
 
+> **Documentation**
+> - [Solution Architecture Overview](docs/architecture/SOLUTION_ARCHITECTURE_OVERVIEW.md) - C4 diagrams, technology stack, architecture principles
+> - [Infrastructure & Deployment](docs/architecture/INFRASTRUCTURE_AND_DEPLOYMENT.md)     - Azure resources, Bicep IaC, environments, Docker
+> - [Security Architecture](docs/architecture/SECURITY_ARCHITECTURE.md)                   - Identity, AuthN/AuthZ, tenant isolation, TLS
+> - [API Design](docs/architecture/API_DESIGN.md)                                         - API catalog (33 operations), contracts, models
+> - [Data Architecture](docs/architecture/DATA_ARCHITECTURE.md)                           - Cosmos DB, partitioning, blob storage, consistency
+> - [Architecture Decision Records](docs/architecture/ARCHITECTURE_DECISION_RECORDS.md)   - 16 ADRs with rationale and trade-offs
+> - [Operational Runbook](docs/architecture/OPERATIONAL_RUNBOOK.md)                       - Monitoring, incident response, maintenance
+> - [Cost Analysis](docs/architecture/COST_ANALYSIS.md)                                   - Cost model, scaling projections, optimization
+
 ---
 
 ## Features
@@ -192,23 +202,6 @@ az deployment group create \
 ```
 
 For full IaC details and multi-environment setup, see [infra/README.md](infra/README.md).
-
----
-
-## Documentation
-
-Comprehensive Solution Architect documentation is available under [`docs/architecture/`](docs/architecture/):
-
-| Document                          | Scope                                              |
-|-----------------------------------|----------------------------------------------------|
-| [Solution Architecture Overview](docs/architecture/SOLUTION_ARCHITECTURE_OVERVIEW.md) | C4 diagrams, technology stack, architecture principles |
-| [Infrastructure & Deployment](docs/architecture/INFRASTRUCTURE_AND_DEPLOYMENT.md)     | Azure resources, Bicep IaC, environments, Docker   |
-| [Security Architecture](docs/architecture/SECURITY_ARCHITECTURE.md)                   | Identity, AuthN/AuthZ, tenant isolation, TLS       |
-| [API Design](docs/architecture/API_DESIGN.md)                                         | API catalog (33 operations), contracts, models     |
-| [Data Architecture](docs/architecture/DATA_ARCHITECTURE.md)                           | Cosmos DB, partitioning, blob storage, consistency |
-| [Architecture Decision Records](docs/architecture/ARCHITECTURE_DECISION_RECORDS.md)   | 16 ADRs with rationale and trade-offs              |
-| [Operational Runbook](docs/architecture/OPERATIONAL_RUNBOOK.md)                       | Monitoring, incident response, maintenance         |
-| [Cost Analysis](docs/architecture/COST_ANALYSIS.md)                                   | Cost model, scaling projections, optimization      |
 
 ---
 
