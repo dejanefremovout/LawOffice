@@ -22,7 +22,7 @@ public class UserSignInFunction(ILogger<UserSignInFunction> logger,
     /// Validates the incoming sign-in payload and enriches token claims when allowed.
     /// </summary>
     [Function("UserSignInFunction")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "usersignin")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "usersignin")] HttpRequest req)
     {
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 

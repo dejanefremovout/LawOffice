@@ -26,7 +26,7 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
     /// Validates invitation code or registers a new office during sign-up flow.
     /// </summary>
     [Function("UserSignUpFunction")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "usersignup")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "usersignup")] HttpRequest req)
     {
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         

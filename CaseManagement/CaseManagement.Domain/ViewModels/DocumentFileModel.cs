@@ -15,7 +15,7 @@ public record DocumentFileModel
     {
         Id = documentFile.Id;
         OfficeId = documentFile.OfficeId;
-        CaseId = documentFile.Id;
+        CaseId = documentFile.CaseId;
         Name = documentFile.Name;
         Uri = uri;
     }

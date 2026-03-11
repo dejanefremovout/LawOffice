@@ -15,7 +15,7 @@ public record HearingModel
     {
         Id = hearing.Id;
         OfficeId = hearing.OfficeId;
-        CaseId = hearing.Id;
+        CaseId = hearing.CaseId;
         Courtroom = hearing.Courtroom;
         Description = hearing.Description;
         Date = hearing.Date;

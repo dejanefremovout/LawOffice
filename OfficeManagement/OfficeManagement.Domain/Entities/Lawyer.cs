@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Net.Mail;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace OfficeManagement.Domain.Entities;
 
@@ -105,12 +107,8 @@ public class Lawyer : Entity
         ArgumentOutOfRangeException.ThrowIfLessThan(length, 1);
 
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var random = new Random();
-        var code = new string(Enumerable.Range(0, length)
-            .Select(_ => chars[random.Next(chars.Length)])
-            .ToArray());
-
-        return code;
+        var code = RandomNumberGenerator.GetItems<char>(chars.AsSpan(), length);
+        return new string(code);
     }
 
     /// <summary>
