@@ -44,3 +44,16 @@
 .empty-case {
   color: var(--text-muted);
 }
+
+@media (max-width: 480px) {
+  .case-link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .case-description {
+    max-width: 100%;
+    text-align: left;
+  }
+}

@@ -15,7 +15,7 @@ export class App implements OnInit {
   private readonly authService = inject(MsalService);
   private readonly authStateService = inject(AuthStateService);
   private readonly userService = inject(UserService);
-  protected readonly isMenuCollapsed = signal(false);
+  protected readonly isMenuCollapsed = signal(window.innerWidth <= 768);
   protected readonly isLoggedIn = this.authStateService.isLoggedIn;
   protected readonly preferredUsername = signal('');
 
@@ -32,6 +32,12 @@ export class App implements OnInit {
 
   toggleMenu(): void {
     this.isMenuCollapsed.update((value) => !value);
+  }
+
+  closeMobileMenu(): void {
+    if (window.innerWidth <= 768) {
+      this.isMenuCollapsed.set(true);
+    }
   }
 
   async ngOnInit(): Promise<void> {

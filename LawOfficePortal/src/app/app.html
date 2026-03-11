@@ -1,4 +1,13 @@
 <div class="app-shell" [class.menu-collapsed]="isMenuCollapsed()">
+  <header class="mobile-header">
+    <button class="mobile-menu-btn" type="button" (click)="toggleMenu()" aria-label="Open menu">
+      <span class="collapse-icon"></span>
+    </button>
+    <div class="brand-mark">LP</div>
+    <span class="brand-name">Law Office</span>
+  </header>
+  <div class="menu-backdrop" (click)="toggleMenu()"></div>
+
   <aside class="menu-panel">
     <div class="menu-header">
       <div class="brand">
@@ -12,7 +21,7 @@
       </button>
     </div>
 
-    <nav class="menu-items" aria-label="Primary">
+    <nav class="menu-items" aria-label="Primary" (click)="closeMobileMenu()">
       <a class="menu-item" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         <span class="menu-icon home"></span>
         <span class="menu-label">Home</span>

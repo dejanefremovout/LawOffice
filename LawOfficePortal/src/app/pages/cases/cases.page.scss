@@ -100,3 +100,13 @@
   border: 1px solid #eee;
   border-radius: 4px;
 }
+
+@media (max-width: 768px) {
+  .cases-table {
+    th,
+    td {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+  }
+}
