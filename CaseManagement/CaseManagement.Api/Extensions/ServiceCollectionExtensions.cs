@@ -1,4 +1,5 @@
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
+using CaseManagement.Application.Services;
 using CaseManagement.Domain.Interfaces;
 using CaseManagement.Infrastructure.Data;
 using CaseManagement.Infrastructure.Repositories;
@@ -6,10 +7,29 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CaseManagement.Infrastructure.Extensions;
+namespace CaseManagement.Api.Extensions;
 
+/// <summary>
+/// Dependency injection registration
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers application services and required infrastructure repositories.
+    /// </summary>
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        // Register application services.
+        services.AddScoped<ICaseService, CaseService>();
+        services.AddScoped<IHearingService, HearingService>();
+        services.AddScoped<IDocumentFileService, DocumentFileService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers infrastructure repository dependencies.
+    /// </summary>
     public static IServiceCollection AddCosmosRepositories(this IServiceCollection services,
         IConfiguration configuration)
     {

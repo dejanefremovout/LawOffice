@@ -380,10 +380,13 @@ To minimize round-trips, some specialized aggregation endpoints exist:
 | Successful create              | 201         | Created entity (JSON)                  |
 | Successful update/read         | 200         | Entity or collection (JSON)            |
 | Successful delete              | 204         | No body                                |
+| Unexpected internal error      | 500         | `"An unexpected error occurred."`      |
 
 ### 7.2 Domain Validation
 
 Entities validate invariants in their factory methods and setter methods, throwing `ArgumentException` for business rule violations. The API layer catches these and returns HTTP 400.
+
+Unhandled exceptions (i.e., those not caught as `ArgumentException`) are caught by a general `catch (Exception)` handler, which returns HTTP 500 with a fixed message `"An unexpected error occurred."` to avoid leaking internal details. The full exception is logged at the `Error` level.
 
 ---
 

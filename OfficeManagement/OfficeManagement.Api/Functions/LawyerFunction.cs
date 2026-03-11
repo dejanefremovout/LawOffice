@@ -49,7 +49,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving lawyer.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -75,7 +75,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving lawyers.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -108,7 +108,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating lawyer.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -141,7 +141,7 @@ public class LawyerFunction(ILogger<LawyerFunction> logger, ILawyerService lawye
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating lawyer.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

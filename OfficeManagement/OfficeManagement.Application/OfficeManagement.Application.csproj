@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OfficeManagement.Domain\OfficeManagement.Domain.csproj" />
-    <ProjectReference Include="..\OfficeManagement.Infrastructure\OfficeManagement.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

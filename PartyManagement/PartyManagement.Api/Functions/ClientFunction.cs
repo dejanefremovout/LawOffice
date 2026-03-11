@@ -44,7 +44,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving client.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -70,7 +70,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving clients.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -103,7 +103,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating client.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -136,7 +136,7 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating client.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

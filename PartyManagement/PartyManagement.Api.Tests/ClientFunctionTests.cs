@@ -104,7 +104,9 @@ public class ClientFunctionTests
 
         IActionResult actionResult = await _function.Post(request);
 
-        actionResult.ShouldBeOfType<BadRequestObjectResult>();
+           var errorResult = actionResult.ShouldBeOfType<ObjectResult>();
+           errorResult.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+           errorResult.Value.ShouldBe("An unexpected error occurred.");
     }
 
     [Fact]
@@ -157,7 +159,9 @@ public class ClientFunctionTests
 
         IActionResult actionResult = await _function.Put(request);
 
-        actionResult.ShouldBeOfType<BadRequestObjectResult>();
+           var errorResult = actionResult.ShouldBeOfType<ObjectResult>();
+           errorResult.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+           errorResult.Value.ShouldBe("An unexpected error occurred.");
     }
 
     [Fact]

@@ -49,7 +49,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving hearing.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -80,7 +80,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving hearings.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -113,7 +113,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating hearing.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -146,7 +146,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating hearing.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -177,7 +177,7 @@ public class HearingFunction(ILogger<HearingFunction> logger, IHearingService he
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting hearing.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

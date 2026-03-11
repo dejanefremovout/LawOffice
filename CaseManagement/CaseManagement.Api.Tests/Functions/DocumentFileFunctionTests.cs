@@ -5,6 +5,7 @@ using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Microsoft.AspNetCore.Http;
 
 namespace CaseManagement.Api.Tests.Functions;
 
@@ -45,13 +46,15 @@ public class DocumentFileFunctionTests
     }
 
     [Fact]
-    public async Task Put_ReturnsBadRequest_WhenBodyIsInvalid()
+    public async Task Put_ReturnsInternalServerError_WhenBodyIsInvalid()
     {
         var request = HttpRequestFactory.Create(body: "{invalid-json}", officeId: "office-1");
 
         IActionResult result = await _sut.Put(request);
 
-        result.ShouldBeOfType<BadRequestObjectResult>();
+           var errorResult = result.ShouldBeOfType<ObjectResult>();
+           errorResult.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+           errorResult.Value.ShouldBe("An unexpected error occurred.");
     }
 
     [Fact]

@@ -44,7 +44,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving office.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -77,7 +77,7 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating office.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

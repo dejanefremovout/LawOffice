@@ -44,7 +44,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving opposing party.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -70,7 +70,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving opposing parties.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -103,7 +103,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating opposing party.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -136,7 +136,7 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating opposing party.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

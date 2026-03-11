@@ -46,13 +46,15 @@ public class LawyerFunctionTests
     }
 
     [Fact]
-    public async Task Post_ReturnsBadRequest_WhenBodyIsInvalid()
+    public async Task Post_ReturnsInternalServerError_WhenBodyIsInvalid()
     {
         var request = CreateRequest(body: "{invalid-json}", officeId: "office-1");
 
         IActionResult result = await _sut.Post(request);
 
-        result.ShouldBeOfType<BadRequestObjectResult>();
+           var errorResult = result.ShouldBeOfType<ObjectResult>();
+           errorResult.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+           errorResult.Value.ShouldBe("An unexpected error occurred.");
     }
 
     [Fact]

@@ -6,13 +6,13 @@ import { MsalModule, MSAL_INSTANCE, MSAL_GUARD_CONFIG, MsalGuardConfiguration, M
 
 
 import { routes } from './app.routes';
-import { API_BASE_URL, REDIRECT_URL } from './constants/api.constants';
+import { API_BASE_URL, CLIENT_ID, REDIRECT_URL } from './constants/api.constants';
 import { ApimSimulatorInterceptor } from './apim-simulator-interceptor';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
     auth: {
-      clientId: 'a9a5990c-f11e-49df-a582-a2c1416456cf',
+      clientId: CLIENT_ID,
       authority: 'https://lawofficecustomers.ciamlogin.com',
       redirectUri: REDIRECT_URL,
     },
@@ -34,7 +34,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
-  const scopes = ['api://a9a5990c-f11e-49df-a582-a2c1416456cf/access_as_user'];
+  const scopes = [`api://${CLIENT_ID}/access_as_user`];
   const addProtectedResource = (baseUrl: string): void => {
     const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     protectedResourceMap.set(normalizedBaseUrl, scopes);

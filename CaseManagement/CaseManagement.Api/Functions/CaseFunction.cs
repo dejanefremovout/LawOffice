@@ -50,7 +50,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving case.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -76,7 +76,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving cases.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -109,7 +109,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating case.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -142,7 +142,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating case.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -173,7 +173,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting case.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -199,7 +199,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving case count.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -230,7 +230,7 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving cases.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

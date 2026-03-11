@@ -43,18 +43,4 @@ public class OfficeRepository(ICosmosService cosmosService) : IOfficeRepository
             return null;
         }
     }
-
-    public async Task<IEnumerable<Office>> GetAll()
-    {
-        FeedIterator<Office> query = _container.GetItemQueryIterator<Office>(new QueryDefinition("SELECT * FROM c"));
-        var results = new List<Office>();
-
-        while (query.HasMoreResults)
-        {
-            FeedResponse<Office> feed = await query.ReadNextAsync();
-            results.AddRange(feed.Resource);
-        }
-
-        return results;
-    }
 }

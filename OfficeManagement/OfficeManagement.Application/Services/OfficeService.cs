@@ -8,13 +8,6 @@ public class OfficeService(IOfficeRepository officeRepository) : IOfficeService
 {
     private readonly IOfficeRepository _officeRepository = officeRepository;
 
-    public async Task<IEnumerable<OfficeModel>> GetAll()
-    {
-        IEnumerable<Office> offices = await _officeRepository.GetAll();
-
-        return offices.Select(x => new OfficeModel(x));
-    }
-
     public async Task<OfficeModel?> Get(string officeId)
     {
         Office? office = await _officeRepository.Get(officeId);

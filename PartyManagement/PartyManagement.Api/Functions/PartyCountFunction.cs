@@ -44,7 +44,7 @@ public class PartyCountFunction(ILogger<PartyCountFunction> logger, IClientServi
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving party count.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }

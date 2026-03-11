@@ -59,13 +59,15 @@ public class OfficeFunctionTests
     }
 
     [Fact]
-    public async Task Put_ReturnsBadRequest_WhenBodyIsInvalid()
+    public async Task Put_ReturnsInternalServerError_WhenBodyIsInvalid()
     {
         var request = CreateRequest(body: "{invalid-json}", officeId: "office-1");
 
         IActionResult result = await _sut.Put(request);
 
-        result.ShouldBeOfType<BadRequestObjectResult>();
+           var errorResult = result.ShouldBeOfType<ObjectResult>();
+           errorResult.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+           errorResult.Value.ShouldBe("An unexpected error occurred.");
     }
 
     private static HttpRequest CreateRequest(string? body = null, string? officeId = null)

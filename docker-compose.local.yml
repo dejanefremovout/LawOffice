@@ -46,18 +46,18 @@ services:
       BLOB_CORS_ALLOWED_ORIGIN: ${BLOB_CORS_ALLOWED_ORIGIN:-http://localhost:4200}
     restart: "no"
 
-  cosmos-seeder:
-    build:
-      context: ./LocalDevelopment/CosmosSeeder
-      dockerfile: Dockerfile
-    container_name: lawoffice-cosmos-seeder
-    depends_on:
-      cosmos:
-        condition: service_started
-    environment:
-      COSMOS_CONNECTION_STRING: ${COSMOS_CONNECTION_STRING}
-      COSMOS_DISABLE_SSL_VALIDATION: "true"
-    restart: "no"
+  # cosmos-seeder:
+  #   build:
+  #     context: ./LocalDevelopment/CosmosSeeder
+  #     dockerfile: Dockerfile
+  #   container_name: lawoffice-cosmos-seeder
+  #   depends_on:
+  #     cosmos:
+  #       condition: service_started
+  #   environment:
+  #     COSMOS_CONNECTION_STRING: ${COSMOS_CONNECTION_STRING}
+  #     COSMOS_DISABLE_SSL_VALIDATION: "true"
+  #   restart: "no"
 
   office-api:
     build:
@@ -69,8 +69,8 @@ services:
         condition: service_started
       azurite:
         condition: service_started
-      cosmos-seeder:
-        condition: service_completed_successfully
+      # cosmos-seeder:
+      #   condition: service_completed_successfully
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
@@ -90,8 +90,8 @@ services:
         condition: service_started
       azurite:
         condition: service_started
-      cosmos-seeder:
-        condition: service_completed_successfully
+      # cosmos-seeder:
+      #   condition: service_completed_successfully
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
@@ -113,8 +113,8 @@ services:
         condition: service_started
       azurite-cors:
         condition: service_completed_successfully
-      cosmos-seeder:
-        condition: service_completed_successfully
+      # cosmos-seeder:
+      #   condition: service_completed_successfully
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80

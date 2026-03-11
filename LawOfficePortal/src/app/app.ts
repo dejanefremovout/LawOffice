@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 import { AuthStateService } from './services/auth-state.service';
 import { UserService } from './services/user.service';
+import { CLIENT_ID } from './constants/api.constants';
 
 @Component({
   selector: 'app-root',
@@ -58,7 +59,7 @@ export class App implements OnInit {
 
   login() {
     this.authService.loginRedirect({
-      scopes: ['openid', 'profile', 'api://a9a5990c-f11e-49df-a582-a2c1416456cf/access_as_user']
+      scopes: ['openid', 'profile', `api://${CLIENT_ID}/access_as_user`]
     });
   }
 

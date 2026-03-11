@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PartyManagement.Domain\PartyManagement.Domain.csproj" />
-    <ProjectReference Include="..\PartyManagement.Infrastructure\PartyManagement.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

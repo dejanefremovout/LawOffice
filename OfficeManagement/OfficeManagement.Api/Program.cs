@@ -2,7 +2,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OfficeManagement.Application.Extensions;
+using OfficeManagement.Api.Extensions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -17,7 +17,9 @@ var host = new HostBuilder()
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-        services.AddApplicationServices(context.Configuration);
+
+        services.AddApplicationServices();
+        services.AddCosmosRepositories(context.Configuration);
     })
     .Build();
 

@@ -8,11 +8,6 @@ namespace OfficeManagement.Application.Services;
 public interface IOfficeService
 {
     /// <summary>
-    /// Gets all offices.
-    /// </summary>
-    Task<IEnumerable<OfficeModel>> GetAll();
-
-    /// <summary>
     /// Gets an office by identifier.
     /// </summary>
     Task<OfficeModel?> Get(string officeId);

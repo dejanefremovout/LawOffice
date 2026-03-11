@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OfficeManagement.Application\OfficeManagement.Application.csproj" />
+    <ProjectReference Include="..\OfficeManagement.Infrastructure\OfficeManagement.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

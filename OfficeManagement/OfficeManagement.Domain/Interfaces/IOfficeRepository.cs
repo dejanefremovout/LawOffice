@@ -21,9 +21,4 @@ public interface IOfficeRepository : IRepository<Office>
     /// Gets an office by identifier.
     /// </summary>
     Task<Office?> Get(string officeId);
-
-    /// <summary>
-    /// Gets all offices.
-    /// </summary>
-    Task<IEnumerable<Office>> GetAll();
 }

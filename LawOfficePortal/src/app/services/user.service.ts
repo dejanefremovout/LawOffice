@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { MsalService } from '@azure/msal-angular';
 import { jwtDecode } from 'jwt-decode';
+import { CLIENT_ID } from '../constants/api.constants';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class UserService {
 	private readonly authService = inject(MsalService);
-	private readonly apiScopes = ['api://a9a5990c-f11e-49df-a582-a2c1416456cf/access_as_user'];
+	private readonly apiScopes = [`api://${CLIENT_ID}/access_as_user`];
 
 	async getTokenData(): Promise<Record<string, unknown> | null> {
 		const account = this.authService.instance.getActiveAccount() ?? this.authService.instance.getAllAccounts()[0];

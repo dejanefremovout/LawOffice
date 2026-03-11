@@ -53,15 +53,16 @@ public class PartyCountFunctionTests
     }
 
     [Fact]
-    public async Task Get_Should_Return_BadRequest_When_Service_Throws_Exception()
+    public async Task Get_Should_Return_InternalServerError_When_Service_Throws_Exception()
     {
         HttpRequest request = CreateRequest("office-1");
         _clientService.GetCount("office-1").Returns(Task.FromException<int>(new InvalidOperationException("failure")));
 
         IActionResult actionResult = await _function.Get(request);
 
-        BadRequestObjectResult badRequest = actionResult.ShouldBeOfType<BadRequestObjectResult>();
-        badRequest.Value.ShouldBe("failure");
+        var errorResult = actionResult.ShouldBeOfType<ObjectResult>();
+        errorResult.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+        errorResult.Value.ShouldBe("An unexpected error occurred.");
     }
 
     private static HttpRequest CreateRequest(string? officeId)

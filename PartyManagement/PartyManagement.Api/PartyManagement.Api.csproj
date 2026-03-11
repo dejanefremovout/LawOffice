@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PartyManagement.Application\PartyManagement.Application.csproj" />
+    <ProjectReference Include="..\PartyManagement.Infrastructure\PartyManagement.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

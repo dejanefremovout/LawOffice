@@ -192,7 +192,6 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' = {
     databaseAccountOfferType: 'Standard'
     publicNetworkAccess: 'Enabled'
     minimalTlsVersion: 'Tls12'
-    enableAutomaticFailover: true
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
     }

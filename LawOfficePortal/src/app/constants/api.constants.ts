@@ -21,6 +21,8 @@ const DEFAULT_API_BASE_URL: ApiBaseUrlConfig = {
 
 const DEFAULT_REDIRECT_URL = 'http://localhost:4200';
 
+export const CLIENT_ID = 'a9a5990c-f11e-49df-a582-a2c1416456cf';
+
 const getRuntimeEnv = (): RuntimeEnvConfig => {
   const globalConfig = (globalThis as { __env?: RuntimeEnvConfig }).__env;
 

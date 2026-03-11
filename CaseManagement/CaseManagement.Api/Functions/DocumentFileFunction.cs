@@ -50,7 +50,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving document file.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -81,7 +81,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving document files.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -114,7 +114,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating document file.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -147,7 +147,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating document file.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 
@@ -178,7 +178,7 @@ public class DocumentFileFunction(ILogger<DocumentFileFunction> logger, IDocumen
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting document file.");
-            return new BadRequestObjectResult(ex.Message);
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }
 }
