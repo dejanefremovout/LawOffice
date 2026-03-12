@@ -29,7 +29,7 @@ public class UserSignUpFunctionTests
             .Build();
         _lawyerService = Substitute.For<ILawyerService>();
         _officeService = Substitute.For<IOfficeService>();
-        _sut = new UserSignUpFunction(_logger, _configuration, _lawyerService, _officeService);
+        _sut = new UserSignUpFunction(_logger, _configuration, _lawyerService);
     }
 
     [Fact]
