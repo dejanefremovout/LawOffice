@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OfficeManagement.Api.Functions;
 using OfficeManagement.Application.Services;
@@ -12,15 +11,12 @@ namespace OfficeManagement.Api.Tests.Functions;
 
 public class UserSignUpFunctionTests
 {
-    private readonly ILogger<UserSignUpFunction> _logger;
     private readonly IConfiguration _configuration;
     private readonly ILawyerService _lawyerService;
-    private readonly IOfficeService _officeService;
     private readonly UserSignUpFunction _sut;
 
     public UserSignUpFunctionTests()
     {
-        _logger = Substitute.For<ILogger<UserSignUpFunction>>();
         _configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
@@ -28,8 +24,7 @@ public class UserSignUpFunctionTests
             })
             .Build();
         _lawyerService = Substitute.For<ILawyerService>();
-        _officeService = Substitute.For<IOfficeService>();
-        _sut = new UserSignUpFunction(_logger, _configuration, _lawyerService);
+        _sut = new UserSignUpFunction(_configuration, _lawyerService);
     }
 
     [Fact]
@@ -96,11 +91,10 @@ public class UserSignUpFunctionTests
         IActionResult result = await _sut.Run(request);
 
         result.ShouldBeOfType<OkObjectResult>();
-        await _officeService.DidNotReceive().Create(Arg.Any<OfficeCreateModel>());
     }
 
     [Fact]
-    public async Task Run_ReturnsContinueWithOfficeName_WhenOfficeRegistrationIsValid()
+    public async Task Run_ReturnsContinue_WhenOfficeRegistrationIsValid()
     {
         const string payload = """
             {
@@ -126,7 +120,6 @@ public class UserSignUpFunctionTests
         IActionResult result = await _sut.Run(request);
 
         result.ShouldBeOfType<OkObjectResult>();
-        await _officeService.DidNotReceive().Create(Arg.Any<OfficeCreateModel>());
         await _lawyerService.DidNotReceive().Create(Arg.Any<LawyerCreateModel>());
     }
 

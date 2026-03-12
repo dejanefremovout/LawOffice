@@ -12,9 +12,11 @@
 
   <ItemGroup>
     <!-- Use a version available on NuGet for the Microsoft.Azure.Cosmos package -->
+    <PackageReference Include="Azure.Identity" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.57.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Graph" Version="5.103.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 

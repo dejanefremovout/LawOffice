@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OfficeManagement.Api.Functions;
 using OfficeManagement.Application.Services;
+using OfficeManagement.Domain.Interfaces;
 using OfficeManagement.Domain.ViewModels;
 using System.Text;
 
@@ -12,24 +11,17 @@ namespace OfficeManagement.Api.Tests.Functions;
 
 public class UserSignInFunctionTests
 {
-    private readonly ILogger<UserSignInFunction> _logger;
-    private readonly IConfiguration _configuration;
     private readonly ILawyerService _lawyerService;
     private readonly IOfficeService _officeService;
+    private readonly IGraphUserService _graphUserService;
     private readonly UserSignInFunction _sut;
 
     public UserSignInFunctionTests()
     {
-        _logger = Substitute.For<ILogger<UserSignInFunction>>();
-        _configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["EntraAppId"] = "11111111-1111-1111-1111-111111111111"
-            })
-            .Build();
         _lawyerService = Substitute.For<ILawyerService>();
         _officeService = Substitute.For<IOfficeService>();
-        _sut = new UserSignInFunction(_logger, _configuration, _lawyerService, _officeService);
+        _graphUserService = Substitute.For<IGraphUserService>();
+        _sut = new UserSignInFunction(_lawyerService, _officeService, _graphUserService);
     }
 
     [Fact]
@@ -80,7 +72,7 @@ public class UserSignInFunctionTests
     }
 
     [Fact]
-    public async Task Run_ReturnsForbidden_WhenUserDoesNotExist()
+    public async Task Run_ReturnsForbidden_WhenUserDoesNotExistAndGraphReturnsNoOfficeName()
     {
         const string payload = """
             {
@@ -93,6 +85,7 @@ public class UserSignInFunctionTests
 
         var request = CreateRequest(payload);
         _lawyerService.GetByEmail("missing@example.com").Returns((LawyerModel?)null);
+        _graphUserService.GetOfficeName("missing@example.com").Returns((string?)null);
 
         IActionResult result = await _sut.Run(request);
 
@@ -101,109 +94,44 @@ public class UserSignInFunctionTests
     }
 
     [Fact]
-    public async Task Run_ReturnsForbidden_WhenLawyerNotFoundAndOfficeNameMissing()
+    public async Task Run_CreatesOfficeAndLawyer_OnFirstSignIn()
     {
         const string payload = """
             {
               "data": {
                 "authenticationContext": {
                   "user": {
-                    "mail": "new@example.com"
+                    "mail": "new.user@example.com",
+                    "displayName": "New User"
                   }
-                }
+                },
+                "user": { "mail": "new.user@example.com", "displayName": "New User" }
               }
             }
             """;
 
         var request = CreateRequest(payload);
-        _lawyerService.GetByEmail("new@example.com").Returns((LawyerModel?)null);
-
-        IActionResult result = await _sut.Run(request);
-
-        var objectResult = result.ShouldBeOfType<ObjectResult>();
-        objectResult.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
-        await _officeService.DidNotReceive().Create(Arg.Any<OfficeCreateModel>());
-        await _lawyerService.DidNotReceive().Create(Arg.Any<LawyerCreateModel>());
-    }
-
-    [Fact]
-    public async Task Run_CreatesOfficeAndLawyerAndReturnsContinue_WhenFirstSignInWithOfficeName()
-    {
-        const string payload = """
-            {
-              "data": {
-                "authenticationContext": {
-                  "user": {
-                    "mail": "jane.doe@example.com",
-                    "extension_11111111111111111111111111111111_OfficeName": "Acme Office",
-                    "displayName": "Jane Doe"
-                  }
-                }
-              }
-            }
-            """;
-
-        var request = CreateRequest(payload);
-        _lawyerService.GetByEmail("jane.doe@example.com").Returns((LawyerModel?)null);
+        _lawyerService.GetByEmail("new.user@example.com").Returns((LawyerModel?)null);
+        _graphUserService.GetOfficeName("new.user@example.com").Returns("New Office");
         _officeService.Create(Arg.Any<OfficeCreateModel>())
-            .Returns(new OfficeModel { Id = "office-1", Name = "Acme Office" });
+            .Returns(new OfficeModel { Id = "office-new", Name = "New Office" });
         _lawyerService.Create(Arg.Any<LawyerCreateModel>())
             .Returns(new LawyerModel
             {
-                Id = "lawyer-1",
-                OfficeId = "office-1",
-                FirstName = "Jane Doe",
-                LastName = "Jane Doe",
-                Email = "jane.doe@example.com"
+                Id = "lawyer-new",
+                OfficeId = "office-new",
+                FirstName = "New User",
+                LastName = "New User",
+                Email = "new.user@example.com"
             });
 
         IActionResult result = await _sut.Run(request);
 
         result.ShouldBeOfType<OkObjectResult>();
-        await _officeService.Received(1).Create(Arg.Is<OfficeCreateModel>(x => x.Name == "Acme Office"));
+        await _officeService.Received(1).Create(Arg.Is<OfficeCreateModel>(x => x.Name == "New Office"));
         await _lawyerService.Received(1).Create(Arg.Is<LawyerCreateModel>(x =>
-            x.Email == "jane.doe@example.com" &&
-            x.FirstName == "Jane Doe" &&
-            x.LastName == "Jane Doe" &&
-            x.OfficeId == "office-1"));
-    }
-
-    [Fact]
-    public async Task Run_UsesEmailAsDisplayName_WhenDisplayNameNotPresent()
-    {
-        const string payload = """
-            {
-              "data": {
-                "authenticationContext": {
-                  "user": {
-                    "mail": "jane.doe@example.com",
-                    "extension_11111111111111111111111111111111_OfficeName": "Acme Office"
-                  }
-                }
-              }
-            }
-            """;
-
-        var request = CreateRequest(payload);
-        _lawyerService.GetByEmail("jane.doe@example.com").Returns((LawyerModel?)null);
-        _officeService.Create(Arg.Any<OfficeCreateModel>())
-            .Returns(new OfficeModel { Id = "office-1", Name = "Acme Office" });
-        _lawyerService.Create(Arg.Any<LawyerCreateModel>())
-            .Returns(new LawyerModel
-            {
-                Id = "lawyer-1",
-                OfficeId = "office-1",
-                FirstName = "jane.doe@example.com",
-                LastName = "jane.doe@example.com",
-                Email = "jane.doe@example.com"
-            });
-
-        IActionResult result = await _sut.Run(request);
-
-        result.ShouldBeOfType<OkObjectResult>();
-        await _lawyerService.Received(1).Create(Arg.Is<LawyerCreateModel>(x =>
-            x.FirstName == "jane.doe@example.com" &&
-            x.LastName == "jane.doe@example.com"));
+            x.Email == "new.user@example.com" &&
+            x.OfficeId == "office-new"));
     }
 
     [Fact]
