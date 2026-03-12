@@ -54,7 +54,7 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
         var userEmail = GetUserEmail(userSignUpInfo);
         var userInvitationCode = GetAttributeValue(attributes, invitationKey);
         var officeName = GetAttributeValue(attributes, officeKey);
-        //var userDisplayName = GetAttributeValue(attributes, "displayName");
+        var userDisplayName = GetAttributeValue(attributes, "displayName");
 
         if (!string.IsNullOrWhiteSpace(userInvitationCode) && !string.IsNullOrWhiteSpace(userEmail))
         {
@@ -77,23 +77,23 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
                 return BuildBlockResponse("Office can't be registered for a user with existing email. Please contact your administrator.");
             }
 
-            //var officeModel = new OfficeCreateModel()
-            //{
-            //    Name = officeName
-            //};
+            var officeModel = new OfficeCreateModel()
+            {
+                Name = officeName
+            };
 
-            //OfficeModel officeResult = await _officeService.Create(officeModel);
+            OfficeModel officeResult = await _officeService.Create(officeModel);
 
-            //LawyerCreateModel lawyerModel = new LawyerCreateModel()
-            //{
-            //    FirstName = userDisplayName ?? userEmail,
-            //    LastName = userDisplayName ?? userEmail,
-            //    Email = userEmail,
-            //    OfficeId = officeResult.Id
-            //};
-            //_ = await _lawyerService.Create(lawyerModel);
+            LawyerCreateModel lawyerModel = new LawyerCreateModel()
+            {
+                FirstName = userDisplayName ?? userEmail,
+                LastName = userDisplayName ?? userEmail,
+                Email = userEmail,
+                OfficeId = officeResult.Id
+            };
+            _ = await _lawyerService.Create(lawyerModel);
 
-            return BuildContinueResponseWithOfficeName(officeKey, officeName);
+            return BuildContinueResponse();
         }
 
         return BuildBlockResponse("The invitation code or office name is invalid. Please contact your administrator.");
@@ -146,30 +146,6 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
                     new Dictionary<string, object?>
                     {
                         ["@odata.type"] = "microsoft.graph.attributeCollectionSubmit.continueWithDefaultBehavior"
-                    }
-                }
-            }
-        });
-
-    private static OkObjectResult BuildContinueResponseWithOfficeName(string officeKey, string officeName) =>
-        new(new Dictionary<string, object?>
-        {
-            ["data"] = new Dictionary<string, object?>
-            {
-                ["@odata.type"] = "microsoft.graph.onAttributeCollectionSubmitResponseData",
-                ["actions"] = new object[]
-                {
-                    new Dictionary<string, object?>
-                    {
-                        ["@odata.type"] = "microsoft.graph.attributeCollectionSubmit.setAttributeValues",
-                        ["attributes"] = new object[]
-                        {
-                            new Dictionary<string, object?>
-                            {
-                                ["name"] = officeKey,
-                                ["value"] = officeName
-                            }
-                        }
                     }
                 }
             }
