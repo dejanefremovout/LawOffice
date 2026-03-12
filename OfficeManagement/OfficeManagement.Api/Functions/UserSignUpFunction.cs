@@ -102,7 +102,7 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
             }
 
             _logger.LogWarning("UserSignUpFunction office registration allowed for userEmail={UserEmail}, officeName={OfficeName}. Returning continue response with office name.", userEmail, officeName);
-            return BuildContinueResponseWithOfficeName(officeKey, officeName);
+            return BuildContinueResponse();
         }
 
         _logger.LogWarning("UserSignUpFunction no valid path matched: userEmail={UserEmail}, hasInvitationCode={HasInvitationCode}, hasOfficeName={HasOfficeName}. Returning block response.",
@@ -163,29 +163,29 @@ public class UserSignUpFunction(ILogger<UserSignUpFunction> logger,
             }
         });
 
-    private static OkObjectResult BuildContinueResponseWithOfficeName(string officeKey, string officeName) =>
-        new(new Dictionary<string, object?>
-        {
-            ["data"] = new Dictionary<string, object?>
-            {
-                ["@odata.type"] = "microsoft.graph.onAttributeCollectionSubmitResponseData",
-                ["actions"] = new object[]
-                {
-                    new Dictionary<string, object?>
-                    {
-                        ["@odata.type"] = "microsoft.graph.attributeCollectionSubmit.setAttributeValues",
-                        ["attributes"] = new object[]
-                        {
-                            new Dictionary<string, object?>
-                            {
-                                ["name"] = officeKey,
-                                ["value"] = officeName
-                            }
-                        }
-                    }
-                }
-            }
-        });
+    //private static OkObjectResult BuildContinueResponseWithOfficeName(string officeKey, string officeName) =>
+    //    new(new Dictionary<string, object?>
+    //    {
+    //        ["data"] = new Dictionary<string, object?>
+    //        {
+    //            ["@odata.type"] = "microsoft.graph.onAttributeCollectionSubmitResponseData",
+    //            ["actions"] = new object[]
+    //            {
+    //                new Dictionary<string, object?>
+    //                {
+    //                    ["@odata.type"] = "microsoft.graph.attributeCollectionSubmit.modifyAttributeValues",
+    //                    ["attributes"] = new object[]
+    //                    {
+    //                        new Dictionary<string, object?>
+    //                        {
+    //                            ["name"] = officeKey,
+    //                            ["value"] = officeName
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    });
 
     private static OkObjectResult BuildBlockResponse(string message) =>
         new(new Dictionary<string, object?>
