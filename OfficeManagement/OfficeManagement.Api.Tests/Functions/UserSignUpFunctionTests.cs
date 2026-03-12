@@ -100,7 +100,7 @@ public class UserSignUpFunctionTests
     }
 
     [Fact]
-    public async Task Run_CreatesOfficeAndLawyer_WhenOfficeRegistrationIsValid()
+    public async Task Run_ReturnsContinueWithOfficeName_WhenOfficeRegistrationIsValid()
     {
         const string payload = """
             {
@@ -122,25 +122,12 @@ public class UserSignUpFunctionTests
 
         var request = CreateRequest(payload);
         _lawyerService.UserWithEmailExist("jane.doe@example.com").Returns(false);
-        _officeService.Create(Arg.Any<OfficeCreateModel>())
-            .Returns(new OfficeModel { Id = "office-1", Name = "Acme Office" });
-        _lawyerService.Create(Arg.Any<LawyerCreateModel>())
-            .Returns(new LawyerModel
-            {
-                Id = "lawyer-1",
-                OfficeId = "office-1",
-                FirstName = "Jane",
-                LastName = "Doe",
-                Email = "jane.doe@example.com"
-            });
 
         IActionResult result = await _sut.Run(request);
 
         result.ShouldBeOfType<OkObjectResult>();
-        await _officeService.Received(1).Create(Arg.Is<OfficeCreateModel>(x => x.Name == "Acme Office"));
-        await _lawyerService.Received(1).Create(Arg.Is<LawyerCreateModel>(x =>
-            x.Email == "jane.doe@example.com" &&
-            x.OfficeId == "office-1"));
+        await _officeService.DidNotReceive().Create(Arg.Any<OfficeCreateModel>());
+        await _lawyerService.DidNotReceive().Create(Arg.Any<LawyerCreateModel>());
     }
 
     private static HttpRequest CreateRequest(string body)
