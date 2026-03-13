@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, effect, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AuthStateService } from '../../services/auth-state.service';
 import { UserService } from '../../services/user.service';
@@ -28,13 +28,17 @@ export class HomePageComponent implements OnInit {
   protected readonly lastCases = signal<Case[]>([]);
   protected readonly casesWithUpcomingHearings = signal<CaseHearing[]>([]);
 
+  constructor() {
+    effect(() => {
+      if (this.isLoggedIn()) {
+        this.loadCounts();
+      }
+    });
+  }
+
   async ngOnInit(): Promise<void> {
     const name = await this.userService.getName();
     this.name.set(name ?? '');
-
-    if (this.isLoggedIn()) {
-      this.loadCounts();
-    }
   }
 
   private loadCounts(): void {
