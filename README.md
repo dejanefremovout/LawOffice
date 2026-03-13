@@ -1,4 +1,4 @@
-# LawOffice
+# Law Office SaaS Platform
 
 LawOffice is a cloud-native portfolio project that demonstrates how to architect, build, and operate a secure, scalable SaaS platform for legal professionals. Designed for small law offices, it provides a unified solution to manage all aspects of legal practice - from case tracking and hearing scheduling to document management and office administration - within a modern web interface.
 
