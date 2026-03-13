@@ -4,7 +4,7 @@
 
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
-| **Project**        | LawOffice — B2C SaaS for Small Law Offices      |
+| **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Last Updated**   | 2026-03-10                                       |
 
@@ -122,7 +122,7 @@ All three environments share the same **Entra External ID CIAM tenant** (same `j
 
 ```
 infra/
-├── main.bicep                  # Root template — all resources
+├── main.bicep                  # Root template - all resources
 ├── main.dev.bicepparam         # DEV environment parameters
 ├── main.test.bicepparam        # TEST environment parameters
 ├── main.master.bicepparam      # MASTER environment parameters
@@ -138,7 +138,7 @@ infra/
 
 | Parameter                 | Type   | Description                                                    |
 |---------------------------|--------|----------------------------------------------------------------|
-| `environmentName`         | string | `dev` / `test` / `prod` / `master` — drives resource naming   |
+| `environmentName`         | string | `dev` / `test` / `prod` / `master` - drives resource naming   |
 | `apimPublisherEmail`      | string | Required APIM publisher email                                  |
 | `jwtOpenIdConfigUrl`      | string | Entra CIAM OpenID config URL (empty = skip JWT validation)     |
 | `jwtAudience`             | string | JWT audience (application client ID)                           |
@@ -167,9 +167,9 @@ graph LR
 
 The template uses **array-driven loops** for DRY resource creation:
 
-- **`microservices[]`** — Drives Function App, APIM API, backend, and policy creation
-- **`apimOperations[]`** — Drives all 35+ APIM operation definitions
-- **`cosmosDatabases[]`** — Drives database and container creation via module
+- **`microservices[]`** - Drives Function App, APIM API, backend, and policy creation
+- **`apimOperations[]`** - Drives all 35+ APIM operation definitions
+- **`cosmosDatabases[]`** - Drives database and container creation via module
 
 Each entry in `microservices[]` controls:
 ```
@@ -192,15 +192,15 @@ sequenceDiagram
     participant Azure as Azure Resources
     participant Func as func CLI
 
-    Note over Dev,Func: Phase 1 — Infrastructure (first time)
+    Note over Dev,Func: Phase 1 - Infrastructure (first time)
     Dev->>Bicep: Deploy with configureApimBackends = false
     Bicep->>Azure: Create all resources (no APIM backends)
 
-    Note over Dev,Func: Phase 2 — Code Deployment
+    Note over Dev,Func: Phase 2 - Code Deployment
     Dev->>Func: func azure functionapp publish (×3)
     Func->>Azure: Deploy Function code + generate host keys
 
-    Note over Dev,Func: Phase 3 — Wire Backends
+    Note over Dev,Func: Phase 3 - Wire Backends
     Dev->>Bicep: Deploy with configureApimBackends = true
     Bicep->>Azure: Create APIM backends + named values with host keys
 ```
@@ -298,8 +298,8 @@ graph TB
 
 | Order | Service         | Dependency Condition            | Purpose                           |
 |-------|-----------------|----------------------------------|-----------------------------------|
-| 1     | cosmos          | —                                | Cosmos DB Emulator                |
-| 1     | azurite         | —                                | Azure Storage Emulator            |
+| 1     | cosmos          | -                                | Cosmos DB Emulator                |
+| 1     | azurite         | -                                | Azure Storage Emulator            |
 | 2     | azurite-cors    | azurite: service_started         | Configure blob CORS rules         |
 | 2     | cosmos-seeder   | cosmos: service_started          | Create databases + containers     |
 | 3     | office-api      | cosmos-seeder: completed         | OfficeManagement Function App     |

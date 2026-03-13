@@ -4,7 +4,7 @@
 
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
-| **Project**        | LawOffice — B2C SaaS for Small Law Offices      |
+| **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Last Updated**   | 2026-03-10                                       |
 
@@ -45,14 +45,14 @@ The platform needs to manage multiple distinct business domains (cases, parties,
 ### Decision
 
 Decompose the system into three microservices aligned to bounded contexts:
-- **CaseManagement** — Cases, hearings, document files
-- **OfficeManagement** — Offices, lawyers
-- **PartyManagement** — Clients, opposing parties
+- **CaseManagement** - Cases, hearings, document files
+- **OfficeManagement** - Offices, lawyers
+- **PartyManagement** - Clients, opposing parties
 
 ### Consequences
 
 - **Positive**: Independent deployment and scaling per domain; clear ownership boundaries; technology flexibility per service
-- **Positive**: Isolated failures — one service can fail without bringing down others
+- **Positive**: Isolated failures - one service can fail without bringing down others
 - **Negative**: Cross-service data references require frontend orchestration (no joins)
 - **Negative**: Operational complexity increases (3 deployments, 3 databases)
 
@@ -174,9 +174,9 @@ Each microservice needs to own its data to maintain service independence and avo
 ### Decision
 
 Create a separate Cosmos DB database per microservice (3 databases within 1 account):
-- `casemanagement` — owned by CaseManagement API
-- `officemanagement` — owned by OfficeManagement API
-- `partymanagement` — owned by PartyManagement API
+- `casemanagement` - owned by CaseManagement API
+- `officemanagement` - owned by OfficeManagement API
+- `partymanagement` - owned by PartyManagement API
 
 ### Consequences
 

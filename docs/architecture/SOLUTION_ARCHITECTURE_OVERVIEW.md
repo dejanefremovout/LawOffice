@@ -4,7 +4,7 @@
 
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
-| **Project**        | LawOffice — B2C SaaS for Small Law Offices      |
+| **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Classification** | Internal / Portfolio                             |
 | **Last Updated**   | 2026-03-10                                       |
@@ -44,7 +44,7 @@ LawOffice is a multi-tenant, business-to-consumer (B2C) Software-as-a-Service pl
 
 ```mermaid
 C4Context
-    title System Context Diagram — LawOffice
+    title System Context Diagram - LawOffice
 
     Person(user, "Law Office User", "Lawyer, paralegal, or office administrator")
 
@@ -64,7 +64,7 @@ C4Context
 
 ```mermaid
 C4Container
-    title Container Diagram — LawOffice
+    title Container Diagram - LawOffice
 
     Person(user, "Law Office User")
 
@@ -193,14 +193,14 @@ LawOffice implements **partition-based tenant isolation** as its multi-tenancy s
 | Backend Host       | Azure Functions                          | v4         |
 | Serialization      | Newtonsoft.Json                          | 13.x       |
 | Backend Testing    | xUnit + NSubstitute + Shouldly          | 2.9 / 5.3 / 4.3 |
-| Database           | Azure Cosmos DB NoSQL (Serverless)       | —          |
-| File Storage       | Azure Blob Storage                       | —          |
-| API Gateway        | Azure API Management (Consumption)       | —          |
-| Static Hosting     | Azure Static Web Apps (Free)             | —          |
-| Identity Provider  | Microsoft Entra External ID (CIAM)       | —          |
-| IaC                | Bicep                                    | —          |
-| Local Development  | Docker Compose                           | —          |
-| Source Control     | Git / GitHub                             | —          |
+| Database           | Azure Cosmos DB NoSQL (Serverless)       | -          |
+| File Storage       | Azure Blob Storage                       | -          |
+| API Gateway        | Azure API Management (Consumption)       | -          |
+| Static Hosting     | Azure Static Web Apps (Free)             | -          |
+| Identity Provider  | Microsoft Entra External ID (CIAM)       | -          |
+| IaC                | Bicep                                    | -          |
+| Local Development  | Docker Compose                           | -          |
+| Source Control     | Git / GitHub                             | -          |
 
 ---
 

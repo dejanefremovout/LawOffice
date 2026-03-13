@@ -4,7 +4,7 @@
 
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
-| **Project**        | LawOffice — B2C SaaS for Small Law Offices      |
+| **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Last Updated**   | 2026-03-10                                       |
 
@@ -64,7 +64,7 @@ The JWT access token contains the following application-relevant claims:
 | `sub`                  | string | Unique user identifier                        |
 | `name`                 | string | User display name                             |
 | `preferred_username`   | string | User email / login name                       |
-| `extension_OfficeId`   | string | **Custom claim** — the tenant (office) identifier |
+| `extension_OfficeId`   | string | **Custom claim** - the tenant (office) identifier |
 | `aud`                  | string | Target audience (application client ID)       |
 | `iss`                  | string | Token issuer URL                              |
 
@@ -190,7 +190,7 @@ SSL 3.0 (backend): Disabled
 
 ---
 
-## 6. Access Control — Infrastructure
+## 6. Access Control - Infrastructure
 
 ### 6.1 Publishing Credentials
 

@@ -1,10 +1,11 @@
 # LawOffice
 
-Multi-tenant B2C SaaS platform for small law offices — manage cases, hearings, documents, clients, and office staff through a modern web application.
+
+> **Note:** This repository is a portfolio project created to showcase cloud architecture, clean code structure, comprehensive documentation, and a robust technology stack. It is not intended as a production-ready or feature-complete solution. The primary focus is on demonstrating architectural patterns, infrastructure-as-code, and best practices - not on delivering a full set of end-user features.
 
 > **Live demo**: [https://white-mud-0d598d603.6.azurestaticapps.net/](https://white-mud-0d598d603.6.azurestaticapps.net/)
 >
-> Create a new office account to explore the full feature set — no existing credentials required.
+> Create a new office account to explore the full feature set - no existing credentials required.
 
 > **Documentation**
 > - [Solution Architecture Overview](docs/architecture/SOLUTION_ARCHITECTURE_OVERVIEW.md) - C4 diagrams, technology stack, architecture principles
@@ -20,12 +21,12 @@ Multi-tenant B2C SaaS platform for small law offices — manage cases, hearings,
 
 ## Features
 
-- **Case Management** — Create, track, and close legal cases with metadata (court, judge, year, parties)
-- **Hearing Scheduling** — Schedule court hearings linked to cases with courtroom and date tracking
-- **Document Management** — Upload and download case documents directly to Azure Blob Storage via SAS URIs
-- **Party Management** — Manage clients and opposing parties with contact information
-- **Office Administration** — Configure office details and manage lawyer profiles with invitation codes
-- **Multi-Tenancy** — Each law office's data is fully isolated via partition-key-based tenant segregation
+- **Case Management** - Create, track, and close legal cases with metadata (court, judge, year, parties)
+- **Hearing Scheduling** - Schedule court hearings linked to cases with courtroom and date tracking
+- **Document Management** - Upload and download case documents directly to Azure Blob Storage via SAS URIs
+- **Party Management** - Manage clients and opposing parties with contact information
+- **Office Administration** - Configure office details and manage lawyer profiles with invitation codes
+- **Multi-Tenancy** - Each law office's data is fully isolated via partition-key-based tenant segregation
 
 ---
 
@@ -104,7 +105,7 @@ LawOffice/
 
 ## Getting Started (Local Development)
 
-The entire platform runs locally in Docker — no Azure subscription required.
+The entire platform runs locally in Docker - no Azure subscription required.
 
 ### 1. Clone the repository
 

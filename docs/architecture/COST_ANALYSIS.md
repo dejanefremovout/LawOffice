@@ -4,7 +4,7 @@
 
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
-| **Project**        | LawOffice — B2C SaaS for Small Law Offices      |
+| **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Last Updated**   | 2026-03-10                                       |
 
@@ -94,7 +94,7 @@ With 3 environments (dev, test, master), each at idle:
 | Custom domains       | 2                       |
 | Staging environments | 3                       |
 
-**LawOffice estimate**: $0.00 — well within Free tier limits.
+**LawOffice estimate**: $0.00 - well within Free tier limits.
 
 ### 3.6 Entra External ID
 
@@ -103,7 +103,7 @@ With 3 environments (dev, test, master), each at idle:
 | Monthly Active Users | Free up to 50,000 MAU   | Applies to CIAM    |
 | Beyond 50K MAU       | $0.0025–$0.015 per auth | Tiered pricing     |
 
-**LawOffice estimate**: $0.00 — demo project with < 10 users.
+**LawOffice estimate**: $0.00 - demo project with < 10 users.
 
 ---
 
@@ -257,4 +257,4 @@ graph TB
     A4 --> B4 --> C4
 ```
 
-Each phase is an incremental upgrade — no re-architecture required. The current design supports the full scaling path from demo to production by changing SKUs and configuration parameters.
+Each phase is an incremental upgrade - no re-architecture required. The current design supports the full scaling path from demo to production by changing SKUs and configuration parameters.

@@ -4,7 +4,7 @@
 
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
-| **Project**        | LawOffice — B2C SaaS for Small Law Offices      |
+| **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Last Updated**   | 2026-03-10                                       |
 
@@ -12,7 +12,7 @@
 
 ## 1. Data Architecture Overview
 
-LawOffice uses **Azure Cosmos DB NoSQL** as its primary data store and **Azure Blob Storage** for file storage. The data architecture follows microservice principles — each service owns its database and there is no shared data access across service boundaries.
+LawOffice uses **Azure Cosmos DB NoSQL** as its primary data store and **Azure Blob Storage** for file storage. The data architecture follows microservice principles - each service owns its database and there is no shared data access across service boundaries.
 
 ### 1.1 Data Platform Summary
 
@@ -97,7 +97,7 @@ The choice of `/officeId` as the dominant partition key serves two purposes:
 1. **Multi-tenancy isolation**: Queries within a single partition never cross tenant boundaries
 2. **Query efficiency**: All application queries are scoped to a single office, so they always target a single partition (optimal RU consumption)
 
-The `offices` container is the exception — it uses `/id` as the partition key because each office is a standalone document not scoped to another entity.
+The `offices` container is the exception - it uses `/id` as the partition key because each office is a standalone document not scoped to another entity.
 
 ### 3.3 Partition Key Version
 
@@ -201,7 +201,7 @@ Entities reference entities in other services by ID only (no foreign key enforce
 | Hearing       | `caseId`               | Case              | CaseManagement     |
 | DocumentFile  | `caseId`               | Case              | CaseManagement     |
 
-**Note**: Cross-service references are resolved by the frontend via separate API calls. There is no referential integrity enforcement across services — this is an accepted trade-off of the microservice architecture.
+**Note**: Cross-service references are resolved by the frontend via separate API calls. There is no referential integrity enforcement across services - this is an accepted trade-off of the microservice architecture.
 
 ---
 
@@ -295,7 +295,7 @@ graph LR
 
 - **Upload**: API generates a write SAS URI; SPA uploads directly to Blob Storage
 - **Download**: API generates a read SAS URI; SPA downloads directly from Blob Storage
-- **No proxy**: File data never passes through the API — only metadata is managed
+- **No proxy**: File data never passes through the API - only metadata is managed
 
 ### 7.3 Storage Configuration
 
