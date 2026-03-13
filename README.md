@@ -1,5 +1,19 @@
 # LawOffice
 
+LawOffice is a cloud-native portfolio project that demonstrates how to architect, build, and operate a secure, scalable SaaS platform for legal professionals. Designed for small law offices, it provides a unified solution to manage all aspects of legal practice - from case tracking and hearing scheduling to document management and office administration - within a modern web interface.
+
+The platform leverages Azure cloud services and follows clean architecture principles, separating business logic, domain models, and infrastructure for maintainability and extensibility. Multi-tenancy is enforced at the data layer, ensuring each office’s information is isolated and secure. The frontend is built with Angular, offering a responsive user experience, while the backend uses Azure Functions (.NET) for high scalability and cost efficiency.
+
+LawOffice is not intended as a production-ready product, but as a comprehensive showcase of best practices in cloud architecture, infrastructure-as-code, API design, and secure identity management. It includes detailed documentation, architectural diagrams, and operational guides to help developers and architects learn from real-world patterns and approaches.
+
+Key goals:
+- Demonstrate robust SaaS architecture on Azure
+- Showcase clean code structure and domain-driven design
+- Provide end-to-end infrastructure automation with Bicep
+- Enable secure, scalable, and isolated multi-tenant data management
+- Support local development with Docker Compose and emulators
+
+Explore the live demo or review the documentation to see how LawOffice brings together modern cloud technologies and architectural best practices for legal industry solutions.
 
 > **Note:** This repository is a portfolio project created to showcase cloud architecture, clean code structure, comprehensive documentation, and a robust technology stack. It is not intended as a production-ready or feature-complete solution. The primary focus is on demonstrating architectural patterns, infrastructure-as-code, and best practices - not on delivering a full set of end-user features.
 
