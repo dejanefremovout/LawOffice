@@ -70,6 +70,7 @@ export const API_ENDPOINTS = {
   GET_OPPOSING_PARTY: (opposingPartyId: string) => `/opposingParty/${opposingPartyId}`,
   CREATE_OPPOSING_PARTY: '/opposingParty',
   UPDATE_OPPOSING_PARTY: '/opposingParty',
+  DELETE_OPPOSING_PARTY: (opposingPartyId: string) => `/opposingParty/${opposingPartyId}`,
 
   GET_CASES: `/case`,
   GET_CASE: (caseId: string) => `/case/${caseId}`,

@@ -20,6 +20,7 @@ var host = new HostBuilder()
 
         services.AddApplicationServices();
         services.AddCosmosRepositories(context.Configuration);
+        services.AddServiceBusDependencies(context.Configuration);
     })
     .Build();
 

@@ -60,4 +60,11 @@ public abstract class PartyService(IPartyRepository partyRepository) : IPartySer
     {
         return await _partyRepository.GetCount(officeId);
     }
+
+    public async Task Delete(string partyId, string officeId)
+    {
+        _ = await _partyRepository.Get(partyId, officeId) ?? throw new ArgumentException("Party not found");
+
+        await _partyRepository.Delete(partyId, officeId);
+    }
 }

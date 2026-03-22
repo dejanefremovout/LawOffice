@@ -46,4 +46,9 @@ public interface ICaseService
     /// Gets cases that have upcoming hearings.
     /// </summary>
     Task<IEnumerable<CaseHearingModel>> GetCasesWithUpcomingHearings(string officeId, int count);
+
+    /// <summary>
+    /// Removes an opposing party reference from all cases in an office.
+    /// </summary>
+    Task<int> RemoveOpposingPartyReferences(string officeId, string opposingPartyId);
 }

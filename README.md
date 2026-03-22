@@ -25,9 +25,9 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 > - [Solution Architecture Overview](docs/architecture/SOLUTION_ARCHITECTURE_OVERVIEW.md) - C4 diagrams, technology stack, architecture principles
 > - [Infrastructure & Deployment](docs/architecture/INFRASTRUCTURE_AND_DEPLOYMENT.md)     - Azure resources, Bicep IaC, environments, Docker
 > - [Security Architecture](docs/architecture/SECURITY_ARCHITECTURE.md)                   - Identity, AuthN/AuthZ, tenant isolation, TLS
-> - [API Design](docs/architecture/API_DESIGN.md)                                         - API catalog (33 operations), contracts, models
+> - [API Design](docs/architecture/API_DESIGN.md)                                         - API catalog (34 operations), contracts, models
 > - [Data Architecture](docs/architecture/DATA_ARCHITECTURE.md)                           - Cosmos DB, partitioning, blob storage, consistency
-> - [Architecture Decision Records](docs/architecture/ARCHITECTURE_DECISION_RECORDS.md)   - 16 ADRs with rationale and trade-offs
+> - [Architecture Decision Records](docs/architecture/ARCHITECTURE_DECISION_RECORDS.md)   - 17 ADRs with rationale and trade-offs
 > - [Operational Runbook](docs/architecture/OPERATIONAL_RUNBOOK.md)                       - Monitoring, incident response, maintenance
 > - [Cost Analysis](docs/architecture/COST_ANALYSIS.md)                                   - Cost model, scaling projections, optimization
 
@@ -39,6 +39,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 - **Hearing Scheduling** - Schedule court hearings linked to cases with courtroom and date tracking
 - **Document Management** - Upload and download case documents directly to Azure Blob Storage via SAS URIs
 - **Party Management** - Manage clients and opposing parties with contact information
+- **Asynchronous Reconciliation** - Queue-driven cleanup of case references after opposing-party deletion
 - **Office Administration** - Configure office details and manage lawyer profiles with invitation codes
 - **Multi-Tenancy** - Each law office's data is fully isolated via partition-key-based tenant segregation
 
@@ -56,8 +57,8 @@ Explore the live demo or review the documentation to see how LawOffice brings to
        │            Entra External ID               │               │
        ▼                                            ▼               ▼
 ┌─────────────┐                           ┌──────────────┐ ┌──────────────┐
-│ Blob Storage│                           │  Cosmos DB   │ │  Cosmos DB   │
-│ (documents) │                           │  (Serverless)│ │  (3 DBs)     │
+│ Blob Storage│                           │  Cosmos DB   │ │ Service Bus  │
+│ (documents) │                           │  (Serverless)│ │ Basic (Queue)│
 └─────────────┘                           └──────────────┘ └──────────────┘
 ```
 
@@ -68,6 +69,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 | Backend            | Azure Functions v4, .NET 10 isolated worker  |
 | Database           | Azure Cosmos DB NoSQL (Serverless)           |
 | File Storage       | Azure Blob Storage (SAS-based upload)        |
+| Messaging          | Azure Service Bus (Basic queue)              |
 | Identity           | Microsoft Entra External ID (CIAM)           |
 | Infrastructure     | Bicep (IaC), Docker Compose (local dev)      |
 
@@ -119,7 +121,7 @@ LawOffice/
 
 ## Getting Started (Local Development)
 
-The entire platform runs locally in Docker - no Azure subscription required.
+The platform runs locally in Docker for APIs, frontend, Cosmos, and blob emulator. For messaging flows, local APIs use a real Azure Service Bus namespace.
 
 ### 1. Clone the repository
 
@@ -135,6 +137,8 @@ Copy-Item .env.local.example .env.local
 ```
 
 Review and adjust values in `.env.local` if needed.
+
+Set `SERVICE_BUS_CONNECTION_STRING` in `.env.local` to a real Azure Service Bus namespace connection string.
 
 ### 3. Start all services
 
@@ -152,6 +156,8 @@ This starts:
 | CaseManagement     | http://localhost:7208/api   | Case/hearing/document API       |
 | Cosmos DB Emulator | https://localhost:8081      | Data Explorer (self-signed cert)|
 | Azurite            | http://localhost:10000      | Blob storage emulator           |
+
+Service Bus is not emulated locally; queue-trigger flows rely on the configured Azure Service Bus connection.
 
 ### 4. Verify services
 
@@ -229,6 +235,7 @@ For full IaC details and multi-environment setup, see [infra/README.md](infra/RE
 | **Backend**      | .NET 10, Azure Functions v4 (isolated worker)         |
 | **Data**         | Azure Cosmos DB NoSQL, Azure Blob Storage             |
 | **Gateway**      | Azure API Management (Consumption)                    |
+| **Messaging**    | Azure Service Bus Basic (Queue)                       |
 | **Hosting**      | Azure Static Web Apps (Free)                          |
 | **IaC**          | Bicep                                                 |
 | **Testing**      | xUnit, NSubstitute, Shouldly, Vitest                  |

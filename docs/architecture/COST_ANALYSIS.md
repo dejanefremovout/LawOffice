@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -26,10 +26,11 @@ The LawOffice platform is designed with a **consumption-first** cost model: ever
 | App Service Plan              | Dynamic (Y1)      | $0.00                  | Included with Functions        |
 | API Management                | Consumption       | ~$0.00 – $3.50        | 1M calls/month free; $3.50/1M after |
 | Cosmos DB                     | Serverless        | ~$0.25 – $1.00        | Pay per RU + storage ($0.25/GB)|
+| Service Bus                   | Basic             | ~$0.05 – $1.00        | Queue for integration events    |
 | Storage Account               | Standard LRS      | ~$0.01 – $0.10        | Minimal blob + table storage   |
 | Static Web App                | Free              | $0.00                  | Free tier                      |
 | Entra External ID             | Free tier          | $0.00                  | First 50K MAU free             |
-| **Total (idle/demo)**         |                   | **~$0.26 – $4.60**    |                                |
+| **Total (idle/demo)**         |                   | **~$0.31 – $5.60**    |                                |
 
 ### 2.2 Per-Environment Cost
 
@@ -37,10 +38,10 @@ With 3 environments (dev, test, master), each at idle:
 
 | Environment | Monthly Estimate |
 |-------------|-----------------|
-| dev         | ~$0.26 – $4.60  |
-| test        | ~$0.26 – $4.60  |
-| master      | ~$0.26 – $4.60  |
-| **Total**   | **~$0.78 – $13.80** |
+| dev         | ~$0.31 – $5.60  |
+| test        | ~$0.31 – $5.60  |
+| master      | ~$0.31 – $5.60  |
+| **Total**   | **~$0.93 – $16.80** |
 
 ---
 
@@ -105,6 +106,14 @@ With 3 environments (dev, test, master), each at idle:
 
 **LawOffice estimate**: $0.00 - demo project with < 10 users.
 
+### 3.7 Service Bus (Basic)
+
+| Pricing Dimension    | Rate                    | Notes              |
+|----------------------|-------------------------|--------------------|
+| Namespace + messaging operations | Region-dependent, low-cost Basic tier | Queue-only model |
+
+**LawOffice estimate**: Low-volume queue usage for reconciliation events remains a small monthly cost component.
+
 ---
 
 ## 4. Scaling Cost Projections
@@ -113,7 +122,7 @@ With 3 environments (dev, test, master), each at idle:
 
 | Scenario               | Monthly Users | API Calls/Month | Cosmos RUs/Month | Est. Cost/Month |
 |------------------------|---------------|-----------------|-------------------|-----------------|
-| **Demo (current)**     | < 10          | < 10K           | < 100K            | ~$0.50          |
+| **Demo (current)**     | < 10          | < 10K           | < 100K            | ~$0.60          |
 | **Pilot (10 offices)** | 50            | ~500K           | ~5M               | ~$5–$15         |
 | **Small-scale (50)**   | 250           | ~2.5M           | ~25M              | ~$25–$60        |
 | **Mid-scale (200)**    | 1,000         | ~10M            | ~100M             | ~$100–$250      |
@@ -145,6 +154,7 @@ With 3 environments (dev, test, master), each at idle:
 | Single Cosmos DB account               | Medium         | Shared account, separate databases    |
 | Single Storage account                 | Medium         | Shared for runtime + blob storage     |
 | Consumption APIM                        | High           | 1M free calls/month                   |
+| Service Bus Basic queue                 | Medium         | Low-cost async integration path       |
 | LRS storage redundancy                 | Low            | Cheapest redundancy option            |
 | Cosmos throughput cap (4,000 RU/s)     | High           | Prevents runaway costs                |
 
@@ -181,6 +191,7 @@ With 3 environments (dev, test, master), each at idle:
 | Resource locks (production)             | Prevent accidental deletion           |
 | APIM rate limiting                      | Add rate-limit-by-key policy          |
 | Spending cap (subscription)             | Set subscription-level cap            |
+| Queue depth alerts                      | Alert on DLQ and active queue growth  |
 
 ---
 
@@ -193,8 +204,9 @@ To illustrate the value of the serverless-first approach:
 | Compute           | Functions Consumption ($0) | App Service B1 (×3) (~$40) | ~$40          |
 | API Gateway       | APIM Consumption ($0)  | APIM Basic v2 (~$150)       | ~$150           |
 | Database          | Cosmos Serverless ($0.50) | Cosmos Provisioned (~$25)  | ~$24            |
+| Messaging         | Service Bus Basic (~$0.10) | Custom self-hosted broker (ops cost) | Simplifies operations |
 | Frontend          | SWA Free ($0)          | App Service B1 (~$13)       | ~$13            |
-| **Total**         | **~$0.50**             | **~$228**                    | **~$227/month** |
+| **Total**         | **~$0.60**             | **~$228+**                   | **~$227/month** |
 
 The serverless approach achieves **>99% cost reduction** at demo/portfolio traffic levels.
 

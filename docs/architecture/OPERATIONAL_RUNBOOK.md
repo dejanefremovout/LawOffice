@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -25,6 +25,7 @@ This runbook covers day-to-day operations, monitoring, incident response, and ma
 | `swa-lawoffice-portal-{env}`     | Static Web App | Global CDN     | Managed        |
 | `cos-lawoffice-officemanagement-{env}` | Cosmos DB  | West Europe*  | Serverless     |
 | `stlawoffice{env}shared`         | Storage        | West Europe*   | Standard LRS   |
+| `sb-lawoffice-{env}`             | Service Bus    | West Europe*   | Basic          |
 
 *Region is parameterized via resource group location.
 
@@ -79,6 +80,14 @@ This runbook covers day-to-day operations, monitoring, incident response, and ma
 | Availability                  | < 99.9%               | Critical | Check Azure status page          |
 | E2E latency (P95)            | > 500ms               | Warning  | Check network / region           |
 | Error rate                    | > 1%                  | Warning  | Check SAS token validity         |
+
+#### Service Bus
+
+| Metric                        | Threshold             | Severity | Action                          |
+|-------------------------------|-----------------------|----------|---------------------------------|
+| Active messages (queue)       | Growing steadily      | Warning  | Check CaseManagement queue trigger health |
+| Dead-letter messages          | Any sustained growth  | Critical | Inspect poison messages and fix consumer/payload |
+| Incoming vs outgoing messages | Large sustained delta | Warning  | Consumer lag or trigger failure |
 
 ---
 
@@ -176,6 +185,20 @@ az deployment group create \
   --parameters infra/main.{env}.bicepparam
 ```
 
+### 3.7 Inspect Service Bus Queue Health
+
+```bash
+az servicebus queue show \
+  --resource-group rg-lawoffice-{env} \
+  --namespace-name sb-lawoffice-{env} \
+  --name q-opposingparty-deleted
+
+az servicebus namespace authorization-rule keys list \
+  --resource-group rg-lawoffice-{env} \
+  --namespace-name sb-lawoffice-{env} \
+  --name RootManageSharedAccessKey
+```
+
 ---
 
 ## 4. Incident Response
@@ -221,6 +244,16 @@ az deployment group create \
 4. **Verify issuer** matches the CIAM tenant
 5. **Check token expiry**: Client may need to refresh MSAL tokens
 6. **Check CORS**: Browser may not be sending the Authorization header
+
+### 4.6 Runbook: OpposingPartyDeleted Messages Not Processed
+
+1. **Check queue depth** in Service Bus (`activeMessageCount`, `deadLetterMessageCount`)
+2. **Check CaseManagement logs** for `HandleOpposingPartyDeleted` function failures
+3. **Validate app settings** in Party/Case Function Apps:
+  - `ServiceBusConnectionString`
+  - `OpposingPartyDeletedQueueName`
+4. **Inspect DLQ payloads** for invalid JSON or missing required fields (`officeId`, `opposingPartyId`)
+5. **Replay fixed messages** from DLQ after remediation
 
 ---
 
@@ -288,6 +321,7 @@ docker compose -f docker-compose.local.yml down -v
 | SAS URI blob upload fails      | CORS not configured            | Check azurite-cors service completed |
 | SAS URI 403 in browser         | Wrong base URI in config       | Set `BLOB_PUBLIC_SAS_BASE_URI=http://localhost:10000` |
 | Cosmos SSL error               | Emulator self-signed cert      | Ensure `COSMOS_DISABLE_SSL_VALIDATION=true` |
+| Queue trigger not firing       | Missing/invalid Service Bus connection | Set `SERVICE_BUS_CONNECTION_STRING` to real Azure namespace |
 
 ---
 
@@ -321,6 +355,7 @@ docker compose -f docker-compose.local.yml down -v
 | Cosmos DB keys            | Bicep (listed)    | Quarterly          | Azure Portal → Regenerate|
 | Function host keys        | APIM Named Values | Quarterly          | Rotate + redeploy Bicep  |
 | Entra client secret       | Entra Portal      | Per Entra policy   | Entra Portal → New secret|
+| Service Bus SAS key       | Function app settings | Quarterly      | Rotate + update app settings + restart apps |
 
 ---
 

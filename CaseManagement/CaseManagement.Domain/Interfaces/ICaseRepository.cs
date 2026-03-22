@@ -51,4 +51,9 @@ public interface ICaseRepository : IRepository<Case>
     /// Gets the most recent active cases.
     /// </summary>
     Task<IEnumerable<Case>> GetLastActiveCases(string officeId, int count);
+
+    /// <summary>
+    /// Removes an opposing party reference from all cases in an office.
+    /// </summary>
+    Task<int> RemoveOpposingPartyReferences(string officeId, string opposingPartyId);
 }

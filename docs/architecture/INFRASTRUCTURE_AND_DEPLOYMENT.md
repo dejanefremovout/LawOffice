@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -31,6 +31,7 @@ graph TB
 
         STORAGE["Storage Account<br/>(Standard LRS)"]
         COSMOS["Cosmos DB Account<br/>(Serverless)"]
+        SB["Service Bus Namespace<br/>(Basic)"]
 
         subgraph "Cosmos Databases"
             DB_CASE["casemanagement<br/>cases, hearings, documentfiles"]
@@ -52,6 +53,8 @@ graph TB
     FA_CASE --> COSMOS
     FA_OFFICE --> COSMOS
     FA_PARTY --> COSMOS
+    FA_CASE --> SB
+    FA_PARTY --> SB
     FA_CASE --> STORAGE
 
     ASP -.->|"Hosts"| FA_CASE
@@ -82,6 +85,7 @@ graph TB
 |---------------------------------------------|-------------------|------------------------------|----------------------------|
 | `cos-lawoffice-officemanagement-{env}`      | Cosmos DB Account | Serverless, Session consistency | NoSQL document store     |
 | `stlawoffice{env}shared`                    | Storage Account   | Standard LRS, Hot access tier| Function runtime + blob docs |
+| `sb-lawoffice-{env}`                         | Service Bus Namespace | Basic                    | Queue transport for integration events |
 
 ### 2.3 Networking & Security
 
@@ -147,6 +151,8 @@ infra/
 | `storageAccountName`      | string | Override default naming                                         |
 | `cosmosAccountName`       | string | Override default naming                                         |
 | `staticWebAppName`        | string | Override default naming                                         |
+| `serviceBusNamespaceName` | string | Override Service Bus namespace name                              |
+| `opposingPartyDeletedQueueName` | string | Queue name for opposing-party-deleted events             |
 | `staticWebAppRepositoryUrl` | string | GitHub repo URL for SWA CI/CD integration                   |
 | `staticWebAppBranch`      | string | Branch for SWA deployment                                      |
 
@@ -159,8 +165,9 @@ graph LR
     A -->|"string replace"| D["JWT policy injection"]
     A -->|"string replace"| E["SWA origin injection"]
     A -->|"loop: microservices[]"| F["3× Function Apps"]
-    A -->|"loop: apimOperations[]"| G["35+ APIM operations"]
+    A -->|"loop: apimOperations[]"| G["34 APIM operations"]
     A -->|"loop: cosmosDatabases[]"| H["3× Databases + 8× Containers"]
+    A -->|"resource"| I["Service Bus Namespace + Queue"]
 ```
 
 ### 4.4 Data-Driven Resource Creation
@@ -168,7 +175,7 @@ graph LR
 The template uses **array-driven loops** for DRY resource creation:
 
 - **`microservices[]`** - Drives Function App, APIM API, backend, and policy creation
-- **`apimOperations[]`** - Drives all 35+ APIM operation definitions
+- **`apimOperations[]`** - Drives all 34 API operation definitions (including opposing-party delete)
 - **`cosmosDatabases[]`** - Drives database and container creation via module
 
 Each entry in `microservices[]` controls:
@@ -245,6 +252,8 @@ The SWA is configured with **GitHub integration**. Deployment is triggered autom
 | `FUNCTIONS_WORKER_RUNTIME`    | `dotnet-isolated`        | .NET isolated worker model           |
 | `WEBSITE_RUN_FROM_PACKAGE`    | `1`                      | Run from deployment package          |
 | `CosmosSettings:ConnectionString` | Cosmos Account       | Cosmos DB connection string          |
+| `ServiceBusConnectionString`  | Service Bus Namespace | Queue publish/trigger connection      |
+| `OpposingPartyDeletedQueueName` | Bicep parameter      | Queue name for cross-service reconciliation |
 
 ### 6.2 CaseManagement-Specific Settings
 
@@ -296,6 +305,8 @@ graph TB
 
 ### 7.2 Service Startup Order
 
+Service Bus is not emulated in Docker. Local `party-api` and `case-api` connect to a real Azure Service Bus namespace using `SERVICE_BUS_CONNECTION_STRING`.
+
 | Order | Service         | Dependency Condition            | Purpose                           |
 |-------|-----------------|----------------------------------|-----------------------------------|
 | 1     | cosmos          | -                                | Cosmos DB Emulator                |
@@ -329,6 +340,7 @@ graph TB
 | `BLOB_SETTINGS_CONNECTION_STRING`     | Azurite blob connection for CaseManagement   |
 | `BLOB_PUBLIC_SAS_BASE_URI`            | Public-facing Azurite URL (`http://localhost:10000`) |
 | `BLOB_CORS_ALLOWED_ORIGIN`           | CORS origin for blob access (`http://localhost:4200`) |
+| `SERVICE_BUS_CONNECTION_STRING`       | Azure Service Bus connection string (real Azure namespace) |
 
 ### 7.5 CosmosSeeder
 
@@ -348,7 +360,7 @@ A .NET console application that initializes the Cosmos Emulator:
 |---------------|---------------------------------------------|------------|
 | `/case`       | `func-lawoffice-casemanagement-{env}`       | 18         |
 | `/office`     | `func-lawoffice-officemanagement-{env}`     | 6          |
-| `/party`      | `func-lawoffice-partymanagement-{env}`      | 9          |
+| `/party`      | `func-lawoffice-partymanagement-{env}`      | 10         |
 
 ### 8.2 Backend Authentication
 

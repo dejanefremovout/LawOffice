@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PartyManagement.Api.Extensions;
+using PartyManagement.Api.Messaging;
 using PartyManagement.Application.Services;
 using PartyManagement.Domain.ViewModels;
 
@@ -12,10 +13,11 @@ namespace PartyManagement.Api.Functions;
 /// <summary>
 /// HTTP-triggered operations for opposing party endpoints.
 /// </summary>
-public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOpposingPartyService opposingPartyService)
+public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOpposingPartyService opposingPartyService, IOpposingPartyDeletedPublisher opposingPartyDeletedPublisher)
 {
     private readonly ILogger<OpposingPartyFunction> _logger = logger;
     private readonly IOpposingPartyService _opposingPartyService = opposingPartyService;
+    private readonly IOpposingPartyDeletedPublisher _opposingPartyDeletedPublisher = opposingPartyDeletedPublisher;
 
     /// <summary>
     /// Gets an opposing party by identifier.
@@ -136,6 +138,44 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating opposing party.");
+            return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
+        }
+    }
+
+    /// <summary>
+    /// Deletes an opposing party by identifier and emits an integration event.
+    /// </summary>
+    [Function("DeleteOpposingParty")]
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "opposingParty/{opposingPartyId}")] HttpRequest req, string opposingPartyId)
+    {
+        try
+        {
+            var officeId = req.GetOfficeId();
+
+            if (string.IsNullOrEmpty(opposingPartyId))
+            {
+                return new BadRequestObjectResult("opposingPartyId route parameter is required.");
+            }
+
+            await _opposingPartyService.Delete(opposingPartyId, officeId);
+
+            await _opposingPartyDeletedPublisher.Publish(new OpposingPartyDeletedMessage
+            {
+                OfficeId = officeId,
+                OpposingPartyId = opposingPartyId,
+                OccurredAtUtc = DateTime.UtcNow
+            });
+
+            return new NoContentResult();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid argument provided when deleting opposing party.");
+            return new BadRequestObjectResult(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting opposing party.");
             return new ObjectResult("An unexpected error occurred.") { StatusCode = StatusCodes.Status500InternalServerError };
         }
     }

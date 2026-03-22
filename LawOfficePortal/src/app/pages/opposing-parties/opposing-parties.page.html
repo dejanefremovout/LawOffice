@@ -27,6 +27,7 @@
               <th>Phone</th>
               <th>ID Number</th>
               <th>Description</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -37,6 +38,15 @@
               <td>{{ opposingParty.phone || 'N/A' }}</td>
               <td>{{ opposingParty.identificationNumber }}</td>
               <td>{{ opposingParty.description }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="delete-button"
+                  (click)="deleteOpposingParty($event, opposingParty.id)"
+                  [disabled]="deletingOpposingPartyId() === opposingParty.id">
+                  {{ deletingOpposingPartyId() === opposingParty.id ? 'Deleting...' : 'Delete' }}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

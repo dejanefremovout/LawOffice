@@ -13,6 +13,7 @@ param tags = {
 param storageAccountName = 'stlawofficedevshared'
 param cosmosAccountName = 'cos-lawoffice-officemanagement-dev'
 param staticWebAppName = 'green-sea-058b76203'
+param serviceBusNamespaceName = 'sb-lawoffice-dev'
 
 // SWA GitHub integration
 param staticWebAppRepositoryUrl = 'https://github.com/dejanefremovout/LawOffice'

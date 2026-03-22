@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -115,6 +115,7 @@ graph LR
 | GET    | `/opposingParty`                  | get-getallopposingparties  | Get all opposing parties          |
 | POST   | `/opposingParty`                  | post-postopposingparty     | Create a new opposing party       |
 | PUT    | `/opposingParty`                  | put-putopposingparty       | Update an opposing party          |
+| DELETE | `/opposingParty/{opposingPartyId}` | delete-deleteopposingparty | Delete an opposing party          |
 
 #### Party Aggregate Operations
 
@@ -396,5 +397,5 @@ Unhandled exceptions (i.e., those not caught as `ArgumentException`) are caught 
 |--------------------|------------------|-----|------|-----|--------|
 | CaseManagement     | 18               | 10  | 3    | 3   | 3      |
 | OfficeManagement   | 6                | 3   | 1    | 2   | 0      |
-| PartyManagement    | 9                | 5   | 2    | 2   | 0      |
-| **Total**          | **33**           | **18** | **6** | **7** | **3** |
+| PartyManagement    | 10               | 5   | 2    | 2   | 1      |
+| **Total**          | **34**           | **18** | **6** | **7** | **4** |

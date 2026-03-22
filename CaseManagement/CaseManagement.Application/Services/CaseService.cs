@@ -82,4 +82,9 @@ public class CaseService(ICaseRepository caseRepository, IHearingRepository hear
         // Pair each hearing with its case to return a single projection for dashboard-like views.
         return hearings.Select(hearing => new CaseHearingModel(cases.First(caseItem => caseItem.Id == hearing.CaseId), hearing));
     }
+
+    public async Task<int> RemoveOpposingPartyReferences(string officeId, string opposingPartyId)
+    {
+        return await _caseRepository.RemoveOpposingPartyReferences(officeId, opposingPartyId);
+    }
 }

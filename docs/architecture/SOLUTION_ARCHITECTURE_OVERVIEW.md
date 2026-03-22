@@ -7,7 +7,7 @@
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
 | **Classification** | Internal / Portfolio                             |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -79,6 +79,7 @@ C4Container
         ContainerDb(cosmos_case, "casemanagement DB", "Cosmos DB NoSQL", "cases, hearings, documentfiles")
         ContainerDb(cosmos_office, "officemanagement DB", "Cosmos DB NoSQL", "offices, lawyers")
         ContainerDb(cosmos_party, "partymanagement DB", "Cosmos DB NoSQL", "clients, opposingparties")
+        ContainerQueue(sb, "Service Bus Queue", "Azure Service Bus (Basic)", "opposing-party-deleted integration events")
 
         Container(blob, "Blob Storage", "Azure Storage Account", "Document file blobs with SAS access")
     }
@@ -95,9 +96,11 @@ C4Container
     Rel(apim, party_api, "Routes /client, /opposingParty, /party", "HTTPS + Function Key")
 
     Rel(case_api, cosmos_case, "Reads/writes", "Cosmos SDK")
+    Rel(case_api, sb, "Consumes queue trigger", "Service Bus SDK")
     Rel(case_api, blob, "Generates SAS URIs", "Azure Blob SDK")
     Rel(office_api, cosmos_office, "Reads/writes", "Cosmos SDK")
     Rel(party_api, cosmos_party, "Reads/writes", "Cosmos SDK")
+    Rel(party_api, sb, "Publishes delete event", "Service Bus SDK")
 ```
 
 ---
@@ -195,6 +198,7 @@ LawOffice implements **partition-based tenant isolation** as its multi-tenancy s
 | Backend Testing    | xUnit + NSubstitute + Shouldly          | 2.9 / 5.3 / 4.3 |
 | Database           | Azure Cosmos DB NoSQL (Serverless)       | -          |
 | File Storage       | Azure Blob Storage                       | -          |
+| Messaging          | Azure Service Bus (Basic queue)          | -          |
 | API Gateway        | Azure API Management (Consumption)       | -          |
 | Static Hosting     | Azure Static Web Apps (Free)             | -          |
 | Identity Provider  | Microsoft Entra External ID (CIAM)       | -          |
@@ -208,7 +212,7 @@ LawOffice implements **partition-based tenant isolation** as its multi-tenancy s
 
 ### 8.1 Synchronous (Request-Response)
 
-All communication in the current architecture is synchronous HTTP/HTTPS:
+Primary request/response traffic uses synchronous HTTP/HTTPS:
 
 ```
 Browser ──HTTPS──▶ APIM ──HTTPS──▶ Function App ──SDK──▶ Cosmos DB
@@ -220,7 +224,20 @@ Browser ──HTTPS──▶ APIM ──HTTPS──▶ Function App ──SDK─
 - **APIM → Function App**: Function host key in `x-functions-key` header + tenant ID in `X-Office-Id` header
 - **Browser → Blob Storage**: Direct upload/download via time-limited SAS URIs (bypasses APIM)
 
-### 8.2 Cross-Service Data References
+### 8.2 Asynchronous (Event-Driven)
+
+The platform now uses a queue-based integration pattern for cross-service consistency where low-latency synchronization is not required:
+
+```
+PartyManagement API ──publish──▶ Service Bus Queue (q-opposingparty-deleted) ──trigger──▶ CaseManagement API
+```
+
+- **Producer**: PartyManagement emits an `OpposingPartyDeleted` message after successful deletion.
+- **Transport**: Azure Service Bus Basic queue.
+- **Consumer**: CaseManagement queue-trigger function removes the deleted opposing party ID from all affected cases in the same office.
+- **Tenant scope**: `officeId` is carried in the message payload and used to scope reconciliation.
+
+### 8.3 Cross-Service Data References
 
 Services reference entities from other services by ID only (eventual consistency acceptable):
 
@@ -230,7 +247,7 @@ Services reference entities from other services by ID only (eventual consistency
 | CaseManagement   | `opposingPartyIds[]`  | PartyManagement    |
 | Frontend         | Aggregates case + party data | Both services |
 
-No direct service-to-service calls exist. The frontend orchestrates cross-service joins.
+No direct synchronous service-to-service calls exist. The frontend orchestrates read-time joins, while selected consistency workflows are handled asynchronously via queue messages.
 
 ---
 

@@ -15,10 +15,12 @@ import { OpposingParty } from '../../models/opposing-party.model';
 export class OpposingPartiesPageComponent implements OnInit {
   private opposingParties = signal<OpposingParty[]>([]);
   private loading = signal<boolean>(false);
+  private deletingId = signal<string | null>(null);
   private error = signal<string | null>(null);
 
   readonly opposingPartiesList = this.opposingParties.asReadonly();
   readonly isLoading = this.loading.asReadonly();
+  readonly deletingOpposingPartyId = this.deletingId.asReadonly();
   readonly errorMessage = this.error.asReadonly();
   readonly hasOpposingParties = computed(() => this.opposingPartiesList().length > 0);
 
@@ -58,5 +60,29 @@ export class OpposingPartiesPageComponent implements OnInit {
 
   editOpposingParty(opposingPartyId: string): void {
     this.router.navigate(['/opposing-parties', opposingPartyId]);
+  }
+
+  deleteOpposingParty(event: MouseEvent, opposingPartyId: string): void {
+    event.stopPropagation();
+
+    const isConfirmed = window.confirm('Delete this opposing party? This action cannot be undone.');
+    if (!isConfirmed) {
+      return;
+    }
+
+    this.deletingId.set(opposingPartyId);
+    this.error.set(null);
+
+    this.opposingPartyService.deleteOpposingParty(opposingPartyId).subscribe({
+      next: () => {
+        this.opposingParties.update((parties) => parties.filter((party) => party.id !== opposingPartyId));
+        this.deletingId.set(null);
+      },
+      error: (err) => {
+        this.error.set(`Failed to delete opposing party: ${err.message}`);
+        this.deletingId.set(null);
+        console.error('Error deleting opposing party:', err);
+      }
+    });
   }
 }

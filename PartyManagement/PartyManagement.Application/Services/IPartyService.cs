@@ -31,4 +31,9 @@ public interface IPartyService
     /// Gets party count for an office.
     /// </summary>
     Task<int> GetCount(string officeId);
+
+    /// <summary>
+    /// Deletes a party by identifier.
+    /// </summary>
+    Task Delete(string partyId, string officeId);
 }

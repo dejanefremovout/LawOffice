@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using PartyManagement.Api.Functions;
+using PartyManagement.Api.Messaging;
 using PartyManagement.Application.Services;
 using PartyManagement.Domain.ViewModels;
 using Shouldly;
@@ -14,13 +15,15 @@ public class OpposingPartyFunctionTests
 {
     private readonly ILogger<OpposingPartyFunction> _logger;
     private readonly IOpposingPartyService _opposingPartyService;
+    private readonly IOpposingPartyDeletedPublisher _opposingPartyDeletedPublisher;
     private readonly OpposingPartyFunction _function;
 
     public OpposingPartyFunctionTests()
     {
         _logger = Substitute.For<ILogger<OpposingPartyFunction>>();
         _opposingPartyService = Substitute.For<IOpposingPartyService>();
-        _function = new OpposingPartyFunction(_logger, _opposingPartyService);
+        _opposingPartyDeletedPublisher = Substitute.For<IOpposingPartyDeletedPublisher>();
+        _function = new OpposingPartyFunction(_logger, _opposingPartyService, _opposingPartyDeletedPublisher);
     }
 
     [Fact]
@@ -181,6 +184,31 @@ public class OpposingPartyFunctionTests
 
         BadRequestObjectResult badRequest = actionResult.ShouldBeOfType<BadRequestObjectResult>();
         badRequest.Value.ShouldBe("Office Id header is required.");
+    }
+
+    [Fact]
+    public async Task Delete_Should_Return_NoContent_And_Publish_Event_When_Request_Is_Valid()
+    {
+        HttpRequest request = CreateRequest(officeId: "office-1");
+
+        IActionResult actionResult = await _function.Delete(request, "op-1");
+
+        actionResult.ShouldBeOfType<NoContentResult>();
+        await _opposingPartyService.Received(1).Delete("op-1", "office-1");
+        await _opposingPartyDeletedPublisher.Received(1)
+            .Publish(Arg.Is<OpposingPartyDeletedMessage>(x => x.OfficeId == "office-1" && x.OpposingPartyId == "op-1"), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Delete_Should_Return_BadRequest_When_Id_Is_Missing()
+    {
+        HttpRequest request = CreateRequest(officeId: "office-1");
+
+        IActionResult actionResult = await _function.Delete(request, string.Empty);
+
+        BadRequestObjectResult badRequest = actionResult.ShouldBeOfType<BadRequestObjectResult>();
+        badRequest.Value.ShouldBe("opposingPartyId route parameter is required.");
+        await _opposingPartyDeletedPublisher.DidNotReceiveWithAnyArgs().Publish(default!, default);
     }
 
     private static HttpRequest CreateRequest(string? body = null, string? officeId = null)

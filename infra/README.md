@@ -7,6 +7,7 @@ Infrastructure-as-Code for the **LawOffice B2C SaaS** demo project. Deploys a co
 | Resource | SKU / Tier | Purpose |
 |---|---|---|
 | Azure Cosmos DB for NoSQL | Serverless | Data store for all microservices |
+| Azure Service Bus | Basic | Queue transport for integration events |
 | Azure Storage Account | Standard LRS | Function Apps runtime storage + blob storage |
 | Azure App Service Plan | Consumption (Y1) | Shared plan for all Function Apps |
 | 3× Azure Function Apps | Consumption | CaseManagement, OfficeManagement, PartyManagement APIs |
@@ -32,6 +33,12 @@ Single Serverless account per environment with three databases mirroring the mic
 - **casemanagement** – `cases`, `documentfiles`, `hearings` (partition key: `/officeId`)
 - **officemanagement** – `lawyers` (`/officeId`), `offices` (`/id`)
 - **partymanagement** – `clients`, `opposingparties` (partition key: `/officeId`)
+
+## Service Bus Layout
+
+- **Namespace**: `sb-lawoffice-{env}`
+- **Queue**: `q-opposingparty-deleted`
+- **Flow**: PartyManagement publishes `OpposingPartyDeleted` events; CaseManagement consumes and reconciles `Case.opposingPartyIds[]`
 
 ## Deploy
 
@@ -93,3 +100,7 @@ az deployment group create \
 1. Copy `main.test.bicepparam` → `main.<env>.bicepparam`
 2. Set `environmentName` (`dev`, `test`, `prod`, or `master`) and override any resource names if needed
 3. Create a resource group and deploy as shown above
+
+## Local development note
+
+Service Bus is not emulated in Docker. For local queue-trigger flows, set `SERVICE_BUS_CONNECTION_STRING` in `.env.local` to a real Azure Service Bus namespace connection string.

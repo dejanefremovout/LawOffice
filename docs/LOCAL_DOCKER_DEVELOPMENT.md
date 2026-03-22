@@ -10,6 +10,10 @@ This setup is local-only. Azure deployment remains unchanged and continues using
 - 3x Azure Functions APIs
 - Angular frontend
 
+## What runs outside Docker
+
+- Azure Service Bus namespace (real Azure resource used by `party-api` and `case-api`)
+
 ## APIM local mode
 
 APIM is not containerized for local development. The frontend calls Function APIs directly on localhost ports:
@@ -50,12 +54,14 @@ docker compose --env-file .env.local -f docker-compose.local.yml down
 ## Notes
 
 - `CosmosSettings:ConnectionString` and `BlobSettings:ConnectionString` are injected via compose environment variables, so no code changes are required for Azure.
+- `ServiceBusConnectionString` is injected via `SERVICE_BUS_CONNECTION_STRING` and must target a real Azure Service Bus namespace.
 - `UseDevelopmentStorage=true` is not used inside containers because each container has its own localhost namespace.
 - `BlobSettings:ConnectionString` is set for `CaseManagement` only.
 - `BlobSettings:PublicSasBaseUri` should be set to `http://localhost:10000` in local Docker so SAS links returned to the browser are reachable outside the Docker network.
 - Azurite blob CORS is initialized by the `azurite-cors` one-shot container and should allow direct browser upload from `BLOB_CORS_ALLOWED_ORIGIN` (default `http://localhost:4200`).
 - API containers run through Azure Functions Core Tools (`func start`) so the Functions host can provide worker settings such as `Functions:Worker:HostEndpoint`.
 - APIs wait for `cosmos-seeder` to complete successfully before startup.
+- `party-api` publishes and `case-api` consumes queue messages (`q-opposingparty-deleted`) through Azure Service Bus.
 - `cosmos-seeder` retries emulator readiness and transient control-plane errors.
 - Cosmos emulator persistence is enabled (`AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true`).
 - Seeder ensures these resources exist:

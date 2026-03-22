@@ -175,4 +175,41 @@ public class CaseRepository(ICosmosService cosmosService) : ICaseRepository
 
         return results;
     }
+
+    public async Task<int> RemoveOpposingPartyReferences(string officeId, string opposingPartyId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(opposingPartyId);
+
+        QueryDefinition queryDefinition = new QueryDefinition(
+            "SELECT * FROM c WHERE c.officeId = @officeId AND ARRAY_CONTAINS(c.opposingPartyIds, @opposingPartyId)")
+            .WithParameter("@officeId", officeId)
+            .WithParameter("@opposingPartyId", opposingPartyId);
+
+        FeedIterator<Case> query = _container.GetItemQueryIterator<Case>(queryDefinition);
+        int updatedCount = 0;
+
+        while (query.HasMoreResults)
+        {
+            FeedResponse<Case> feed = await query.ReadNextAsync();
+
+            foreach (Case caseItem in feed)
+            {
+                string[] updatedOpposingPartyIds = caseItem.OpposingPartyIds
+                    .Where(id => !string.Equals(id, opposingPartyId, StringComparison.Ordinal))
+                    .ToArray();
+
+                if (updatedOpposingPartyIds.Length == caseItem.OpposingPartyIds.Count())
+                {
+                    continue;
+                }
+
+                caseItem.SetOpposingPartyIds(updatedOpposingPartyIds);
+                _ = await Upsert(caseItem);
+                updatedCount++;
+            }
+        }
+
+        return updatedCount;
+    }
 }

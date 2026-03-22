@@ -36,4 +36,9 @@ public interface IPartyRepository : IRepository<Party>
     /// Gets party count for an office.
     /// </summary>
     Task<int> GetCount(string officeId);
+
+    /// <summary>
+    /// Deletes a party by identifier and office scope.
+    /// </summary>
+    Task Delete(string partyId, string officeId);
 }

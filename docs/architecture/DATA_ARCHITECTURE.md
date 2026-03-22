@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -20,6 +20,7 @@ LawOffice uses **Azure Cosmos DB NoSQL** as its primary data store and **Azure B
 |---------------------|-----------------------------|--------------------------------------|
 | Document Database   | Cosmos DB NoSQL (Serverless)| Primary data store for all entities   |
 | File Storage        | Azure Blob Storage          | Case document file storage            |
+| Message Queue       | Azure Service Bus (Basic)   | Cross-service integration events      |
 | Local Database      | Cosmos DB Emulator          | Local development data store          |
 | Local File Storage  | Azurite                     | Local development blob storage        |
 
@@ -201,7 +202,7 @@ Entities reference entities in other services by ID only (no foreign key enforce
 | Hearing       | `caseId`               | Case              | CaseManagement     |
 | DocumentFile  | `caseId`               | Case              | CaseManagement     |
 
-**Note**: Cross-service references are resolved by the frontend via separate API calls. There is no referential integrity enforcement across services - this is an accepted trade-off of the microservice architecture.
+**Note**: Cross-service references are resolved by the frontend via separate API calls for reads. For write-side consistency, PartyManagement publishes an `OpposingPartyDeleted` queue message and CaseManagement asynchronously removes deleted IDs from `opposingPartyIds[]` in affected cases.
 
 ---
 
@@ -243,6 +244,7 @@ Entities enforce business rules through:
 | Get by ID + office   | Point read with partition key       | 1 RU (optimal)   |
 | Get all for office   | Query with partition key filter     | Low (single partition) |
 | Get by sub-filter    | Query with partition + predicate    | Low (single partition) |
+| Reconcile deleted opposing party | Query by `ARRAY_CONTAINS(opposingPartyIds, id)` + upsert | Medium |
 | Count (active/total) | Aggregate query with partition key  | Medium           |
 | Get last N items     | Query with ORDER BY + TOP           | Medium           |
 | Delete               | Point delete with partition key     | ~1 RU            |
@@ -261,6 +263,9 @@ SELECT TOP @count * FROM c WHERE c.officeId = @officeId AND c.active = true ORDE
 
 -- Get upcoming hearings
 SELECT * FROM c WHERE c.officeId = @officeId AND c.date >= @today ORDER BY c.date ASC
+
+-- Get cases that reference a deleted opposing party
+SELECT * FROM c WHERE c.officeId = @officeId AND ARRAY_CONTAINS(c.opposingPartyIds, @opposingPartyId)
 ```
 
 ### 6.3 Data Access Pattern

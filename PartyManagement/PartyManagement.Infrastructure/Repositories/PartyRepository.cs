@@ -137,4 +137,18 @@ public abstract class PartyRepository : IPartyRepository
 
         return 0;
     }
+
+    public async Task Delete(string partyId, string officeId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(partyId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+
+        try
+        {
+            _ = await _container.DeleteItemAsync<Party>(partyId, new PartitionKey(officeId));
+        }
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+        }
+    }
 }

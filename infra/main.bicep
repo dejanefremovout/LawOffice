@@ -42,6 +42,12 @@ param staticWebAppBranch string = ''
 @description('Wire APIM backends to Function App host keys. Set to false on first deploy (before code is published) to avoid host runtime errors.')
 param configureApimBackends bool = true
 
+@description('Service Bus namespace name. Default: sb-lawoffice-<env>.')
+param serviceBusNamespaceName string = 'sb-lawoffice-${environmentName}'
+
+@description('Queue used to notify CaseManagement when an opposing party is deleted.')
+param opposingPartyDeletedQueueName string = 'q-opposingparty-deleted'
+
 // ─── Variables ──────────────────────────────────────────────────────────────────
 
 var prefix = 'lawoffice'
@@ -89,10 +95,17 @@ var apimOperations = [
   { serviceIndex: 2, operationId: 'get-getallopposingparties', displayName: 'GetAllOpposingParties', method: 'GET', urlTemplate: '/opposingParty', pathParameters: [] }
   { serviceIndex: 2, operationId: 'post-postopposingparty', displayName: 'PostOpposingParty', method: 'POST', urlTemplate: '/opposingParty', pathParameters: [] }
   { serviceIndex: 2, operationId: 'put-putopposingparty', displayName: 'PutOpposingParty', method: 'PUT', urlTemplate: '/opposingParty', pathParameters: [] }
+  { serviceIndex: 2, operationId: 'delete-deleteopposingparty', displayName: 'DeleteOpposingParty', method: 'DELETE', urlTemplate: '/opposingParty/{opposingPartyId}', pathParameters: ['opposingPartyId'] }
   { serviceIndex: 2, operationId: 'get-getclient', displayName: 'GetClient', method: 'GET', urlTemplate: '/client/{clientId}', pathParameters: ['clientId'] }
   { serviceIndex: 2, operationId: 'get-getallclients', displayName: 'GetAllClients', method: 'GET', urlTemplate: '/client', pathParameters: [] }
   { serviceIndex: 2, operationId: 'post-postclient', displayName: 'PostClient', method: 'POST', urlTemplate: '/client', pathParameters: [] }
   { serviceIndex: 2, operationId: 'put-putclient', displayName: 'PutClient', method: 'PUT', urlTemplate: '/client', pathParameters: [] }
+]
+
+// Service Bus configuration for Basic-tier queue-based integration
+var queueEnabledServiceKeys = [
+  'casemanagement'
+  'partymanagement'
 ]
 
 // Cosmos DB database and container layout (mirrors microservice boundaries)
@@ -230,6 +243,41 @@ module cosmosSqlDatabases 'modules/cosmos-sql-database.bicep' = [
   }
 ]
 
+// ─── Service Bus (Basic, Queue) ───────────────────────────────────────────────
+
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2024-01-01' = {
+  name: serviceBusNamespaceName
+  location: location
+  tags: tags
+  sku: {
+    name: 'Basic'
+    tier: 'Basic'
+    capacity: 0
+  }
+  properties: {
+    minimumTlsVersion: '1.2'
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource opposingPartyDeletedQueue 'Microsoft.ServiceBus/namespaces/queues@2024-01-01' = {
+  parent: serviceBusNamespace
+  name: opposingPartyDeletedQueueName
+  properties: {
+    lockDuration: 'PT1M'
+    maxDeliveryCount: 10
+    requiresDuplicateDetection: false
+    deadLetteringOnMessageExpiration: true
+    defaultMessageTimeToLive: 'P14D'
+    enablePartitioning: false
+  }
+}
+
+resource serviceBusRootManageRule 'Microsoft.ServiceBus/namespaces/authorizationRules@2024-01-01' existing = {
+  parent: serviceBusNamespace
+  name: 'RootManageSharedAccessKey'
+}
+
 // ─── App Service Plan (Consumption) ─────────────────────────────────────────────
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
@@ -289,6 +337,18 @@ resource funcApps 'Microsoft.Web/sites@2024-11-01' = [
               value: cosmosAccount.listConnectionStrings().connectionStrings[0].connectionString
             }
           ],
+          contains(queueEnabledServiceKeys, svc.key)
+            ? [
+                {
+                  name: 'ServiceBusConnectionString'
+                  value: listKeys(serviceBusRootManageRule.id, serviceBusRootManageRule.apiVersion).primaryConnectionString
+                }
+                {
+                  name: 'OpposingPartyDeletedQueueName'
+                  value: opposingPartyDeletedQueue.name
+                }
+              ]
+            : [],
           svc.needsBlobStorage
             ? [
                 {
@@ -494,3 +554,5 @@ output functionAppHostNames string[] = [
 ]
 output apimGatewayUrl string = apim.properties.gatewayUrl
 output staticWebAppDefaultHostname string = staticWebApp.properties.defaultHostname
+output serviceBusNamespaceId string = serviceBusNamespace.id
+output opposingPartyDeletedQueueId string = opposingPartyDeletedQueue.id

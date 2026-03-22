@@ -41,4 +41,12 @@ export class OpposingPartyService {
     const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.UPDATE_OPPOSING_PARTY}`;
     return this.http.put<OpposingParty>(url, opposingParty);
   }
+
+  /**
+   * Delete an opposing party by ID
+   */
+  deleteOpposingParty(opposingPartyId: string): Observable<void> {
+    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.DELETE_OPPOSING_PARTY(opposingPartyId)}`;
+    return this.http.delete<void>(url);
+  }
 }

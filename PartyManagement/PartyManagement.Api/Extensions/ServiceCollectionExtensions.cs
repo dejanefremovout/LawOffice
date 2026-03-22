@@ -1,6 +1,8 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Azure.Messaging.ServiceBus;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PartyManagement.Api.Messaging;
 using PartyManagement.Application.Services;
 using PartyManagement.Domain.Interfaces;
 using PartyManagement.Infrastructure.Data;
@@ -21,6 +23,7 @@ public static class ServiceCollectionExtensions
         // Register application services.
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IOpposingPartyService, OpposingPartyService>();
+        services.AddScoped<IOpposingPartyDeletedPublisher, ServiceBusOpposingPartyDeletedPublisher>();
 
         return services;
     }
@@ -40,6 +43,24 @@ public static class ServiceCollectionExtensions
         // Register repositories
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IOpposingPartyRepository, OpposingPartyRepository>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Azure Service Bus dependencies for messaging.
+    /// </summary>
+    public static IServiceCollection AddServiceBusDependencies(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var serviceBusConnectionString = configuration["ServiceBusConnectionString"];
+        ArgumentException.ThrowIfNullOrWhiteSpace(serviceBusConnectionString);
+
+        var opposingPartyDeletedQueueName = configuration["OpposingPartyDeletedQueueName"];
+        ArgumentException.ThrowIfNullOrWhiteSpace(opposingPartyDeletedQueueName);
+
+        services.AddSingleton(_ => new ServiceBusClient(serviceBusConnectionString));
+        services.AddScoped(s => s.GetRequiredService<ServiceBusClient>().CreateSender(opposingPartyDeletedQueueName));
 
         return services;
     }

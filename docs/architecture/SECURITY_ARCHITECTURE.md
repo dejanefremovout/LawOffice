@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -176,6 +176,7 @@ The current design does not implement fine-grained RBAC within a tenant. All aut
 | Function Apps      | TLS 1.2    | Yes        | `httpsOnly: true`, `minTlsVersion: 1.2` |
 | Function SCM       | TLS 1.2    | Yes        | `scmMinTlsVersion: 1.2`             |
 | APIM               | TLS 1.2    | Yes        | TLS 1.0/1.1/SSL 3.0 explicitly disabled |
+| Service Bus        | TLS 1.2    | Yes        | Namespace requires TLS for AMQP/HTTPS clients |
 | Storage Account    | TLS 1.2    | Yes        | `supportsHttpsTrafficOnly: true`     |
 | Cosmos DB          | TLS 1.2    | Yes        | `minimalTlsVersion: Tls12`          |
 | Static Web App     | TLS 1.2    | Yes        | Platform-managed certificate         |
@@ -217,6 +218,17 @@ SSL 3.0 (backend): Disabled
 | Legacy portal                        | Disabled | Only developer portal available      |
 | Public network access                | Enabled  | Required for Consumption tier        |
 | Subscription required (APIs)         | `false`  | JWT validation handles auth instead  |
+
+### 6.4 Service Bus Security Configuration
+
+| Setting                              | Value    | Purpose                              |
+|--------------------------------------|----------|--------------------------------------|
+| Namespace SKU                        | Basic    | Cost-optimized queue transport       |
+| Public network access                | Enabled  | Required for Consumption-tier apps   |
+| Minimum TLS                          | 1.2      | Encrypted transport                   |
+| Connection model (current)           | Connection string app setting | Enables queue producer/consumer |
+
+**Recommendation**: Migrate to managed identity + RBAC for Service Bus in a production-grade setup to avoid long-lived shared keys.
 
 ---
 
@@ -306,6 +318,7 @@ sequenceDiagram
 | Blob Access                | SAS URI via HTTPS                 | SAS URI via HTTP (localhost)               |
 | APIM Gateway               | Full APIM gateway                 | Direct Function App access (no APIM)       |
 | `X-Office-Id` source       | Extracted by APIM from JWT        | Injected by Angular interceptor from JWT   |
+| Service Bus                | Azure namespace                   | Azure namespace (real, not emulated)       |
 
 ---
 
@@ -319,6 +332,7 @@ sequenceDiagram
 | Man-in-the-middle                     | Tampering       | TLS 1.2+ on all endpoints                           |
 | Header injection (X-Office-Id)        | Tampering       | APIM overwrites header (`exists-action=override`)   |
 | Unauthorized blob access              | Information Disclosure | SAS tokens, no public blob access           |
+| Queue message tampering/injection     | Tampering       | Shared key auth + private app settings + payload validation |
 | FTP/SCM credential compromise         | Elevation of Privilege | Publishing credentials disabled            |
 | Data exposure via backup              | Information Disclosure | Encrypted backups, limited retention        |
 | DDoS                                  | Denial of Service | Consumption tier auto-scale + Azure platform protection |

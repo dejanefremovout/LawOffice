@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-10                                       |
+| **Last Updated**   | 2026-03-22                                       |
 
 ---
 
@@ -30,6 +30,7 @@
 | ADR-014 | SAS URI-Based Document Upload                    | Accepted |
 | ADR-015 | Frontend Orchestration for Cross-Service Joins   | Accepted |
 | ADR-016 | .NET Isolated Worker Model                       | Accepted |
+| ADR-017 | Azure Service Bus Basic for Integration Events   | Accepted |
 
 ---
 
@@ -492,3 +493,40 @@ Use the .NET isolated worker model (out-of-process) for all Azure Functions.
 - **Positive**: Standard ASP.NET Core patterns and middleware
 - **Negative**: Slight overhead from inter-process communication
 - **Negative**: Some minor differences from in-process model documentation
+
+---
+
+## ADR-017: Azure Service Bus Basic for Integration Events
+
+**Status**: Accepted  
+**Date**: 2026-03-22  
+
+### Context
+
+Cross-service references are stored by ID (for example, `Case.opposingPartyIds[]`). When an opposing party is deleted in PartyManagement, stale IDs can remain in CaseManagement unless an asynchronous reconciliation mechanism exists.
+
+### Decision
+
+Introduce **Azure Service Bus (Basic tier)** with a queue-based integration pattern:
+
+1. PartyManagement publishes an `OpposingPartyDeleted` message to queue `q-opposingparty-deleted`
+2. CaseManagement consumes the message via a Service Bus-triggered function
+3. CaseManagement removes the deleted `opposingPartyId` from all matching cases in the same `officeId`
+
+The Basic tier is intentionally selected to keep costs low for demo workloads. Since Basic does not support topics/subscriptions, a single queue pattern is used.
+
+### Consequences
+
+- **Positive**: Introduces practical event-driven architecture with minimal added cost
+- **Positive**: Improves eventual consistency between PartyManagement and CaseManagement
+- **Positive**: Keeps service boundaries intact (no synchronous service-to-service dependency)
+- **Negative**: Queue-only fan-out model is less flexible than topic/subscription
+- **Negative**: Local development requires a real Azure Service Bus namespace (no first-party emulator)
+
+### Alternatives Considered
+
+| Alternative                          | Reason Rejected                                         |
+|--------------------------------------|---------------------------------------------------------|
+| Service Bus Standard (topics)        | Higher cost for current demo scope                      |
+| Synchronous service-to-service call  | Tighter runtime coupling and failure propagation         |
+| Frontend-only reconciliation         | Incomplete guarantee; stale references remain possible   |

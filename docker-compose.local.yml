@@ -77,6 +77,9 @@ services:
       AzureWebJobsStorage: ${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}
       FUNCTIONS_WORKER_RUNTIME: dotnet-isolated
       CosmosSettings__ConnectionString: ${COSMOS_CONNECTION_STRING}
+      GraphApi__TenantId: Development
+      GraphApi__ClientId: Development
+      GraphApi__ClientSecret: Development
     ports:
       - "7206:80"
 
@@ -98,6 +101,8 @@ services:
       AzureWebJobsStorage: ${AZURE_WEBJOBS_STORAGE_CONNECTION_STRING}
       FUNCTIONS_WORKER_RUNTIME: dotnet-isolated
       CosmosSettings__ConnectionString: ${COSMOS_CONNECTION_STRING}
+      ServiceBusConnectionString: ${SERVICE_BUS_CONNECTION_STRING}
+      OpposingPartyDeletedQueueName: q-opposingparty-deleted
     ports:
       - "7207:80"
 
@@ -123,6 +128,8 @@ services:
       CosmosSettings__ConnectionString: ${COSMOS_CONNECTION_STRING}
       BlobSettings__ConnectionString: ${BLOB_SETTINGS_CONNECTION_STRING}
       BlobSettings__PublicSasBaseUri: ${BLOB_PUBLIC_SAS_BASE_URI}
+      ServiceBusConnectionString: ${SERVICE_BUS_CONNECTION_STRING}
+      OpposingPartyDeletedQueueName: q-opposingparty-deleted
     ports:
       - "7208:80"
 
