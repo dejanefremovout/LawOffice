@@ -2,6 +2,8 @@
 
 This setup is local-only. Azure deployment remains unchanged and continues using Bicep + direct code deployments.
 
+> **Alternative**: For a Kubernetes-based local setup using minikube, see [LOCAL_K8S_DEVELOPMENT.md](LOCAL_K8S_DEVELOPMENT.md).
+
 ## What runs in Docker
 
 - Cosmos DB Emulator (shared)

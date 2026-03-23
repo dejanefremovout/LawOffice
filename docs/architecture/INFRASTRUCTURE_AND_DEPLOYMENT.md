@@ -350,6 +350,28 @@ A .NET console application that initializes the Cosmos Emulator:
 2. **Phase 2**: Creates 8 containers with correct partition keys (with retry + exponential backoff for partition migrations)
 3. **SSL**: Disables SSL validation for the local emulator's self-signed certificate
 
+### 7.6 Kubernetes Alternative (minikube)
+
+As an alternative to Docker Compose, the platform can run locally on Kubernetes using minikube (see [ADR-018](ARCHITECTURE_DECISION_RECORDS.md#adr-018-minikube-for-local-kubernetes-development)). The K8s setup mirrors the Docker Compose topology:
+
+| Docker Compose Concept | Kubernetes Equivalent |
+|------------------------|----------------------|
+| `docker-compose.local.yml` | `k8s/manifests/` (YAML resource definitions) |
+| services | Deployments / StatefulSet |
+| depends_on + healthcheck | Init containers + readiness probes |
+| ports mapping | Services + Ingress / port-forward |
+| environment variables | ConfigMap + Secret |
+| volumes | PersistentVolumeClaim |
+| one-shot containers (cosmos-seeder, azurite-cors) | Jobs |
+
+Key differences from Docker Compose:
+- **Routing**: NGINX Ingress Controller provides path-based routing (`/office-api/...`, `/party-api/...`, `/case-api/...`), replacing individual host port mappings.
+- **CosmosSeeder**: Not used in K8s mode. Init containers in API pods wait for the Cosmos emulator directly.
+- **DNS**: Services use short DNS names within the `lawoffice` namespace (e.g., `cosmos`, `azurite`).
+- **Portal config**: A separate ConfigMap overrides `config.js` with Ingress-compatible relative API paths.
+
+Full setup instructions: [docs/LOCAL_K8S_DEVELOPMENT.md](../LOCAL_K8S_DEVELOPMENT.md)
+
 ---
 
 ## 8. APIM Gateway Configuration

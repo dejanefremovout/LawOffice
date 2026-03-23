@@ -276,3 +276,5 @@ No direct synchronous service-to-service calls exist. The frontend orchestrates 
 | [Architecture Decision Records](ARCHITECTURE_DECISION_RECORDS.md)              | Key design decisions and rationale        |
 | [Operational Runbook](OPERATIONAL_RUNBOOK.md)                                  | Monitoring, incident response, operations |
 | [Cost Analysis & Optimization](COST_ANALYSIS.md)                               | Azure cost model, scaling path            |
+| [Local Docker Development](../LOCAL_DOCKER_DEVELOPMENT.md)                     | Docker Compose local setup                |
+| [Local Kubernetes Development](../LOCAL_K8S_DEVELOPMENT.md)                    | Minikube/K8s local setup                  |

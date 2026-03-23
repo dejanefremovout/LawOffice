@@ -1,0 +1,23 @@
+# Portal runtime configuration for Kubernetes Ingress mode.
+# Overrides the default public/config.js so API calls use Ingress path-based routing
+# instead of individual port-forwarded ports.
+# When using Option A (minikube tunnel), the browser reaches all APIs through the same
+# origin (http://localhost) with path prefixes: /office-api, /party-api, /case-api.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portal-config
+  namespace: lawoffice
+  labels:
+    app: portal
+    app.kubernetes.io/part-of: lawoffice
+data:
+  config.js: |
+    window.__env = {
+      API_BASE_URL: {
+        OFFICE_MANAGEMENT: '/office-api/api',
+        PARTY_MANAGEMENT: '/party-api/api',
+        CASE_MANAGEMENT: '/case-api/api'
+      },
+      REDIRECT_URL: 'http://localhost'
+    };

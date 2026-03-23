@@ -1,0 +1,87 @@
+# Azurite Storage Emulator
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azurite
+  namespace: lawoffice
+  labels:
+    app: azurite
+    app.kubernetes.io/part-of: lawoffice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azurite
+  template:
+    metadata:
+      labels:
+        app: azurite
+    spec:
+      containers:
+        - name: azurite
+          image: mcr.microsoft.com/azure-storage/azurite:latest
+          command:
+            - azurite
+            - --blobHost
+            - "0.0.0.0"
+            - --queueHost
+            - "0.0.0.0"
+            - --tableHost
+            - "0.0.0.0"
+            - --location
+            - /data
+            - --skipApiVersionCheck
+          ports:
+            - containerPort: 10000
+              name: blob
+            - containerPort: 10001
+              name: queue
+            - containerPort: 10002
+              name: table
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # TCP probes instead of HTTP — Azurite returns 403 on unauthenticated HTTP requests.
+          readinessProbe:
+            tcpSocket:
+              port: 10000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            tcpSocket:
+              port: 10000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          volumeMounts:
+            - name: azurite-data
+              mountPath: /data
+      volumes:
+        - name: azurite-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azurite
+  namespace: lawoffice
+  labels:
+    app: azurite
+    app.kubernetes.io/part-of: lawoffice
+spec:
+  selector:
+    app: azurite
+  ports:
+    - name: blob
+      port: 10000
+      targetPort: 10000
+    - name: queue
+      port: 10001
+      targetPort: 10001
+    - name: table
+      port: 10002
+      targetPort: 10002

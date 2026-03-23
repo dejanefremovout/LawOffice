@@ -323,6 +323,37 @@ docker compose -f docker-compose.local.yml down -v
 | Cosmos SSL error               | Emulator self-signed cert      | Ensure `COSMOS_DISABLE_SSL_VALIDATION=true` |
 | Queue trigger not firing       | Missing/invalid Service Bus connection | Set `SERVICE_BUS_CONNECTION_STRING` to real Azure namespace |
 
+### 6.4 Kubernetes Local Environment (minikube)
+
+As an alternative to Docker Compose, the platform can run on Kubernetes locally. See [LOCAL_K8S_DEVELOPMENT.md](../LOCAL_K8S_DEVELOPMENT.md) for full setup.
+
+```powershell
+# One-time setup
+.\k8s\scripts\setup.ps1
+
+# Check pod status
+kubectl get pods -n lawoffice
+
+# View logs for a specific service
+kubectl logs -n lawoffice -l app=office-api --tail=50
+
+# Restart a service
+kubectl rollout restart deployment/office-api -n lawoffice
+
+# Teardown (keep cluster)
+.\k8s\scripts\teardown.ps1
+
+# Teardown (delete cluster)
+.\k8s\scripts\teardown.ps1 -DeleteCluster
+```
+
+| Issue                          | Cause                          | Resolution                           |
+|--------------------------------|--------------------------------|--------------------------------------|
+| Pod stuck in Init              | Cosmos/Azurite not ready       | Check init container logs: `kubectl logs <pod> -c wait-for-cosmos -n lawoffice` |
+| API pod CrashLoopBackOff       | Missing env vars or config     | Check ConfigMap: `kubectl describe configmap lawoffice-config -n lawoffice` |
+| Portal ERR_CONNECTION_REFUSED  | API URLs mismatch for access mode | Use Ingress config for tunnel, port-forward config for Option B (see docs) |
+| Ingress returns 502            | Backend pod not Ready          | Check readiness probes: `kubectl describe pod <pod> -n lawoffice` |
+
 ---
 
 ## 7. Maintenance Tasks

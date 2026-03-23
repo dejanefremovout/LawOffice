@@ -1,0 +1,50 @@
+# Ingress routes traffic from a single entry point to backend services.
+# This is the Kubernetes equivalent of APIM path-based routing.
+# Requires the NGINX Ingress Controller (enabled via: minikube addons enable ingress).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lawoffice-ingress
+  namespace: lawoffice
+  labels:
+    app.kubernetes.io/part-of: lawoffice
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          # OfficeManagement API: /office-api/... → office-api:80/...
+          - path: /office-api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: office-api
+                port:
+                  number: 80
+          # PartyManagement API: /party-api/... → party-api:80/...
+          - path: /party-api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: party-api
+                port:
+                  number: 80
+          # CaseManagement API: /case-api/... → case-api:80/...
+          - path: /case-api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: case-api
+                port:
+                  number: 80
+          # Portal (Angular SPA): default route
+          - path: /()(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: portal
+                port:
+                  number: 4200

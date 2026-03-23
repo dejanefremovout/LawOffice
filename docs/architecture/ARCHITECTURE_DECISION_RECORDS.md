@@ -6,7 +6,7 @@
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
 | **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Last Updated**   | 2026-03-23                                       |
 
 ---
 
@@ -31,6 +31,7 @@
 | ADR-015 | Frontend Orchestration for Cross-Service Joins   | Accepted |
 | ADR-016 | .NET Isolated Worker Model                       | Accepted |
 | ADR-017 | Azure Service Bus Basic for Integration Events   | Accepted |
+| ADR-018 | Minikube for Local Kubernetes Development         | Accepted |
 
 ---
 
@@ -415,6 +416,8 @@ Use Docker Compose to orchestrate all local services: Cosmos Emulator, Azurite, 
 - **Negative**: Docker Desktop license required for commercial use
 - **Negative**: SSL complexities with Cosmos Emulator (disabled for local)
 
+> **See also**: [ADR-018](#adr-018-minikube-for-local-kubernetes-development) adds minikube as an alternative local development mode alongside Docker Compose.
+
 ---
 
 ## ADR-014: SAS URI-Based Document Upload
@@ -530,3 +533,51 @@ The Basic tier is intentionally selected to keep costs low for demo workloads. S
 | Service Bus Standard (topics)        | Higher cost for current demo scope                      |
 | Synchronous service-to-service call  | Tighter runtime coupling and failure propagation         |
 | Frontend-only reconciliation         | Incomplete guarantee; stale references remain possible   |
+
+---
+
+## ADR-018: Minikube for Local Kubernetes Development
+
+**Status**: Accepted  
+**Date**: 2026-03-23  
+
+### Context
+
+The project uses Docker Compose for local development (ADR-013), which effectively mirrors the cloud architecture. However, Kubernetes is the industry-standard container orchestration platform, and demonstrating Kubernetes skills is valuable for a portfolio project. The challenge is introducing Kubernetes without adding cloud costs to an already cost-optimized serverless architecture.
+
+### Decision
+
+Introduce **minikube** (with the Docker driver) as an **alternative** local development mode alongside the existing Docker Compose setup:
+
+1. Minikube runs a full Kubernetes cluster inside Docker Desktop (no additional VMs or Hyper-V)
+2. Existing Dockerfiles are reused as-is - images are built inside minikube's Docker daemon
+3. Kubernetes manifests mirror the Docker Compose topology: Cosmos emulator, Azurite, 3 API Deployments, Portal, and NGINX Ingress
+4. Docker Compose remains the primary/simpler local development option
+5. No cloud Kubernetes resources are provisioned (zero additional cost)
+
+Minikube was chosen over k3d and kind because:
+- It uses the **standard Kubernetes distribution** (not K3s), making the experience fully transferable
+- It has the **largest documentation ecosystem** and community support for learning
+- Its **addon system** (ingress, dashboard, metrics-server) teaches manual component installation
+- The **Docker driver** integrates with the existing Docker Desktop setup without additional VM overhead
+
+### Consequences
+
+- **Positive**: Demonstrates Kubernetes concepts (Deployments, Services, Ingress, ConfigMaps, Secrets, Jobs, Init Containers, health probes, resource limits) with zero cloud cost
+- **Positive**: Reuses existing Dockerfiles and container images
+- **Positive**: NGINX Ingress Controller mirrors APIM path-based routing pattern
+- **Positive**: Init containers provide more reliable startup ordering than Docker Compose `depends_on`
+- **Positive**: Kubernetes knowledge transfers directly to AKS, EKS, or GKE
+- **Negative**: Higher local resource usage than Docker Compose (~6 GB RAM for minikube cluster)
+- **Negative**: Additional tooling to install (minikube, kubectl)
+- **Negative**: Two local development modes to maintain (Docker Compose and Kubernetes)
+
+### Alternatives Considered
+
+| Alternative                    | Reason Rejected                                              |
+|--------------------------------|--------------------------------------------------------------|
+| AKS (Azure Kubernetes Service) | Minimum ~$10-35/month VM cost; contradicts serverless cost model |
+| k3d (K3s in Docker)            | Lightweight K3s distro; less transferable learning than standard K8s |
+| kind (Kubernetes in Docker)    | Similar to minikube but less documented addon ecosystem       |
+| Docker Desktop built-in K8s    | Single-node only; less configurable; tied to Docker Desktop   |
+| Replace Docker Compose          | Docker Compose is simpler for quick iteration; both serve different needs |

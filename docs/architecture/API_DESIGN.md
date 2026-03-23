@@ -327,7 +327,7 @@ window.__env = {
 
 In local development (without APIM), the `ApimSimulatorInterceptor` replicates APIM's behavior:
 
-- **Trigger**: Requests to `localhost` or `127.0.0.1` only
+- **Trigger**: Requests to `localhost`, `127.0.0.1`, or relative Ingress paths (`/office-api`, `/party-api`, `/case-api`)
 - **Action**: Extracts `extension_OfficeId` from JWT → adds `X-Office-Id` header
 - **Purpose**: Simulates the claim-to-header extraction that APIM performs in production
 

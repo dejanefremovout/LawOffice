@@ -71,7 +71,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 | File Storage       | Azure Blob Storage (SAS-based upload)        |
 | Messaging          | Azure Service Bus (Basic queue)              |
 | Identity           | Microsoft Entra External ID (CIAM)           |
-| Infrastructure     | Bicep (IaC), Docker Compose (local dev)      |
+| Infrastructure     | Bicep (IaC), Docker Compose (local dev), Kubernetes/minikube (local dev) |
 
 ### Microservices
 
@@ -95,9 +95,13 @@ LawOffice/
 ├── LawOfficePortal/          # Angular SPA frontend
 ├── LocalDevelopment/         # Cosmos DB seeder for local Docker
 ├── infra/                    # Bicep IaC templates and APIM policies
+├── k8s/                      # Kubernetes manifests and setup scripts
+│   ├── manifests/            # K8s resource definitions (namespace, deployments, services, ingress)
+│   └── scripts/              # PowerShell setup/teardown scripts
 ├── docs/                     # Documentation
 │   ├── architecture/         # Solution Architect documentation
-│   └── LOCAL_DOCKER_DEVELOPMENT.md
+│   ├── LOCAL_DOCKER_DEVELOPMENT.md
+│   └── LOCAL_K8S_DEVELOPMENT.md
 └── docker-compose.local.yml  # Local development Docker Compose
 ```
 
@@ -109,6 +113,7 @@ LawOffice/
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Git](https://git-scm.com/)
+- (Optional, for Kubernetes mode) [minikube](https://minikube.sigs.k8s.io/) and [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
 ### Azure Deployment
 
@@ -183,6 +188,27 @@ docker compose --env-file .env.local -f docker-compose.local.yml down -v
 
 For troubleshooting and advanced local development details, see [docs/LOCAL_DOCKER_DEVELOPMENT.md](docs/LOCAL_DOCKER_DEVELOPMENT.md).
 
+### Alternative: Local Kubernetes (minikube)
+
+The platform can also run locally on Kubernetes using minikube, which mirrors a production-like container orchestration setup. This mode is useful for learning Kubernetes concepts and demonstrating K8s skills.
+
+```powershell
+# One-time setup (starts minikube, builds images, deploys all services)
+.\k8s\scripts\setup.ps1
+
+# Access via minikube tunnel (requires admin terminal)
+minikube tunnel
+# Then open http://localhost
+
+# Or access via port-forward (no admin needed)
+kubectl port-forward -n lawoffice svc/portal 4200:4200
+kubectl port-forward -n lawoffice svc/office-api 7206:80
+kubectl port-forward -n lawoffice svc/party-api 7207:80
+kubectl port-forward -n lawoffice svc/case-api 7208:80
+```
+
+For full details, see [docs/LOCAL_K8S_DEVELOPMENT.md](docs/LOCAL_K8S_DEVELOPMENT.md).
+
 ---
 
 ## Azure Deployment
@@ -239,7 +265,7 @@ For full IaC details and multi-environment setup, see [infra/README.md](infra/RE
 | **Hosting**      | Azure Static Web Apps (Free)                          |
 | **IaC**          | Bicep                                                 |
 | **Testing**      | xUnit, NSubstitute, Shouldly, Vitest                  |
-| **Local Dev**    | Docker Compose, Cosmos Emulator, Azurite              |
+| **Local Dev**    | Docker Compose, Kubernetes (minikube), Cosmos Emulator, Azurite |
 
 ---
 

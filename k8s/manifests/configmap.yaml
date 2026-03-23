@@ -1,0 +1,31 @@
+# ConfigMap for shared configuration across all services.
+# In Kubernetes, ConfigMaps replace docker-compose environment variables.
+# Service Bus connection string is stored in a Secret (see secret.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lawoffice-config
+  namespace: lawoffice
+  labels:
+    app.kubernetes.io/part-of: lawoffice
+data:
+  # Cosmos DB Emulator - uses internal cluster DNS (short name works within same namespace)
+  COSMOS_CONNECTION_STRING: "AccountEndpoint=https://cosmos:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;DisableServerCertificateValidation=True;"
+
+  # Azurite Storage Emulator - short DNS name (FQDN with dots confuses Azurite's URL parser)
+  AZURE_WEBJOBS_STORAGE_CONNECTION_STRING: "AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;"
+  BLOB_SETTINGS_CONNECTION_STRING: "AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;"
+
+  # SAS URIs are returned to the browser, so they must use localhost (exposed via minikube tunnel/NodePort)
+  BLOB_PUBLIC_SAS_BASE_URI: "http://localhost:10000"
+
+  # CORS origin for Azurite blob uploads from browser
+  BLOB_CORS_ALLOWED_ORIGIN: "http://localhost:4200"
+
+  # Service Bus queue name
+  OPPOSING_PARTY_DELETED_QUEUE_NAME: "q-opposingparty-deleted"
+
+  # Functions runtime settings
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: "http://+:80"
+  FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"

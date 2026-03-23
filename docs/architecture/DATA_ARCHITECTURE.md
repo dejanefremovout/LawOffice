@@ -381,6 +381,8 @@ partymanagement/opposingparties(pk: /officeId) → Created
 
 Container creation includes exponential backoff retry logic to handle partition migration delays in the emulator.
 
+> **Kubernetes mode**: In the minikube K8s setup, CosmosSeeder is not used. Instead, API pods use init containers that wait for the Cosmos emulator to be ready before starting. The emulator's data persistence is backed by a PersistentVolumeClaim. Databases and containers are created on first use by the application's Cosmos DB SDK. See [LOCAL_K8S_DEVELOPMENT.md](../LOCAL_K8S_DEVELOPMENT.md) for details.
+
 ---
 
 ## 10. Data Flow Summary

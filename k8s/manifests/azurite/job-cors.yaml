@@ -1,0 +1,61 @@
+# One-shot Job to configure CORS on Azurite blob service.
+# This is the Kubernetes equivalent of the docker-compose azurite-cors one-shot container.
+# Jobs run once to completion (unlike Deployments which run continuously).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: azurite-cors
+  namespace: lawoffice
+  labels:
+    app: azurite-cors
+    app.kubernetes.io/part-of: lawoffice
+spec:
+  backoffLimit: 5
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app: azurite-cors
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: azurite-cors
+          image: mcr.microsoft.com/azure-cli:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              CONN_STR="$AZURE_WEBJOBS_STORAGE_CONNECTION_STRING"
+              until az storage cors list --services b --connection-string "$CONN_STR" > /dev/null 2>&1; do
+                echo "Waiting for Azurite blob endpoint..."
+                sleep 2
+              done
+              az storage cors clear --services b --connection-string "$CONN_STR"
+              az storage cors add \
+                --services b \
+                --methods GET OPTIONS PUT \
+                --origins "$BLOB_CORS_ALLOWED_ORIGIN" \
+                --allowed-headers x-ms-blob-type content-type \
+                --exposed-headers x-ms-request-id x-ms-version \
+                --max-age 3600 \
+                --connection-string "$CONN_STR"
+              echo "Azurite blob CORS configured."
+          env:
+            - name: AZURE_WEBJOBS_STORAGE_CONNECTION_STRING
+              valueFrom:
+                configMapKeyRef:
+                  name: lawoffice-config
+                  key: AZURE_WEBJOBS_STORAGE_CONNECTION_STRING
+            - name: BLOB_CORS_ALLOWED_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: lawoffice-config
+                  key: BLOB_CORS_ALLOWED_ORIGIN
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"

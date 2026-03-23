@@ -21,12 +21,18 @@ export class ApimSimulatorInterceptor implements HttpInterceptor {
   private readonly userService = inject(UserService);
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Only run this behavior for local API endpoints.
-    const isLocalApi =
+    const isLocalHostApi =
       request.url.startsWith('http://localhost') ||
       request.url.startsWith('https://localhost') ||
       request.url.startsWith('http://127.0.0.1') ||
       request.url.startsWith('https://127.0.0.1');
+
+    const isIngressRelativeApi =
+      request.url.startsWith('/office-api') ||
+      request.url.startsWith('/party-api') ||
+      request.url.startsWith('/case-api');
+
+    const isLocalApi = isLocalHostApi || isIngressRelativeApi;
 
     if (!isLocalApi) {
       return next.handle(request);

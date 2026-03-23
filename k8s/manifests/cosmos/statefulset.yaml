@@ -1,0 +1,114 @@
+# Cosmos DB Emulator - StatefulSet with persistent storage.
+# StatefulSet (not Deployment) because the emulator has persistent state.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cosmos
+  namespace: lawoffice
+  labels:
+    app: cosmos
+    app.kubernetes.io/part-of: lawoffice
+spec:
+  serviceName: cosmos
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cosmos
+  template:
+    metadata:
+      labels:
+        app: cosmos
+    spec:
+      containers:
+        - name: cosmos
+          image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: AZURE_COSMOS_EMULATOR_PARTITION_COUNT
+              value: "10"
+            - name: AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE
+              value: "true"
+          ports:
+            - containerPort: 8081
+              name: https
+            - containerPort: 10250
+            - containerPort: 10251
+            - containerPort: 10252
+            - containerPort: 10253
+            - containerPort: 10254
+            - containerPort: 10255
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          # Cosmos emulator takes time to initialize
+          readinessProbe:
+            httpGet:
+              path: /_explorer/emulator.pem
+              port: 8081
+              scheme: HTTPS
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /_explorer/emulator.pem
+              port: 8081
+              scheme: HTTPS
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          volumeMounts:
+            - name: cosmos-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: cosmos-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+---
+# Service exposes the Cosmos emulator within the cluster.
+# Other pods reach it at cosmos:8081 (short DNS within the lawoffice namespace).
+apiVersion: v1
+kind: Service
+metadata:
+  name: cosmos
+  namespace: lawoffice
+  labels:
+    app: cosmos
+    app.kubernetes.io/part-of: lawoffice
+spec:
+  selector:
+    app: cosmos
+  ports:
+    - name: https
+      port: 8081
+      targetPort: 8081
+    - name: p10250
+      port: 10250
+      targetPort: 10250
+    - name: p10251
+      port: 10251
+      targetPort: 10251
+    - name: p10252
+      port: 10252
+      targetPort: 10252
+    - name: p10253
+      port: 10253
+      targetPort: 10253
+    - name: p10254
+      port: 10254
+      targetPort: 10254
+    - name: p10255
+      port: 10255
+      targetPort: 10255
+  clusterIP: None  # Headless service for StatefulSet

@@ -319,6 +319,7 @@ sequenceDiagram
 | APIM Gateway               | Full APIM gateway                 | Direct Function App access (no APIM)       |
 | `X-Office-Id` source       | Extracted by APIM from JWT        | Injected by Angular interceptor from JWT   |
 | Service Bus                | Azure namespace                   | Azure namespace (real, not emulated)       |
+| Container orchestration    | AKS / Azure Container Apps        | minikube (optional local K8s mode)         |
 
 ---
 
