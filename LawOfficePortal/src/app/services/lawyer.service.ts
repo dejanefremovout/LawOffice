@@ -1,44 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE_URL } from '../constants/api.constants';
+import { LawyerService as GeneratedLawyerService } from '../api/office-management';
+import type { LawyerModel, LawyerCreateModel } from '../api/office-management';
 import { Lawyer } from '../models/lawyer.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LawyerService {
-  private http = inject(HttpClient);
+  private api = inject(GeneratedLawyerService);
 
-  /**
-   * Get all lawyers for a specific case
-   */
   getLawyers(): Observable<Lawyer[]> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer`;
-    return this.http.get<Lawyer[]>(url);
+    return this.api.getAllLawyers({ xOfficeId: '' }) as Observable<Lawyer[]>;
   }
 
-  /**
-   * Get a specific lawyer by ID
-   */
   getLawyer(lawyerId: string): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer/${lawyerId}`;
-    return this.http.get<Lawyer>(url);
+    return this.api.getLawyer({ xOfficeId: '', lawyerId }) as Observable<Lawyer>;
   }
 
-  /**
-   * Create a new lawyer
-   */
   createLawyer(lawyer: Omit<Lawyer, 'id'>): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer`;
-    return this.http.post<Lawyer>(url, lawyer);
+    return this.api.createLawyer({ xOfficeId: '', requestBody: lawyer as LawyerCreateModel }) as Observable<Lawyer>;
   }
 
-    /**
-   * Update an existing lawyer
-   */
   updateLawyer(lawyer: Lawyer): Observable<Lawyer> {
-    const url = `${API_BASE_URL.OFFICE_MANAGEMENT}/lawyer`;
-    return this.http.put<Lawyer>(url, lawyer);
+    return this.api.updateLawyer({ xOfficeId: '', requestBody: lawyer as LawyerModel }) as Observable<Lawyer>;
   }
 }

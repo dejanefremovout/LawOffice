@@ -64,6 +64,33 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## API Client Generation
+
+TypeScript API clients are auto-generated from OpenAPI 3.0.1 specification files using `openapi-typescript-codegen`.
+
+### Spec files
+
+One JSON spec per backend microservice, committed to `openapi-specs/`:
+
+| File                          | Service              |
+|-------------------------------|----------------------|
+| `case-management.json`        | CaseManagement API   |
+| `office-management.json`      | OfficeManagement API |
+| `party-management.json`       | PartyManagement API  |
+
+### Regenerate clients
+
+After a backend API change, update the spec file and run:
+
+```bash
+npm run generate:api          # regenerate all three clients
+npm run generate:api:case     # CaseManagement only
+npm run generate:api:office   # OfficeManagement only
+npm run generate:api:party    # PartyManagement only
+```
+
+Generated code is written to `src/app/api/<service>/` (models, services, core). Wrapper services in `src/app/services/` delegate to the generated clients so that components are not coupled to the generated code directly.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

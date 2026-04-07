@@ -1,0 +1,731 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CaseManagement API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:7208/api"
+    }
+  ],
+  "paths": {
+    "/case/{caseId}": {
+      "get": {
+        "tags": ["Case"],
+        "summary": "Get a case by ID",
+        "operationId": "getCase",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Case identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested case",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CaseModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Case not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Case"],
+        "summary": "Delete a case",
+        "operationId": "deleteCase",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Case identifier"
+          }
+        ],
+        "responses": {
+          "204": { "description": "Case deleted" },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/case": {
+      "get": {
+        "tags": ["Case"],
+        "summary": "Get all cases",
+        "operationId": "getAllCases",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of cases",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CaseModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Case"],
+        "summary": "Create a case",
+        "operationId": "createCase",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CaseCreateModel" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created case",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CaseModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Case"],
+        "summary": "Update a case",
+        "operationId": "updateCase",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CaseModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated case",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CaseModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/cases/count": {
+      "get": {
+        "tags": ["Case"],
+        "summary": "Get case count aggregates",
+        "operationId": "getCaseCount",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Case count aggregates",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CaseCountModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/cases/last/{count}": {
+      "get": {
+        "tags": ["Case"],
+        "summary": "Get last N cases",
+        "operationId": "getLastCases",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "count",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" },
+            "description": "Number of cases to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Last N cases",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CaseModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/cases/hearings/{count}": {
+      "get": {
+        "tags": ["Case"],
+        "summary": "Get cases with upcoming hearings",
+        "operationId": "getCasesWithHearings",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "count",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" },
+            "description": "Number of hearings to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cases with upcoming hearings",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CaseHearingModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/hearing/{hearingId}": {
+      "get": {
+        "tags": ["Hearing"],
+        "summary": "Get a hearing by ID",
+        "operationId": "getHearing",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "hearingId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Hearing identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested hearing",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HearingModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Hearing not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Hearing"],
+        "summary": "Delete a hearing",
+        "operationId": "deleteHearing",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "hearingId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Hearing identifier"
+          }
+        ],
+        "responses": {
+          "204": { "description": "Hearing deleted" },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/hearing/case/{caseId}": {
+      "get": {
+        "tags": ["Hearing"],
+        "summary": "Get all hearings for a case",
+        "operationId": "getAllHearings",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Case identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of hearings",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/HearingModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/hearing": {
+      "post": {
+        "tags": ["Hearing"],
+        "summary": "Create a hearing",
+        "operationId": "createHearing",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/HearingCreateModel" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created hearing",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HearingModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Hearing"],
+        "summary": "Update a hearing",
+        "operationId": "updateHearing",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/HearingModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated hearing",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HearingModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/documentFile/{documentFileId}": {
+      "get": {
+        "tags": ["DocumentFile"],
+        "summary": "Get a document file by ID",
+        "operationId": "getDocumentFile",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "documentFileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Document file identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested document file",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DocumentFileModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Document file not found" }
+        }
+      },
+      "delete": {
+        "tags": ["DocumentFile"],
+        "summary": "Delete a document file",
+        "operationId": "deleteDocumentFile",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "documentFileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Document file identifier"
+          }
+        ],
+        "responses": {
+          "204": { "description": "Document file deleted" },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/documentFile/case/{caseId}": {
+      "get": {
+        "tags": ["DocumentFile"],
+        "summary": "Get all document files for a case",
+        "operationId": "getAllDocumentFiles",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Case identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of document files",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/DocumentFileModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/documentFile": {
+      "post": {
+        "tags": ["DocumentFile"],
+        "summary": "Create a document file",
+        "operationId": "createDocumentFile",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DocumentFileCreateModel" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created document file",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DocumentFileModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["DocumentFile"],
+        "summary": "Update a document file",
+        "operationId": "updateDocumentFile",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DocumentFileModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated document file",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DocumentFileModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CaseModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "officeId": { "type": "string" },
+          "clientIds": { "type": "array", "items": { "type": "string" } },
+          "opposingPartyIds": { "type": "array", "items": { "type": "string" } },
+          "identificationNumber": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "active": { "type": "boolean" },
+          "competentCourt": { "type": "string", "nullable": true },
+          "city": { "type": "string", "nullable": true },
+          "year": { "type": "integer", "format": "int32", "nullable": true },
+          "judge": { "type": "string", "nullable": true }
+        }
+      },
+      "CaseCreateModel": {
+        "type": "object",
+        "required": ["officeId", "clientIds", "opposingPartyIds", "identificationNumber"],
+        "properties": {
+          "officeId": { "type": "string" },
+          "clientIds": { "type": "array", "items": { "type": "string" } },
+          "opposingPartyIds": { "type": "array", "items": { "type": "string" } },
+          "identificationNumber": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "competentCourt": { "type": "string", "nullable": true },
+          "city": { "type": "string", "nullable": true },
+          "year": { "type": "integer", "format": "int32", "nullable": true },
+          "judge": { "type": "string", "nullable": true }
+        }
+      },
+      "CaseCountModel": {
+        "type": "object",
+        "properties": {
+          "totalCases": { "type": "integer", "format": "int32" },
+          "activeCases": { "type": "integer", "format": "int32" }
+        }
+      },
+      "CaseHearingModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "identificationNumber": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HearingModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "caseId": { "type": "string" },
+          "officeId": { "type": "string" },
+          "courtroom": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "date": { "type": "string", "format": "date-time" },
+          "held": { "type": "boolean" }
+        }
+      },
+      "HearingCreateModel": {
+        "type": "object",
+        "properties": {
+          "caseId": { "type": "string" },
+          "officeId": { "type": "string" },
+          "courtroom": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "date": { "type": "string", "format": "date-time" },
+          "held": { "type": "boolean" }
+        }
+      },
+      "DocumentFileModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "caseId": { "type": "string" },
+          "officeId": { "type": "string" },
+          "name": { "type": "string" },
+          "uri": { "type": "string", "format": "uri", "nullable": true }
+        }
+      },
+      "DocumentFileCreateModel": {
+        "type": "object",
+        "properties": {
+          "caseId": { "type": "string" },
+          "officeId": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      }
+    }
+  }
+}

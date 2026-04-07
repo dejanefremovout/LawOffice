@@ -1,52 +1,32 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE_URL, API_ENDPOINTS } from '../constants/api.constants';
+import { OpposingPartyService as GeneratedOpposingPartyService } from '../api/party-management';
+import type { PartyModel, PartyCreateModel } from '../api/party-management';
 import { OpposingParty } from '../models/opposing-party.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OpposingPartyService {
-  private http = inject(HttpClient);
+  private api = inject(GeneratedOpposingPartyService);
 
-  /**
-   * Get all opposing parties for a specific office
-   */
   getOpposingParties(): Observable<OpposingParty[]> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_OPPOSING_PARTIES}`;
-    return this.http.get<OpposingParty[]>(url);
+    return this.api.getAllOpposingParties({ xOfficeId: '' }) as Observable<OpposingParty[]>;
   }
 
-  /**
-   * Get a specific opposing party by ID
-   */
   getOpposingParty(opposingPartyId: string): Observable<OpposingParty> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_OPPOSING_PARTY(opposingPartyId)}`;
-    return this.http.get<OpposingParty>(url);
+    return this.api.getOpposingParty({ xOfficeId: '', opposingPartyId }) as Observable<OpposingParty>;
   }
 
-  /**
-   * Create a new opposing party
-   */
   createOpposingParty(opposingParty: Omit<OpposingParty, 'id'>): Observable<OpposingParty> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.CREATE_OPPOSING_PARTY}`;
-    return this.http.post<OpposingParty>(url, opposingParty);
+    return this.api.createOpposingParty({ xOfficeId: '', requestBody: opposingParty as PartyCreateModel }) as Observable<OpposingParty>;
   }
 
-  /**
-   * Update an existing opposing party
-   */
   updateOpposingParty(opposingParty: OpposingParty): Observable<OpposingParty> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.UPDATE_OPPOSING_PARTY}`;
-    return this.http.put<OpposingParty>(url, opposingParty);
+    return this.api.updateOpposingParty({ xOfficeId: '', requestBody: opposingParty as PartyModel }) as Observable<OpposingParty>;
   }
 
-  /**
-   * Delete an opposing party by ID
-   */
   deleteOpposingParty(opposingPartyId: string): Observable<void> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.DELETE_OPPOSING_PARTY(opposingPartyId)}`;
-    return this.http.delete<void>(url);
+    return this.api.deleteOpposingParty({ xOfficeId: '', opposingPartyId });
   }
 }

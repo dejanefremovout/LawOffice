@@ -6,7 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "generate:api": "npm run generate:api:case && npm run generate:api:office && npm run generate:api:party",
+    "generate:api:case": "openapi --input openapi-specs/case-management.json --output src/app/api/case-management --client angular --useOptions --indent 2",
+    "generate:api:office": "openapi --input openapi-specs/office-management.json --output src/app/api/office-management --client angular --useOptions --indent 2",
+    "generate:api:party": "openapi --input openapi-specs/party-management.json --output src/app/api/party-management --client angular --useOptions --indent 2"
   },
   "prettier": {
     "printWidth": 100,
@@ -43,6 +47,7 @@
     "@angular/compiler-cli": "^21.1.0",
     "@angular/material": "^21.1.4",
     "jsdom": "^27.1.0",
+    "openapi-typescript-codegen": "^0.30.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

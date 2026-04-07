@@ -1,7 +1,10 @@
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using PartyManagement.Api.Extensions;
 using PartyManagement.Api.Messaging;
@@ -23,6 +26,12 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     /// Gets an opposing party by identifier.
     /// </summary>
     [Function("GetOpposingParty")]
+    [OpenApiOperation(operationId: "getOpposingParty", tags: ["OpposingParty"], Summary = "Get an opposing party by ID")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "opposingPartyId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "Opposing party identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(PartyModel), Description = "The requested opposing party")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, contentType: "text/plain", bodyType: typeof(string), Description = "Opposing party not found")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty/{opposingPartyId}")] HttpRequest req, string opposingPartyId)
     {
         try
@@ -54,6 +63,10 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     /// Gets all opposing parties for the current office.
     /// </summary>
     [Function("GetAllOpposingParties")]
+    [OpenApiOperation(operationId: "getAllOpposingParties", tags: ["OpposingParty"], Summary = "Get all opposing parties")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<PartyModel>), Description = "List of opposing parties")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "opposingParty")] HttpRequest req)
     {
         try
@@ -80,6 +93,11 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     /// Creates an opposing party.
     /// </summary>
     [Function("PostOpposingParty")]
+    [OpenApiOperation(operationId: "createOpposingParty", tags: ["OpposingParty"], Summary = "Create an opposing party")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(PartyCreateModel), Required = true, Description = "Opposing party creation payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(PartyModel), Description = "Created opposing party")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "opposingParty")] HttpRequest req)
     {
         try
@@ -113,6 +131,11 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     /// Updates an opposing party.
     /// </summary>
     [Function("PutOpposingParty")]
+    [OpenApiOperation(operationId: "updateOpposingParty", tags: ["OpposingParty"], Summary = "Update an opposing party")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(PartyModel), Required = true, Description = "Updated opposing party payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(PartyModel), Description = "Updated opposing party")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "opposingParty")] HttpRequest req)
     {
         try
@@ -146,6 +169,11 @@ public class OpposingPartyFunction(ILogger<OpposingPartyFunction> logger, IOppos
     /// Deletes an opposing party by identifier and emits an integration event.
     /// </summary>
     [Function("DeleteOpposingParty")]
+    [OpenApiOperation(operationId: "deleteOpposingParty", tags: ["OpposingParty"], Summary = "Delete an opposing party")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "opposingPartyId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "Opposing party identifier")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "Opposing party deleted")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "opposingParty/{opposingPartyId}")] HttpRequest req, string opposingPartyId)
     {
         try

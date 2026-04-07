@@ -93,6 +93,7 @@ LawOffice/
 ├── OfficeManagement/         # Office management microservice (.NET solution)
 ├── PartyManagement/          # Party management microservice (.NET solution)
 ├── LawOfficePortal/          # Angular SPA frontend
+│   └── openapi-specs/        # OpenAPI 3.0.1 spec files for client generation
 ├── LocalDevelopment/         # Cosmos DB seeder for local Docker
 ├── infra/                    # Bicep IaC templates and APIM policies
 ├── k8s/                      # Kubernetes manifests and setup scripts
@@ -259,6 +260,7 @@ For full IaC details and multi-environment setup, see [infra/README.md](infra/RE
 | **Frontend**     | Angular 21, Angular Material 21, TypeScript 5.9       |
 | **Auth**         | MSAL Angular 5.1, Entra External ID (CIAM)           |
 | **Backend**      | .NET 10, Azure Functions v4 (isolated worker)         |
+| **API Docs**     | OpenAPI 3.0.1, openapi-typescript-codegen             |
 | **Data**         | Azure Cosmos DB NoSQL, Azure Blob Storage             |
 | **Gateway**      | Azure API Management (Consumption)                    |
 | **Messaging**    | Azure Service Bus Basic (Queue)                       |

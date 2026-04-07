@@ -1,7 +1,10 @@
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using OfficeManagement.Api.Extensions;
 using OfficeManagement.Application.Services;
@@ -21,6 +24,11 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     /// Gets office details for the current office context.
     /// </summary>
     [Function("GetOffice")]
+    [OpenApiOperation(operationId: "getOffice", tags: ["Office"], Summary = "Get office details")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(OfficeModel), Description = "The office details")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, contentType: "text/plain", bodyType: typeof(string), Description = "Office not found")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "office")] HttpRequest req)
     {
         try
@@ -52,6 +60,11 @@ public class OfficeFunction(ILogger<OfficeFunction> logger, IOfficeService offic
     /// Updates office details for the current office context.
     /// </summary>
     [Function("PutOffice")]
+    [OpenApiOperation(operationId: "updateOffice", tags: ["Office"], Summary = "Update office details")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(OfficeModel), Required = true, Description = "Updated office payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(OfficeModel), Description = "Updated office")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "office")] HttpRequest req)
     {
         try

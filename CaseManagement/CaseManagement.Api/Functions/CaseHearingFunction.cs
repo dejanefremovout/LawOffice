@@ -1,3 +1,4 @@
+using System.Net;
 using CaseManagement.Api.Extensions;
 using CaseManagement.Application.Services;
 using CaseManagement.Domain.Entities;
@@ -5,7 +6,9 @@ using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
 namespace CaseManagement.Api.Functions;
@@ -22,6 +25,11 @@ public class CaseHearingFunction(ILogger<CaseFunction> logger, ICaseService case
     /// Gets the next upcoming hearings projected with case identifiers.
     /// </summary>
     [Function("GetCasesWithHearings")]
+    [OpenApiOperation(operationId: "getCasesWithHearings", tags: ["CaseHearing"], Summary = "Get upcoming hearings with case info")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "count", In = ParameterLocation.Path, Required = true, Type = typeof(int), Description = "Number of upcoming hearings to return")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<CaseHearingModel>), Description = "List of case hearings")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> GetCasesWithHearings([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/hearings/{count}")] HttpRequest req, int count)
     {
         try

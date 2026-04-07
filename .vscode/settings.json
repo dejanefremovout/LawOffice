@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "dotnet package": true,
+        "npm install": true,
+        "npm cache": true,
+        "npx ng": true
+    }
+}

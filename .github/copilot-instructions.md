@@ -62,6 +62,7 @@ See [docs/LOCAL_DOCKER_DEVELOPMENT.md](../docs/LOCAL_DOCKER_DEVELOPMENT.md) or [
 
 ### .NET
 
+- **OpenAPI**: All HTTP-trigger Functions are annotated with `Microsoft.Azure.Functions.Worker.Extensions.OpenApi` attributes (`OpenApiOperation`, `OpenApiParameter`, `OpenApiRequestBody`, `OpenApiResponseWithBody`). Swagger UI is available at `/api/swagger/ui` when running locally.
 - **DI lifetimes**: SDK clients (`CosmosClient`, `BlobServiceClient`, `ServiceBusClient`, `GraphServiceClient`) → **singleton**; repositories and application services → **scoped**.
 - **DI wiring**: split into `AddApplicationServices`, `AddCosmosRepositories`, and service-specific extension methods in `<Service>.Api/Extensions/ServiceCollectionExtensions.cs`.
 - **Error handling in Functions**: catch `ArgumentException` → 400, generic `Exception` → 500.
@@ -74,6 +75,7 @@ See [docs/LOCAL_DOCKER_DEVELOPMENT.md](../docs/LOCAL_DOCKER_DEVELOPMENT.md) or [
 
 - MSAL Angular (`@azure/msal-angular`) handles auth; tokens acquired silently in interceptor.
 - Component libraries: Angular Material 21.
+- **API clients**: Auto-generated from OpenAPI specs via `openapi-typescript-codegen`. Spec files in `LawOfficePortal/openapi-specs/`, generated code in `src/app/api/`. Regenerate with `npm run generate:api`. Wrapper services in `src/app/services/` delegate to generated clients.
 
 ### Testing (.NET)
 

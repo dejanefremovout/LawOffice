@@ -1,44 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE_URL, API_ENDPOINTS } from '../constants/api.constants';
+import { ClientService as GeneratedClientService } from '../api/party-management';
+import type { PartyModel, PartyCreateModel } from '../api/party-management';
 import { Client } from '../models/client.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
-  private http = inject(HttpClient);
+  private api = inject(GeneratedClientService);
 
-  /**
-   * Get all clients for a specific office
-   */
   getClients(): Observable<Client[]> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_CLIENTS}`;
-    return this.http.get<Client[]>(url);
+    return this.api.getAllClients({ xOfficeId: '' }) as Observable<Client[]>;
   }
 
-  /**
-   * Get a specific client by ID
-   */
   getClient(clientId: string): Observable<Client> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.GET_CLIENT(clientId)}`;
-    return this.http.get<Client>(url);
+    return this.api.getClient({ xOfficeId: '', clientId }) as Observable<Client>;
   }
 
-  /**
-   * Create a new client
-   */
   createClient(client: Omit<Client, 'id'>): Observable<Client> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.CREATE_CLIENT}`;
-    return this.http.post<Client>(url, client);
+    return this.api.createClient({ xOfficeId: '', requestBody: client as PartyCreateModel }) as Observable<Client>;
   }
 
-  /**
-   * Update an existing client
-   */
   updateClient(client: Client): Observable<Client> {
-    const url = `${API_BASE_URL.PARTY_MANAGEMENT}${API_ENDPOINTS.UPDATE_CLIENT}`;
-    return this.http.put<Client>(url, client);
+    return this.api.updateClient({ xOfficeId: '', requestBody: client as PartyModel }) as Observable<Client>;
   }
 }

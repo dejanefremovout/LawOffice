@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserCacheLocation, IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
@@ -8,6 +8,9 @@ import { MsalModule, MSAL_INSTANCE, MSAL_GUARD_CONFIG, MsalGuardConfiguration, M
 import { routes } from './app.routes';
 import { API_BASE_URL, CLIENT_ID, REDIRECT_URL } from './constants/api.constants';
 import { ApimSimulatorInterceptor } from './apim-simulator-interceptor';
+import { OpenAPI as CaseManagementOpenAPI } from './api/case-management';
+import { OpenAPI as OfficeManagementOpenAPI } from './api/office-management';
+import { OpenAPI as PartyManagementOpenAPI } from './api/party-management';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
@@ -51,11 +54,24 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   };
 }
 
+export function initializeOpenApiBaseUrls(): () => void {
+  return () => {
+    CaseManagementOpenAPI.BASE = API_BASE_URL.CASE_MANAGEMENT;
+    OfficeManagementOpenAPI.BASE = API_BASE_URL.OFFICE_MANAGEMENT;
+    PartyManagementOpenAPI.BASE = API_BASE_URL.PARTY_MANAGEMENT;
+  };
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeOpenApiBaseUrls,
+      multi: true
+    },
     importProvidersFrom(MsalModule),
     {
       provide: HTTP_INTERCEPTORS,

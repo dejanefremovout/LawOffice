@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-06                                       |
 
 ---
 
@@ -38,6 +38,7 @@ graph LR
 | **Path Style**          | camelCase resource names                                       |
 | **ID Parameters**       | Path parameters for GET-by-ID and DELETE                       |
 | **Error Responses**     | Standard HTTP status codes (400, 401, 404, etc.)              |
+| **OpenAPI**             | OpenAPI 3.0.1 specs per service; generated Angular clients     |
 
 ---
 
@@ -292,24 +293,51 @@ APIM authenticates to Function Apps using **host-level Function keys** passed in
 
 ## 5. Frontend API Integration
 
-### 5.1 Service Architecture
+### 5.1 OpenAPI-Generated Clients
 
-The Angular SPA uses an Angular service per domain concern:
+API clients are auto-generated from OpenAPI 3.0.1 specification files using `openapi-typescript-codegen`. Each backend microservice has a corresponding spec file in `LawOfficePortal/openapi-specs/` and a generated client in `LawOfficePortal/src/app/api/`:
 
-| Service                  | Backend API        | Endpoints Consumed                     |
-|--------------------------|--------------------|----------------------------------------|
-| `CaseService`            | CaseManagement     | CRUD cases, counts, last cases         |
-| `HearingService`         | CaseManagement     | CRUD hearings, upcoming hearings       |
-| `DocumentService`        | CaseManagement     | CRUD documents, SAS URI management     |
-| `ClientService`           | PartyManagement    | CRUD clients                           |
-| `OpposingPartyService`   | PartyManagement    | CRUD opposing parties                  |
-| `PartyService`            | PartyManagement    | Party counts aggregate                 |
-| `OfficeService`           | OfficeManagement   | Get/update office                      |
-| `LawyerService`           | OfficeManagement   | CRUD lawyers                           |
+| Spec File                           | Generated Client                | Backend API        |
+|-------------------------------------|---------------------------------|--------------------|
+| `openapi-specs/case-management.json`   | `src/app/api/case-management/`   | CaseManagement     |
+| `openapi-specs/office-management.json` | `src/app/api/office-management/` | OfficeManagement   |
+| `openapi-specs/party-management.json`  | `src/app/api/party-management/`  | PartyManagement    |
 
-### 5.2 API Base URL Configuration
+Each generated client module contains:
+- **Models** - TypeScript types mirroring backend request/response DTOs
+- **Services** - Injectable Angular services with typed methods for each API operation
+- **Core** - HTTP request infrastructure (uses Angular `HttpClient`)
 
-API endpoints are configured at runtime via `config.js`, not compiled into the application:
+To regenerate clients after a backend API change:
+
+```bash
+cd LawOfficePortal
+npm run generate:api          # all services
+npm run generate:api:case     # CaseManagement only
+npm run generate:api:office   # OfficeManagement only
+npm run generate:api:party    # PartyManagement only
+```
+
+### 5.2 Service Architecture
+
+Thin wrapper services in `src/app/services/` delegate to the generated clients, preserving a stable public API for components:
+
+| Wrapper Service            | Generated Service(s)           | Endpoints Consumed                     |
+|----------------------------|--------------------------------|----------------------------------------|
+| `CaseService`              | `CaseService` (generated)      | CRUD cases, counts, last cases         |
+| `HearingService`           | `HearingService` (generated)   | CRUD hearings, upcoming hearings       |
+| `DocumentService`          | `DocumentFileService` (generated) | CRUD documents, SAS URI management  |
+| `ClientService`            | `ClientService` (generated)    | CRUD clients                           |
+| `OpposingPartyService`     | `OpposingPartyService` (generated) | CRUD opposing parties              |
+| `PartyService`             | `PartyService` (generated)     | Party counts aggregate                 |
+| `OfficeService`            | `OfficeService` (generated)    | Get/update office                      |
+| `LawyerService`            | `LawyerService` (generated)    | CRUD lawyers                           |
+
+> **Note**: `DocumentService` retains two methods (`uploadFileToBlob`, `downloadFileFromBlob`) that are not part of the OpenAPI spec - they interact directly with Azure Blob Storage via SAS URIs.
+
+### 5.3 API Base URL Configuration
+
+API base URLs are configured at runtime via `config.js`, not compiled into the application:
 
 ```javascript
 // public/config.js (per environment)
@@ -323,7 +351,9 @@ window.__env = {
 };
 ```
 
-### 5.3 Local Development Interceptor
+Generated clients read their base URL from `OpenAPI.BASE` in each module's `core/OpenAPI.ts`. At application startup, an `APP_INITIALIZER` in `app.config.ts` sets these values from the runtime configuration, ensuring they respect environment-specific URLs.
+
+### 5.4 Local Development Interceptor
 
 In local development (without APIM), the `ApimSimulatorInterceptor` replicates APIM's behavior:
 

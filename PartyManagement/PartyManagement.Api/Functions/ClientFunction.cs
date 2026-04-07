@@ -1,7 +1,10 @@
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using PartyManagement.Api.Extensions;
 using PartyManagement.Application.Services;
@@ -21,6 +24,12 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     /// Gets a client by identifier.
     /// </summary>
     [Function("GetClient")]
+    [OpenApiOperation(operationId: "getClient", tags: ["Client"], Summary = "Get a client by ID")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "clientId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "Client identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(PartyModel), Description = "The requested client")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, contentType: "text/plain", bodyType: typeof(string), Description = "Client not found")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client/{clientId}")] HttpRequest req, string clientId)
     {
         try
@@ -52,6 +61,10 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     /// Gets all clients for the current office.
     /// </summary>
     [Function("GetAllClients")]
+    [OpenApiOperation(operationId: "getAllClients", tags: ["Client"], Summary = "Get all clients")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<PartyModel>), Description = "List of clients")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "client")] HttpRequest req)
     {
         try
@@ -78,6 +91,11 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     /// Creates a client.
     /// </summary>
     [Function("PostClient")]
+    [OpenApiOperation(operationId: "createClient", tags: ["Client"], Summary = "Create a client")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(PartyCreateModel), Required = true, Description = "Client creation payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(PartyModel), Description = "Created client")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "client")] HttpRequest req)
     {
         try
@@ -111,6 +129,11 @@ public class ClientFunction(ILogger<ClientFunction> logger, IClientService clien
     /// Updates a client.
     /// </summary>
     [Function("PutClient")]
+    [OpenApiOperation(operationId: "updateClient", tags: ["Client"], Summary = "Update a client")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(PartyModel), Required = true, Description = "Updated client payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(PartyModel), Description = "Updated client")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "client")] HttpRequest req)
     {
         try

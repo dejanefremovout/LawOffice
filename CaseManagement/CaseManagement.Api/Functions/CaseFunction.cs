@@ -1,3 +1,4 @@
+using System.Net;
 using CaseManagement.Api.Extensions;
 using CaseManagement.Application.Services;
 using CaseManagement.Domain.Entities;
@@ -5,7 +6,9 @@ using CaseManagement.Domain.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
 namespace CaseManagement.Api.Functions;
@@ -22,6 +25,12 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Gets a case by identifier.
     /// </summary>
     [Function("GetCase")]
+    [OpenApiOperation(operationId: "getCase", tags: ["Case"], Summary = "Get a case by ID")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "caseId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "Case identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(CaseModel), Description = "The requested case")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, contentType: "text/plain", bodyType: typeof(string), Description = "Case not found")]
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case/{caseId}")] HttpRequest req, string caseId)
     {
         try
@@ -58,6 +67,10 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Gets all cases for the current office.
     /// </summary>
     [Function("GetAllCases")]
+    [OpenApiOperation(operationId: "getAllCases", tags: ["Case"], Summary = "Get all cases")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<CaseModel>), Description = "List of cases")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> GetAll([HttpTrigger(AuthorizationLevel.Function, "get", Route = "case")] HttpRequest req)
     {
         try
@@ -84,6 +97,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Creates a new case.
     /// </summary>
     [Function("PostCase")]
+    [OpenApiOperation(operationId: "createCase", tags: ["Case"], Summary = "Create a new case")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CaseCreateModel), Required = true, Description = "Case creation payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(CaseModel), Description = "Created case")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", Route = "case")] HttpRequest req)
     {
         try
@@ -117,6 +135,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Updates an existing case.
     /// </summary>
     [Function("PutCase")]
+    [OpenApiOperation(operationId: "updateCase", tags: ["Case"], Summary = "Update an existing case")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CaseModel), Required = true, Description = "Updated case payload")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(CaseModel), Description = "Updated case")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Put([HttpTrigger(AuthorizationLevel.Function, "put", Route = "case")] HttpRequest req)
     {
         try
@@ -150,6 +173,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Deletes a case by identifier.
     /// </summary>
     [Function("DeleteCase")]
+    [OpenApiOperation(operationId: "deleteCase", tags: ["Case"], Summary = "Delete a case")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "caseId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "Case identifier")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "Case deleted")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "case/{caseId}")] HttpRequest req, string caseId)
     {
         try
@@ -181,6 +209,10 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Returns case count aggregates for the current office.
     /// </summary>
     [Function("GetCount")]
+    [OpenApiOperation(operationId: "getCaseCount", tags: ["Case"], Summary = "Get case count aggregates")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(CaseCountModel), Description = "Case count aggregates")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> GetCount([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/count")] HttpRequest req)
     {
         try
@@ -207,6 +239,11 @@ public class CaseFunction(ILogger<CaseFunction> logger, ICaseService caseService
     /// Gets the most recent active cases.
     /// </summary>
     [Function("GetLastCases")]
+    [OpenApiOperation(operationId: "getLastCases", tags: ["Case"], Summary = "Get the most recent active cases")]
+    [OpenApiParameter(name: "X-Office-Id", In = ParameterLocation.Header, Required = true, Type = typeof(string), Description = "Tenant office identifier")]
+    [OpenApiParameter(name: "count", In = ParameterLocation.Path, Required = true, Type = typeof(int), Description = "Number of recent cases to return")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<CaseModel>), Description = "List of recent active cases")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain", bodyType: typeof(string), Description = "Invalid request")]
     public async Task<IActionResult> GetLastCases([HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/last/{count}")] HttpRequest req, int count)
     {
         try

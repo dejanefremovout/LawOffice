@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE_URL } from '../constants/api.constants';
+import { DocumentFileService as GeneratedDocumentFileService } from '../api/case-management';
+import type { DocumentFileModel, DocumentFileCreateModel } from '../api/case-management';
 import { Document } from '../models/document.model';
 
 @Injectable({
@@ -9,29 +10,18 @@ import { Document } from '../models/document.model';
 })
 export class DocumentService {
   private http = inject(HttpClient);
+  private api = inject(GeneratedDocumentFileService);
 
-  /**
-   * Get all documents for a specific case
-   */
   getDocuments(caseId: string): Observable<Document[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/case/${caseId}`;
-    return this.http.get<Document[]>(url);
+    return this.api.getAllDocumentFiles({ xOfficeId: '', caseId }) as Observable<Document[]>;
   }
 
-  /**
-   * Get a specific document by ID
-   */
   getDocument(documentId: string): Observable<Document> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile/${documentId}`;
-    return this.http.get<Document>(url);
+    return this.api.getDocumentFile({ xOfficeId: '', documentFileId: documentId }) as Observable<Document>;
   }
 
-  /**
-   * Create a new document
-   */
   createDocument(document: Omit<Document, 'id' | 'uri'>): Observable<Document> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/documentFile`;
-    return this.http.post<Document>(url, document);
+    return this.api.createDocumentFile({ xOfficeId: '', requestBody: document as DocumentFileCreateModel }) as Observable<Document>;
   }
 
   /**

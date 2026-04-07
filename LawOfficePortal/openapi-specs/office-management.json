@@ -1,0 +1,255 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OfficeManagement API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:7206/api"
+    }
+  ],
+  "paths": {
+    "/office": {
+      "get": {
+        "tags": ["Office"],
+        "summary": "Get office details",
+        "operationId": "getOffice",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The office",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OfficeModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Office not found" }
+        }
+      },
+      "put": {
+        "tags": ["Office"],
+        "summary": "Update office details",
+        "operationId": "updateOffice",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OfficeModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated office",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OfficeModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/lawyer/{lawyerId}": {
+      "get": {
+        "tags": ["Lawyer"],
+        "summary": "Get a lawyer by ID",
+        "operationId": "getLawyer",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "lawyerId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Lawyer identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested lawyer",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LawyerModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Lawyer not found" }
+        }
+      }
+    },
+    "/lawyer": {
+      "get": {
+        "tags": ["Lawyer"],
+        "summary": "Get all lawyers",
+        "operationId": "getAllLawyers",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of lawyers",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/LawyerModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Lawyer"],
+        "summary": "Create a lawyer",
+        "operationId": "createLawyer",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LawyerCreateModel" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created lawyer",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LawyerModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Lawyer"],
+        "summary": "Update a lawyer",
+        "operationId": "updateLawyer",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LawyerModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated lawyer",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LawyerModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OfficeModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "address": { "type": "string", "nullable": true }
+        }
+      },
+      "LawyerModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "officeId": { "type": "string" },
+          "active": { "type": "boolean" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "invitationCode": { "type": "string", "nullable": true }
+        }
+      },
+      "LawyerCreateModel": {
+        "type": "object",
+        "required": ["officeId", "firstName", "lastName", "email"],
+        "properties": {
+          "officeId": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" }
+        }
+      }
+    }
+  }
+}

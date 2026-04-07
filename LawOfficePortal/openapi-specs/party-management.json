@@ -1,0 +1,389 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "PartyManagement API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:7207/api"
+    }
+  ],
+  "paths": {
+    "/client/{clientId}": {
+      "get": {
+        "tags": ["Client"],
+        "summary": "Get a client by ID",
+        "operationId": "getClient",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "clientId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Client identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested client",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Client not found" }
+        }
+      }
+    },
+    "/client": {
+      "get": {
+        "tags": ["Client"],
+        "summary": "Get all clients",
+        "operationId": "getAllClients",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of clients",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PartyModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Client"],
+        "summary": "Create a client",
+        "operationId": "createClient",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartyCreateModel" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created client",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Client"],
+        "summary": "Update a client",
+        "operationId": "updateClient",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartyModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated client",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/opposingParty/{opposingPartyId}": {
+      "get": {
+        "tags": ["OpposingParty"],
+        "summary": "Get an opposing party by ID",
+        "operationId": "getOpposingParty",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "opposingPartyId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Opposing party identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested opposing party",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "404": { "description": "Opposing party not found" }
+        }
+      },
+      "delete": {
+        "tags": ["OpposingParty"],
+        "summary": "Delete an opposing party",
+        "operationId": "deleteOpposingParty",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "opposingPartyId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Opposing party identifier"
+          }
+        ],
+        "responses": {
+          "204": { "description": "Opposing party deleted" },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/opposingParty": {
+      "get": {
+        "tags": ["OpposingParty"],
+        "summary": "Get all opposing parties",
+        "operationId": "getAllOpposingParties",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of opposing parties",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PartyModel" } }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["OpposingParty"],
+        "summary": "Create an opposing party",
+        "operationId": "createOpposingParty",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartyCreateModel" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created opposing party",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["OpposingParty"],
+        "summary": "Update an opposing party",
+        "operationId": "updateOpposingParty",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartyModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated opposing party",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/party/count": {
+      "get": {
+        "tags": ["Party"],
+        "summary": "Get party count aggregates",
+        "operationId": "getPartyCount",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Party count aggregates",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PartyCountModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PartyModel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "officeId": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "address": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "phone": { "type": "string", "nullable": true },
+          "identificationNumber": { "type": "string", "nullable": true }
+        }
+      },
+      "PartyCreateModel": {
+        "type": "object",
+        "required": ["officeId", "firstName", "lastName"],
+        "properties": {
+          "officeId": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "address": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "phone": { "type": "string", "nullable": true },
+          "identificationNumber": { "type": "string", "nullable": true }
+        }
+      },
+      "PartyCountModel": {
+        "type": "object",
+        "properties": {
+          "clientsCount": { "type": "integer", "format": "int32" },
+          "opposingPartiesCount": { "type": "integer", "format": "int32" }
+        }
+      }
+    }
+  }
+}

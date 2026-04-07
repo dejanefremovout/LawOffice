@@ -1,44 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE_URL } from '../constants/api.constants';
+import { HearingService as GeneratedHearingService } from '../api/case-management';
+import type { HearingModel, HearingCreateModel } from '../api/case-management';
 import { Hearing } from '../models/hearing.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HearingService {
-  private http = inject(HttpClient);
+  private api = inject(GeneratedHearingService);
 
-  /**
-   * Get all hearings for a specific case
-   */
   getHearings(caseId: string): Observable<Hearing[]> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/case/${caseId}`;
-    return this.http.get<Hearing[]>(url);
+    return this.api.getAllHearings({ xOfficeId: '', caseId }) as Observable<Hearing[]>;
   }
 
-  /**
-   * Get a specific hearing by ID
-   */
   getHearing(hearingId: string): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing/${hearingId}`;
-    return this.http.get<Hearing>(url);
+    return this.api.getHearing({ xOfficeId: '', hearingId }) as Observable<Hearing>;
   }
 
-  /**
-   * Create a new hearing
-   */
   createHearing(hearing: Omit<Hearing, 'id'>): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing`;
-    return this.http.post<Hearing>(url, hearing);
+    return this.api.createHearing({ xOfficeId: '', requestBody: hearing as HearingCreateModel }) as Observable<Hearing>;
   }
 
-    /**
-   * Update an existing hearing
-   */
   updateHearing(hearing: Hearing): Observable<Hearing> {
-    const url = `${API_BASE_URL.CASE_MANAGEMENT}/hearing`;
-    return this.http.put<Hearing>(url, hearing);
+    return this.api.updateHearing({ xOfficeId: '', requestBody: hearing as HearingModel }) as Observable<Hearing>;
   }
 }

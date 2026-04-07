@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-23                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-06                                       |
 
 ---
 
@@ -32,6 +32,7 @@
 | ADR-016 | .NET Isolated Worker Model                       | Accepted |
 | ADR-017 | Azure Service Bus Basic for Integration Events   | Accepted |
 | ADR-018 | Minikube for Local Kubernetes Development         | Accepted |
+| ADR-019 | OpenAPI for API Documentation and Client Generation | Accepted |
 
 ---
 
@@ -581,3 +582,44 @@ Minikube was chosen over k3d and kind because:
 | kind (Kubernetes in Docker)    | Similar to minikube but less documented addon ecosystem       |
 | Docker Desktop built-in K8s    | Single-node only; less configurable; tied to Docker Desktop   |
 | Replace Docker Compose          | Docker Compose is simpler for quick iteration; both serve different needs |
+
+---
+
+## ADR-019: OpenAPI for API Documentation and Client Generation
+
+**Status**: Accepted  
+**Date**: 2026-04-06  
+
+### Context
+
+The three backend microservices expose RESTful HTTP APIs consumed by the Angular SPA. API contracts were implicitly defined by the Azure Functions code, and the frontend services were hand-written to match. This created a maintenance risk: backend changes could silently break the frontend, and there was no machine-readable API specification for documentation or tooling.
+
+### Decision
+
+Adopt **OpenAPI 3.0.1** across the entire stack:
+
+1. **Backend annotations** - Each Azure Function HTTP trigger is annotated with OpenAPI attributes (`OpenApiOperation`, `OpenApiParameter`, `OpenApiRequestBody`, `OpenApiResponseWithBody`) using the `Microsoft.Azure.Functions.Worker.Extensions.OpenApi` NuGet package. Running a Function App locally exposes Swagger UI at `/api/swagger/ui`.
+2. **Specification files** - OpenAPI 3.0.1 JSON specs are committed to `LawOfficePortal/openapi-specs/` (one per microservice).
+3. **Client generation** - `openapi-typescript-codegen` (pure Node.js, no Java dependency) generates typed Angular services and models into `LawOfficePortal/src/app/api/`.
+4. **Wrapper services** - Existing frontend services in `src/app/services/` delegate to the generated clients, preserving a stable API surface for components (zero component changes required).
+5. **npm scripts** - `npm run generate:api` regenerates all clients; per-service scripts are also available.
+
+### Consequences
+
+- **Positive**: Machine-readable API contracts enable automated client generation and documentation
+- **Positive**: Swagger UI available per service during local development for interactive testing
+- **Positive**: Type-safe frontend clients generated from backend specs reduce integration bugs
+- **Positive**: Wrapper pattern decouples components from generated code, easing future generator changes
+- **Positive**: No Java runtime required (pure Node.js generator)
+- **Negative**: OpenAPI spec files must be kept in sync with backend annotations (manual step until CI automation)
+- **Negative**: Additional NuGet dependency (`Microsoft.Azure.Functions.Worker.Extensions.OpenApi`) per service
+- **Negative**: Generated code must be regenerated after backend API changes
+
+### Alternatives Considered
+
+| Alternative                          | Reason Rejected                                              |
+|--------------------------------------|--------------------------------------------------------------|
+| `@openapitools/openapi-generator-cli` | Requires Java runtime; heavier dependency                    |
+| NSwag                                | .NET-centric; less community adoption for Angular generation |
+| Hand-written TypeScript clients       | No spec-driven guarantees; drift risk (previous approach)    |
+| GraphQL                              | Different paradigm; not aligned with existing REST APIs      |
