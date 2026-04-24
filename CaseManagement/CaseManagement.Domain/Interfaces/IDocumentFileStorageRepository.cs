@@ -14,4 +14,9 @@ public interface IDocumentFileStorageRepository
     /// Generates a read URI for downloading document content.
     /// </summary>
     Task<Uri> GenerateDownloadUri(string officeId, string documentFileId);
+
+    /// <summary>
+    /// Reads document content as UTF-8 text.
+    /// </summary>
+    Task<string> GetTextContent(string officeId, string documentFileId);
 }

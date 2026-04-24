@@ -3,6 +3,7 @@ using Azure.Storage.Sas;
 using CaseManagement.Domain.Interfaces;
 using CaseManagement.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace CaseManagement.Infrastructure.Repositories;
 
@@ -49,6 +50,20 @@ public class DocumentFileStorageRepository(IBlobService blobService, IConfigurat
 
         Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
         return RewriteForPublicEndpoint(sasUri);
+    }
+
+    public async Task<string> GetTextContent(string officeId, string documentFileId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(officeId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(documentFileId);
+
+        BlobContainerClient blobContainerClient = blobService.BlobContainerClient(officeId);
+        BlobClient blobClient = blobService.BlobClient(blobContainerClient, documentFileId);
+
+        var downloadResponse = await blobClient.DownloadContentAsync();
+        byte[] bytes = downloadResponse.Value.Content.ToArray();
+
+        return Encoding.UTF8.GetString(bytes);
     }
 
     private static Uri? ParsePublicSasBaseUri(string? publicSasBaseUriValue)

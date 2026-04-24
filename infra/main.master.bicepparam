@@ -23,3 +23,8 @@ param staticWebAppBranch = 'master'
 param jwtOpenIdConfigUrl = 'https://lawofficecustomers.ciamlogin.com/f3863a43-68a6-4422-9e12-a14fd7e45a7f/v2.0/.well-known/openid-configuration'
 param jwtAudience = 'a9a5990c-f11e-49df-a582-a2c1416456cf'
 param jwtIssuer = 'https://lawofficecustomers.ciamlogin.com/f3863a43-68a6-4422-9e12-a14fd7e45a7f/v2.0'
+
+// Enable only after setting aiEndpoint and aiApiKey in secure deployment pipeline.
+param enableAiFeatures = false
+param aiDailyQuotaPerOffice = 10
+param aiMaxInputChars = 12000

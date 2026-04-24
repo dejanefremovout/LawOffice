@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICaseService, CaseService>();
         services.AddScoped<IHearingService, HearingService>();
         services.AddScoped<IDocumentFileService, DocumentFileService>();
+        services.AddScoped<IDocumentSummaryService, DocumentSummaryService>();
 
         return services;
     }
@@ -48,6 +49,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHearingRepository, HearingRepository>();
         services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
         services.AddScoped<IDocumentFileStorageRepository, DocumentFileStorageRepository>();
+        services.AddScoped<IAiUsageQuotaRepository, AiUsageQuotaRepository>();
+        services.AddHttpClient<IAiSummarizerClient, AzureOpenAiSummarizerClient>();
 
         return services;
     }
