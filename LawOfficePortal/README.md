@@ -91,6 +91,19 @@ npm run generate:api:party    # PartyManagement only
 
 Generated code is written to `src/app/api/<service>/` (models, services, core). Wrapper services in `src/app/services/` delegate to the generated clients so that components are not coupled to the generated code directly.
 
+Important: `npm run generate:api:*` only regenerates from the committed JSON files under `openapi-specs/`. It does not fetch the latest schema from a running backend automatically.
+
+Recommended workflow after changing a backend endpoint:
+
+```bash
+1. Add or update the OpenAPI attributes in the Function App code.
+2. Run the backend locally and verify the endpoint appears in Swagger UI at /api/swagger/ui.
+3. Refresh the committed spec file in `openapi-specs/` for that service.
+4. Run npm run generate:api:case   # or office / party
+```
+
+If the codegen command succeeds but no generated files change, the most likely cause is a stale spec file rather than a generator failure.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

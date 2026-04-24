@@ -318,6 +318,16 @@ npm run generate:api:office   # OfficeManagement only
 npm run generate:api:party    # PartyManagement only
 ```
 
+Important: these commands generate from the committed spec files in `LawOfficePortal/openapi-specs/`. They do not pull the latest OpenAPI document from a running Function App.
+
+Recommended workflow for backend API changes:
+- Update the HTTP-trigger Function's OpenAPI attributes.
+- Run the service locally and verify the operation appears in Swagger UI at `/api/swagger/ui`.
+- Refresh the corresponding committed spec file in `LawOfficePortal/openapi-specs/`.
+- Regenerate the Angular client with the relevant `npm run generate:api:*` command.
+
+If regeneration finishes successfully but no new service/model code appears, first check whether the committed JSON spec was refreshed.
+
 ### 5.2 Service Architecture
 
 Thin wrapper services in `src/app/services/` delegate to the generated clients, preserving a stable public API for components:

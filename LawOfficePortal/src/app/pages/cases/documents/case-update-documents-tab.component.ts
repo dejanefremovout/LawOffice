@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DocumentService } from '../../../services/document.service';
 import { ActivatedRoute } from '@angular/router';
 import { Document } from '../../../models/document.model';
+import { DocumentSummary, SummaryDepth } from '../../../models/document-summary.model';
 
 @Component({
   selector: 'app-case-update-documents-tab',
@@ -15,12 +16,18 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
   private documents = signal<Document[]>([]);
   private loading = signal<boolean>(false);
   private error = signal<string | null>(null);
+  private summary = signal<DocumentSummary | null>(null);
+  private summaryError = signal<string | null>(null);
+  private summarizingDocumentId = signal<string | null>(null);
   public caseId!: string;
   public selectedDocumentId!: string;
 
   readonly documentsList = this.documents.asReadonly();
   readonly isLoading = this.loading.asReadonly();
   readonly errorMessage = this.error.asReadonly();
+  readonly documentSummary = this.summary.asReadonly();
+  readonly summaryErrorMessage = this.summaryError.asReadonly();
+  readonly summarizingId = this.summarizingDocumentId.asReadonly();
   readonly hasDocuments = () => this.documentsList().length > 0;
 
   constructor(
@@ -140,6 +147,39 @@ export class CaseUpdateDocumentsTabComponent implements OnInit {
         }
       });
     }
+  }
+
+  summarizeDocument(document: Document, summaryDepth: SummaryDepth): void {
+    if (!document?.id) {
+      return;
+    }
+
+    this.summaryError.set(null);
+    this.summary.set(null);
+    this.summarizingDocumentId.set(document.id);
+
+    this.documentService.summarizeDocument(document.id, summaryDepth).subscribe({
+      next: (result) => {
+        this.summary.set(result);
+        this.summarizingDocumentId.set(null);
+      },
+      error: (err) => {
+        this.summarizingDocumentId.set(null);
+
+        if (err?.status === 429) {
+          this.summaryError.set('Daily AI summary quota reached for this office. Try again tomorrow.');
+          return;
+        }
+
+        if (err?.status === 413) {
+          this.summaryError.set('Document is too large for summarization.');
+          return;
+        }
+
+        const message = err?.error ?? err?.message ?? 'Failed to summarize document.';
+        this.summaryError.set(message);
+      }
+    });
   }
 }
 

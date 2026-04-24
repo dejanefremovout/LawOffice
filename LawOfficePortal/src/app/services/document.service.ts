@@ -2,8 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DocumentFileService as GeneratedDocumentFileService } from '../api/case-management';
-import type { DocumentFileModel, DocumentFileCreateModel } from '../api/case-management';
+import { DocumentSummaryService as GeneratedDocumentSummaryService } from '../api/case-management';
+import type { DocumentFileModel, DocumentFileCreateModel, DocumentSummaryRequestModel } from '../api/case-management';
 import { Document } from '../models/document.model';
+import { DocumentSummary, SummaryDepth } from '../models/document-summary.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +13,7 @@ import { Document } from '../models/document.model';
 export class DocumentService {
   private http = inject(HttpClient);
   private api = inject(GeneratedDocumentFileService);
+  private documentSummaryApi = inject(GeneratedDocumentSummaryService);
 
   getDocuments(caseId: string): Observable<Document[]> {
     return this.api.getAllDocumentFiles({ xOfficeId: '', caseId }) as Observable<Document[]>;
@@ -22,6 +25,14 @@ export class DocumentService {
 
   createDocument(document: Omit<Document, 'id' | 'uri'>): Observable<Document> {
     return this.api.createDocumentFile({ xOfficeId: '', requestBody: document as DocumentFileCreateModel }) as Observable<Document>;
+  }
+
+  summarizeDocument(documentFileId: string, summaryDepth: SummaryDepth = 'short'): Observable<DocumentSummary> {
+    return this.documentSummaryApi.createDocumentSummary({
+      xOfficeId: '',
+      documentFileId,
+      requestBody: { summaryDepth } as DocumentSummaryRequestModel
+    }) as Observable<DocumentSummary>;
   }
 
   /**

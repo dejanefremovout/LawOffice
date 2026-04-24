@@ -13,9 +13,12 @@ export type { CaseHearingModel } from './models/CaseHearingModel';
 export type { CaseModel } from './models/CaseModel';
 export type { DocumentFileCreateModel } from './models/DocumentFileCreateModel';
 export type { DocumentFileModel } from './models/DocumentFileModel';
+export type { DocumentSummaryModel } from './models/DocumentSummaryModel';
+export type { DocumentSummaryRequestModel } from './models/DocumentSummaryRequestModel';
 export type { HearingCreateModel } from './models/HearingCreateModel';
 export type { HearingModel } from './models/HearingModel';
 
 export { CaseService } from './services/CaseService';
 export { DocumentFileService } from './services/DocumentFileService';
+export { DocumentSummaryService } from './services/DocumentSummaryService';
 export { HearingService } from './services/HearingService';

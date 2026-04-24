@@ -3,6 +3,7 @@
         "dotnet package": true,
         "npm install": true,
         "npm cache": true,
-        "npx ng": true
+        "npx ng": true,
+        "npm run build": true
     }
 }

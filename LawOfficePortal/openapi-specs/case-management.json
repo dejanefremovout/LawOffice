@@ -635,6 +635,59 @@
           }
         }
       }
+    },
+    "/documentFile/{documentFileId}/summary": {
+      "post": {
+        "tags": ["DocumentSummary"],
+        "summary": "Create an AI summary for a document",
+        "operationId": "createDocumentSummary",
+        "parameters": [
+          {
+            "name": "X-Office-Id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Tenant office identifier"
+          },
+          {
+            "name": "documentFileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Document file identifier"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DocumentSummaryRequestModel" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generated summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DocumentSummaryModel" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "413": {
+            "description": "Input content too large",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "429": {
+            "description": "Daily AI quota exceeded",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -724,6 +777,28 @@
           "caseId": { "type": "string" },
           "officeId": { "type": "string" },
           "name": { "type": "string" }
+        }
+      },
+      "DocumentSummaryRequestModel": {
+        "type": "object",
+        "properties": {
+          "summaryDepth": { "type": "string", "default": "short" }
+        }
+      },
+      "DocumentSummaryModel": {
+        "type": "object",
+        "properties": {
+          "documentFileId": { "type": "string" },
+          "summaryDepth": { "type": "string" },
+          "shortSummary": { "type": "string" },
+          "keyPoints": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "actionItems": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
         }
       }
     }
