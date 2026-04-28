@@ -12,7 +12,7 @@ public class AzureOpenAiSummarizerClient(HttpClient httpClient, IConfiguration c
     private readonly string _endpoint = configuration["AiSettings:Endpoint"] ?? string.Empty;
     private readonly string _apiKey = configuration["AiSettings:ApiKey"] ?? string.Empty;
     private readonly string _deployment = configuration["AiSettings:DeploymentName"] ?? string.Empty;
-    private readonly string _apiVersion = configuration["AiSettings:ApiVersion"] ?? "2025-04-14";
+    private readonly string _apiVersion = configuration["AiSettings:ApiVersion"] ?? "2024-10-21";
 
     public async Task<string> SummarizeAsync(string content, string summaryDepth, CancellationToken cancellationToken = default)
     {

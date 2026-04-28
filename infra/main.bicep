@@ -58,7 +58,7 @@ param aiEndpoint string = ''
 param aiDeploymentName string = 'gpt-4.1-mini'
 
 @description('Azure OpenAI API version.')
-param aiApiVersion string = '2025-04-14'
+param aiApiVersion string = '2024-10-21'
 
 @description('Per-office daily AI summary quota.')
 param aiDailyQuotaPerOffice int = 15
