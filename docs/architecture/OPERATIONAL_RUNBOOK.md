@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -52,6 +52,7 @@ This runbook covers day-to-day operations, monitoring, incident response, and ma
 |-------------------------------|-----------------------|----------|---------------------------------|
 | HTTP 5xx rate                 | > 5% of requests      | Critical | Investigate Function App logs   |
 | HTTP 4xx rate                 | > 20% of requests     | Warning  | Check client integration        |
+| Azure OpenAI dependency failures | Any sustained spike | Warning  | Check endpoint, deployment name, API version, quota |
 | Execution duration (P95)      | > 10 seconds          | Warning  | Profile and optimize queries    |
 | Function execution count      | Anomaly detection     | Info     | Monitor for abuse               |
 
@@ -60,6 +61,7 @@ This runbook covers day-to-day operations, monitoring, incident response, and ma
 | Metric                        | Threshold             | Severity | Action                          |
 |-------------------------------|-----------------------|----------|---------------------------------|
 | Failed requests               | > 10/minute           | Warning  | Check backend health            |
+| Summary endpoint 429s         | Sustained growth      | Warning  | Review AI quota and rate limits |
 | Gateway response time (P95)   | > 5 seconds           | Warning  | Check cold starts, backend      |
 | Unauthorized (401) rate       | > 50/minute           | Warning  | Potential auth misconfiguration |
 | Capacity utilization          | > 80%                 | Critical | Consider upgrade to Standard    |
@@ -199,6 +201,19 @@ az servicebus namespace authorization-rule keys list \
   --name RootManageSharedAccessKey
 ```
 
+### 3.8 Validate AI Summary Configuration
+
+Verify the CaseManagement Function App has:
+
+- `AiSettings:Endpoint`
+- `AiSettings:ApiKey`
+- `AiSettings:DeploymentName`
+- `AiSettings:ApiVersion` (`2024-10-21`)
+- `AiSettings:DailyQuotaPerOffice`
+- `AiSettings:MaxInputChars`
+
+For local Docker, verify the corresponding `.env.local` values and rebuild `case-api` after changing them.
+
 ---
 
 ## 4. Incident Response
@@ -254,6 +269,16 @@ az servicebus namespace authorization-rule keys list \
   - `OpposingPartyDeletedQueueName`
 4. **Inspect DLQ payloads** for invalid JSON or missing required fields (`officeId`, `opposingPartyId`)
 5. **Replay fixed messages** from DLQ after remediation
+
+### 4.7 Runbook: AI Summary Requests Failing
+
+1. **Check CaseManagement app settings** for `AiSettings:*` values.
+2. **Verify Azure OpenAI deployment name** matches the exact deployment in the resource.
+3. **Verify API version** is a valid Azure OpenAI inference API version (`2024-10-21`), not a model build version.
+4. **Check supported file type**: current v1 supports `.txt`, `.md`, `.json`, `.csv`, `.xml`.
+5. **Check quota conditions**: `429` can come from either APIM throttling or per-office daily quota.
+6. **Check input size**: `413` indicates the document exceeded `AiSettings:MaxInputChars`.
+7. **Check Azure OpenAI availability** and deployment health in the Azure portal.
 
 ---
 
@@ -322,6 +347,7 @@ docker compose -f docker-compose.local.yml down -v
 | SAS URI 403 in browser         | Wrong base URI in config       | Set `BLOB_PUBLIC_SAS_BASE_URI=http://localhost:10000` |
 | Cosmos SSL error               | Emulator self-signed cert      | Ensure `COSMOS_DISABLE_SSL_VALIDATION=true` |
 | Queue trigger not firing       | Missing/invalid Service Bus connection | Set `SERVICE_BUS_CONNECTION_STRING` to real Azure namespace |
+| AI summary 404                 | Wrong Azure OpenAI deployment name or API version | Verify `AI_DEPLOYMENT_NAME` and keep `AI_API_VERSION=2024-10-21` |
 
 ### 6.4 Kubernetes Local Environment (minikube)
 

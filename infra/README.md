@@ -13,6 +13,7 @@ Infrastructure-as-Code for the **LawOffice B2C SaaS** demo project. Deploys a co
 | 3× Azure Function Apps | Consumption | CaseManagement, OfficeManagement, PartyManagement APIs |
 | Azure API Management | Consumption | API gateway with CORS + JWT validation |
 | Azure Static Web App | Free | Angular frontend portal |
+| Azure OpenAI | External / separately provisioned | AI document summarization for CaseManagement |
 
 ## Files
 
@@ -30,7 +31,7 @@ Infrastructure-as-Code for the **LawOffice B2C SaaS** demo project. Deploys a co
 
 Single Serverless account per environment with three databases mirroring the microservice boundaries:
 
-- **casemanagement** – `cases`, `documentfiles`, `hearings` (partition key: `/officeId`)
+- **casemanagement** – `cases`, `documentfiles`, `hearings`, `aiusagequotas` (partition key: `/officeId`)
 - **officemanagement** – `lawyers` (`/officeId`), `offices` (`/id`)
 - **partymanagement** – `clients`, `opposingparties` (partition key: `/officeId`)
 
@@ -90,10 +91,13 @@ az deployment group create \
 1. **Deploy Function App code** – use `func azure functionapp publish` or GitHub Actions.
 2. **Wire up APIM backends** – redeploy with `configureApimBackends = true` (add it to the `.bicepparam` file or pass via CLI). This calls `listKeys` on each Function App to configure APIM backends with host keys. It requires the Functions host runtime to be running, which only happens after code is published.
 3. **Configure Entra ID CIAM** (if needed) – update `jwtOpenIdConfigUrl`, `jwtAudience`, and `jwtIssuer` in the `.bicepparam` file, then redeploy.
+4. **Configure Azure OpenAI** (optional) – create or reuse an Azure OpenAI resource and deployment separately, then pass `enableAiFeatures=true` plus the AI endpoint/key/deployment parameters during deployment.
 
 > **APIM operations are managed in Bicep:** all Function HTTP triggers are declared as `service/apis/operations` resources in `main.bicep`, so no manual *Import Function App* step is required after deployments.
 
 > **Note:** On first deploy to a new environment, leave `configureApimBackends` as `false` (the default). The APIM named values and backends depend on Function App host keys, which are unavailable until code is deployed. After publishing your Function App code, set `configureApimBackends = true` and redeploy.
+
+> **AI note:** The template does not create the Azure OpenAI resource or model deployment. It configures CaseManagement to use an existing Azure OpenAI deployment and creates the supporting `aiusagequotas` Cosmos container plus the summary endpoint wiring.
 
 ## Create a new environment
 
@@ -104,3 +108,5 @@ az deployment group create \
 ## Local development note
 
 Service Bus is not emulated in Docker. For local queue-trigger flows, set `SERVICE_BUS_CONNECTION_STRING` in `.env.local` to a real Azure Service Bus namespace connection string.
+
+AI summarization also requires `AI_ENDPOINT`, `AI_API_KEY`, and `AI_DEPLOYMENT_NAME` in `.env.local` when you want to exercise the summary endpoint locally.

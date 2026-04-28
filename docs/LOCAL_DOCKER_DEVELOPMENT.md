@@ -61,7 +61,7 @@ docker compose --env-file .env.local -f docker-compose.local.yml down
 - `BlobSettings:ConnectionString` is set for `CaseManagement` only.
 - `BlobSettings:PublicSasBaseUri` should be set to `http://localhost:10000` in local Docker so SAS links returned to the browser are reachable outside the Docker network.
 - Azurite blob CORS is initialized by the `azurite-cors` one-shot container and should allow direct browser upload from `BLOB_CORS_ALLOWED_ORIGIN` (default `http://localhost:4200`).
-- AI summarization in local Docker requires Azure OpenAI values in `.env.local`: `AI_ENDPOINT`, `AI_API_KEY`, and optionally `AI_DEPLOYMENT_NAME`, `AI_API_VERSION`, `AI_DAILY_QUOTA_PER_OFFICE`, `AI_MAX_INPUT_CHARS`.
+- AI summarization in local Docker requires Azure OpenAI values in `.env.local`: `AI_ENDPOINT`, `AI_API_KEY`, and optionally `AI_DEPLOYMENT_NAME`, `AI_API_VERSION`, `AI_DAILY_QUOTA_PER_OFFICE`, `AI_MAX_INPUT_CHARS`. The current documented Azure OpenAI inference API version is `2024-10-21`.
 - API containers run through Azure Functions Core Tools (`func start`) so the Functions host can provide worker settings such as `Functions:Worker:HostEndpoint`.
 - APIs wait for `cosmos-seeder` to complete successfully before startup.
 - `party-api` publishes and `case-api` consumes queue messages (`q-opposingparty-deleted`) through Azure Service Bus.
@@ -99,6 +99,7 @@ If you suspect stale emulator state, always run `down -v` before the next `up --
 4. Upload a supported text-based file (`.txt`, `.md`, `.json`, `.csv`, `.xml`) and use the summary action in the portal.
 5. If you get `429`, lower your testing rate or temporarily raise `AI_DAILY_QUOTA_PER_OFFICE` locally.
 6. If you get `413`, use a smaller text document or raise `AI_MAX_INPUT_CHARS` locally.
+7. If you get `404` from Azure OpenAI, first verify that `AI_DEPLOYMENT_NAME` matches the exact deployment name in your Azure OpenAI resource and that `AI_API_VERSION` remains a valid inference API version rather than a model build version.
 
 ## If browser upload fails with CORS
 

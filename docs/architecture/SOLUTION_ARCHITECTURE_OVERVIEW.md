@@ -5,9 +5,9 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
+| **Version**        | 1.1                                              |
 | **Classification** | Internal / Portfolio                             |
-| **Last Updated**   | 2026-03-22                                       |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -22,6 +22,7 @@ LawOffice is a multi-tenant, business-to-consumer (B2C) Software-as-a-Service pl
 | **Case Management**   | Create, track and close legal cases with status and metadata       |
 | **Hearing Scheduling**| Schedule court hearings linked to cases with courtroom details     |
 | **Document Management**| Upload, download, and organize case-related documents via SAS URIs|
+| **AI Document Summary**| Generate short or detailed summaries for supported case documents |
 | **Party Management**  | Manage clients and opposing parties with contact information       |
 | **Office Administration** | Manage office details and lawyer profiles with invitation codes|
 
@@ -52,10 +53,12 @@ C4Context
 
     System_Ext(entra, "Microsoft Entra External ID", "Identity provider (CIAM) for authentication and user management")
     System_Ext(azure_blob, "Azure Blob Storage", "Document file storage via SAS URIs")
+    System_Ext(azure_openai, "Azure OpenAI", "External AI inference service for document summaries")
 
     Rel(user, lawoffice, "Uses", "HTTPS")
     Rel(lawoffice, entra, "Authenticates via", "OpenID Connect / OAuth 2.0")
     Rel(lawoffice, azure_blob, "Stores/retrieves documents", "HTTPS + SAS tokens")
+    Rel(lawoffice, azure_openai, "Generates AI summaries", "HTTPS")
 ```
 
 ---
@@ -72,11 +75,11 @@ C4Container
         Container(spa, "LawOffice Portal", "Angular 21, TypeScript", "Single-page application for all user interactions")
         Container(apim, "API Gateway", "Azure API Management (Consumption)", "Routes requests, validates JWTs, injects tenant context")
 
-        Container(case_api, "CaseManagement API", "Azure Functions (.NET 10, isolated)", "Cases, hearings, document metadata")
+        Container(case_api, "CaseManagement API", "Azure Functions (.NET 10, isolated)", "Cases, hearings, document metadata, AI summaries")
         Container(office_api, "OfficeManagement API", "Azure Functions (.NET 10, isolated)", "Offices, lawyers, user sign-up/in")
         Container(party_api, "PartyManagement API", "Azure Functions (.NET 10, isolated)", "Clients, opposing parties, counts")
 
-        ContainerDb(cosmos_case, "casemanagement DB", "Cosmos DB NoSQL", "cases, hearings, documentfiles")
+        ContainerDb(cosmos_case, "casemanagement DB", "Cosmos DB NoSQL", "cases, hearings, documentfiles, aiusagequotas")
         ContainerDb(cosmos_office, "officemanagement DB", "Cosmos DB NoSQL", "offices, lawyers")
         ContainerDb(cosmos_party, "partymanagement DB", "Cosmos DB NoSQL", "clients, opposingparties")
         ContainerQueue(sb, "Service Bus Queue", "Azure Service Bus (Basic)", "opposing-party-deleted integration events")
@@ -85,6 +88,7 @@ C4Container
     }
 
     System_Ext(entra, "Entra External ID", "CIAM identity provider")
+    System_Ext(azure_openai, "Azure OpenAI", "Chat model deployment used for summaries")
 
     Rel(user, spa, "Uses", "HTTPS")
     Rel(spa, entra, "Authenticates", "MSAL / OpenID Connect")
@@ -98,6 +102,7 @@ C4Container
     Rel(case_api, cosmos_case, "Reads/writes", "Cosmos SDK")
     Rel(case_api, sb, "Consumes queue trigger", "Service Bus SDK")
     Rel(case_api, blob, "Generates SAS URIs", "Azure Blob SDK")
+    Rel(case_api, azure_openai, "Requests document summaries", "HTTPS + API key")
     Rel(office_api, cosmos_office, "Reads/writes", "Cosmos SDK")
     Rel(party_api, cosmos_party, "Reads/writes", "Cosmos SDK")
     Rel(party_api, sb, "Publishes delete event", "Service Bus SDK")
@@ -145,7 +150,7 @@ API → Application → Domain ← Infrastructure
 
 | Service              | Bounded Context      | Entities                          | Database             |
 |----------------------|----------------------|-----------------------------------|----------------------|
-| CaseManagement API   | Legal Case Lifecycle | Case, Hearing, DocumentFile       | casemanagement       |
+| CaseManagement API   | Legal Case Lifecycle | Case, Hearing, DocumentFile, AiUsageQuota | casemanagement       |
 | OfficeManagement API | Office & Staff       | Office, Lawyer                    | officemanagement     |
 | PartyManagement API  | Legal Parties        | Party (Client, OpposingParty)     | partymanagement      |
 
@@ -219,6 +224,8 @@ Browser ──HTTPS──▶ APIM ──HTTPS──▶ Function App ──SDK─
                                         │
                                         └──SDK──▶ Blob Storage (SAS generation only)
 ```
+
+For AI summaries, the CaseManagement API also makes outbound HTTPS calls to Azure OpenAI after reading the source blob text and validating tenant quota and input limits.
 
 - **Browser → APIM**: Bearer token in Authorization header
 - **APIM → Function App**: Function host key in `x-functions-key` header + tenant ID in `X-Office-Id` header

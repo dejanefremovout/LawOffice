@@ -12,6 +12,8 @@ This is an admin-style Angular portal with a collapsible left menu panel and a m
 - Cases
 - Office
 
+The portal currently supports case document upload/download and AI-assisted document summaries from the case documents tab.
+
 ## Development server
 
 To start a local development server, run:
@@ -90,6 +92,8 @@ npm run generate:api:party    # PartyManagement only
 ```
 
 Generated code is written to `src/app/api/<service>/` (models, services, core). Wrapper services in `src/app/services/` delegate to the generated clients so that components are not coupled to the generated code directly.
+
+The CaseManagement generated client includes the document summary endpoint and related models used by the case documents UI.
 
 Important: `npm run generate:api:*` only regenerates from the committed JSON files under `openapi-specs/`. It does not fetch the latest schema from a running backend automatically.
 

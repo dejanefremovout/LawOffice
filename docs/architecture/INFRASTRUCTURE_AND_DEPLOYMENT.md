@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -32,9 +32,10 @@ graph TB
         STORAGE["Storage Account<br/>(Standard LRS)"]
         COSMOS["Cosmos DB Account<br/>(Serverless)"]
         SB["Service Bus Namespace<br/>(Basic)"]
+        AOAI["Azure OpenAI<br/>(external)"]
 
         subgraph "Cosmos Databases"
-            DB_CASE["casemanagement<br/>cases, hearings, documentfiles"]
+            DB_CASE["casemanagement<br/>cases, hearings, documentfiles, aiusagequotas"]
             DB_OFFICE["officemanagement<br/>offices, lawyers"]
             DB_PARTY["partymanagement<br/>clients, opposingparties"]
         end
@@ -56,6 +57,7 @@ graph TB
     FA_CASE --> SB
     FA_PARTY --> SB
     FA_CASE --> STORAGE
+    FA_CASE --> AOAI
 
     ASP -.->|"Hosts"| FA_CASE
     ASP -.->|"Hosts"| FA_OFFICE
@@ -153,6 +155,13 @@ infra/
 | `staticWebAppName`        | string | Override default naming                                         |
 | `serviceBusNamespaceName` | string | Override Service Bus namespace name                              |
 | `opposingPartyDeletedQueueName` | string | Queue name for opposing-party-deleted events             |
+| `enableAiFeatures`        | bool   | Enables Azure OpenAI app settings for CaseManagement      |
+| `aiEndpoint`              | string | Azure OpenAI resource endpoint                            |
+| `aiApiKey`                | secure string | Azure OpenAI API key                               |
+| `aiDeploymentName`        | string | Azure OpenAI deployment name                              |
+| `aiApiVersion`            | string | Azure OpenAI inference API version (`2024-10-21`)         |
+| `aiDailyQuotaPerOffice`   | int    | Per-office daily AI summary quota                         |
+| `aiMaxInputChars`         | int    | Maximum characters allowed per summary request            |
 | `staticWebAppRepositoryUrl` | string | GitHub repo URL for SWA CI/CD integration                   |
 | `staticWebAppBranch`      | string | Branch for SWA deployment                                      |
 
@@ -165,7 +174,7 @@ graph LR
     A -->|"string replace"| D["JWT policy injection"]
     A -->|"string replace"| E["SWA origin injection"]
     A -->|"loop: microservices[]"| F["3× Function Apps"]
-    A -->|"loop: apimOperations[]"| G["34 APIM operations"]
+    A -->|"loop: apimOperations[]"| G["35 APIM operations"]
     A -->|"loop: cosmosDatabases[]"| H["3× Databases + 8× Containers"]
     A -->|"resource"| I["Service Bus Namespace + Queue"]
 ```
@@ -175,7 +184,7 @@ graph LR
 The template uses **array-driven loops** for DRY resource creation:
 
 - **`microservices[]`** - Drives Function App, APIM API, backend, and policy creation
-- **`apimOperations[]`** - Drives all 34 API operation definitions (including opposing-party delete)
+- **`apimOperations[]`** - Drives all 35 API operation definitions, including the document summary endpoint
 - **`cosmosDatabases[]`** - Drives database and container creation via module
 
 Each entry in `microservices[]` controls:
@@ -260,6 +269,12 @@ The SWA is configured with **GitHub integration**. Deployment is triggered autom
 | Setting                       | Source                   | Description                          |
 |-------------------------------|--------------------------|--------------------------------------|
 | `BlobSettings:ConnectionString` | Storage Account key    | Blob storage for document files      |
+| `AiSettings:Endpoint`      | AI parameter / app setting | Azure OpenAI endpoint            |
+| `AiSettings:ApiKey`        | AI parameter / app setting | Azure OpenAI API key             |
+| `AiSettings:DeploymentName`| AI parameter / app setting | Azure OpenAI deployment name     |
+| `AiSettings:ApiVersion`    | AI parameter / app setting | Azure OpenAI inference API version |
+| `AiSettings:DailyQuotaPerOffice` | AI parameter / app setting | AI quota per office        |
+| `AiSettings:MaxInputChars` | AI parameter / app setting | AI request size guard         |
 
 ### 6.3 Security Settings (All Functions)
 
@@ -341,6 +356,12 @@ Service Bus is not emulated in Docker. Local `party-api` and `case-api` connect 
 | `BLOB_PUBLIC_SAS_BASE_URI`            | Public-facing Azurite URL (`http://localhost:10000`) |
 | `BLOB_CORS_ALLOWED_ORIGIN`           | CORS origin for blob access (`http://localhost:4200`) |
 | `SERVICE_BUS_CONNECTION_STRING`       | Azure Service Bus connection string (real Azure namespace) |
+| `AI_ENDPOINT`                         | Azure OpenAI endpoint for local CaseManagement              |
+| `AI_API_KEY`                          | Azure OpenAI API key for local CaseManagement               |
+| `AI_DEPLOYMENT_NAME`                  | Azure OpenAI deployment name                                |
+| `AI_API_VERSION`                      | Azure OpenAI inference API version                          |
+| `AI_DAILY_QUOTA_PER_OFFICE`           | Local per-office AI daily quota                             |
+| `AI_MAX_INPUT_CHARS`                  | Local AI request input ceiling                              |
 
 ### 7.5 CosmosSeeder
 
@@ -380,7 +401,7 @@ Full setup instructions: [docs/LOCAL_K8S_DEVELOPMENT.md](../LOCAL_K8S_DEVELOPMEN
 
 | APIM API Path | Backend Function App                        | Operations |
 |---------------|---------------------------------------------|------------|
-| `/case`       | `func-lawoffice-casemanagement-{env}`       | 18         |
+| `/case`       | `func-lawoffice-casemanagement-{env}`       | 19         |
 | `/office`     | `func-lawoffice-officemanagement-{env}`     | 6          |
 | `/party`      | `func-lawoffice-partymanagement-{env}`      | 10         |
 
@@ -399,7 +420,8 @@ Inbound:
   1. CORS (SWA origin + localhost:4200)
   2. JWT Validation (optional, Entra External ID)
      → Extract extension_OfficeId → X-Office-Id header
-  3. Set Backend Service (per-API policy)
+  3. Global rate limits, including a stricter summary path limit
+  4. Set Backend Service (per-API policy)
 
 Backend:
   Forward request to Function App
