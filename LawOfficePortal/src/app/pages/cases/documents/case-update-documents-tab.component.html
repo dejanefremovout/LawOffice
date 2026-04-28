@@ -25,9 +25,9 @@
 					<tr *ngFor="let document of documentsList()">
 						<td>{{ document.name }}</td>
 						<td class="actions-cell">
-							<button type="button" class="secondary-button" (click)="downloadDocument(document)">Download</button>
-							<button type="button" class="secondary-button" (click)="summarizeDocument(document, 'short')" [disabled]="summarizingId() === document.id">Summarize</button>
-							<button type="button" class="secondary-button" (click)="summarizeDocument(document, 'detailed')" [disabled]="summarizingId() === document.id">Detailed</button>
+							<button type="button" class="ghost-button" (click)="downloadDocument(document)">Download</button>
+							<button type="button" class="ghost-button" (click)="summarizeDocument(document, 'short')" [disabled]="summarizingId() === document.id">Summarize</button>
+							<button type="button" class="ghost-button" (click)="summarizeDocument(document, 'detailed')" [disabled]="summarizingId() === document.id">Detailed</button>
 						</td>
 					</tr>
 				</tbody>

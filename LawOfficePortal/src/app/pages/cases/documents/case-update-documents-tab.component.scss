@@ -29,6 +29,17 @@
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+
+    .ghost-button {
+        padding: 0.45rem 1rem;
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
+
+    .ghost-button[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 }
 
 .summary-card {
