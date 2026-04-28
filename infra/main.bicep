@@ -55,10 +55,10 @@ param enableAiFeatures bool = false
 param aiEndpoint string = ''
 
 @description('Azure OpenAI deployment name used for summarization.')
-param aiDeploymentName string = 'gpt-4o-mini'
+param aiDeploymentName string = 'gpt-4.1-mini'
 
 @description('Azure OpenAI API version.')
-param aiApiVersion string = '2024-10-21'
+param aiApiVersion string = '2025-04-14'
 
 @description('Per-office daily AI summary quota.')
 param aiDailyQuotaPerOffice int = 15

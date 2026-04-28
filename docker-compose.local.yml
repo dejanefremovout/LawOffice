@@ -132,8 +132,8 @@ services:
       OpposingPartyDeletedQueueName: q-opposingparty-deleted
       AiSettings__Endpoint: ${AI_ENDPOINT}
       AiSettings__ApiKey: ${AI_API_KEY}
-      AiSettings__DeploymentName: ${AI_DEPLOYMENT_NAME:-gpt-4o-mini}
-      AiSettings__ApiVersion: ${AI_API_VERSION:-2024-10-21}
+      AiSettings__DeploymentName: ${AI_DEPLOYMENT_NAME:-gpt-4.1-mini}
+      AiSettings__ApiVersion: ${AI_API_VERSION:-2025-04-14}
       AiSettings__DailyQuotaPerOffice: ${AI_DAILY_QUOTA_PER_OFFICE:-15}
       AiSettings__MaxInputChars: ${AI_MAX_INPUT_CHARS:-12000}
     ports:
