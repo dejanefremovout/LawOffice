@@ -1,0 +1,1 @@
+{"version":3,"file":"opposingPartyDeletedMessage.d.ts","sourceRoot":"","sources":["../../../../src/application/messaging/opposingPartyDeletedMessage.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,2BAA2B,GAAG;IACxC,QAAQ,CAAC,QAAQ,EAAE,MAAM,CAAC;IAC1B,QAAQ,CAAC,eAAe,EAAE,MAAM,CAAC;IACjC,QAAQ,CAAC,aAAa,EAAE,IAAI,CAAC;CAC9B,CAAC"}

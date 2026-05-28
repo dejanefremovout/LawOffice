@@ -1,0 +1,1 @@
+{"version":3,"file":"opposingPartyService.d.ts","sourceRoot":"","sources":["../../../../src/application/services/opposingPartyService.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,wBAAwB,EAAE,MAAM,kDAAkD,CAAC;AAC5F,OAAO,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAC9C,OAAO,EAAE,qBAAqB,EAAE,MAAM,yBAAyB,CAAC;AAEhE,qBAAa,oBAAqB,SAAQ,YAAa,YAAW,qBAAqB;gBACzE,UAAU,EAAE,wBAAwB;CAGjD"}

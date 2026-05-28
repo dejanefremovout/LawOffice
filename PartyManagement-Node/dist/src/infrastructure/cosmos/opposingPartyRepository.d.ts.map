@@ -1,0 +1,1 @@
+{"version":3,"file":"opposingPartyRepository.d.ts","sourceRoot":"","sources":["../../../../src/infrastructure/cosmos/opposingPartyRepository.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,wBAAwB,EAAE,MAAM,kDAAkD,CAAC;AAC5F,OAAO,EAAE,cAAc,EAAE,MAAM,iBAAiB,CAAC;AACjD,OAAO,EAAE,eAAe,EAAE,MAAM,mBAAmB,CAAC;AAEpD,qBAAa,uBAAwB,SAAQ,eAAgB,YAAW,wBAAwB;gBAClF,aAAa,EAAE,cAAc;CAG1C"}
