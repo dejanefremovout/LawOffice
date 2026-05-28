@@ -5,14 +5,16 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
 ## 1. Cost Philosophy
 
 The LawOffice platform is designed with a **consumption-first** cost model: every Azure service is selected at the lowest viable tier, incurring near-zero cost when idle. This makes it ideal for a portfolio/demo project while maintaining a clear scaling path to production workloads.
+
+The AI document summarizer follows the same principle: it is implemented as an optional Azure OpenAI add-on with hard request guards, APIM throttling, and a per-office daily quota to keep monthly spend predictable.
 
 ---
 
@@ -30,6 +32,7 @@ The LawOffice platform is designed with a **consumption-first** cost model: ever
 | Storage Account               | Standard LRS      | ~$0.01 – $0.10        | Minimal blob + table storage   |
 | Static Web App                | Free              | $0.00                  | Free tier                      |
 | Entra External ID             | Free tier          | $0.00                  | First 50K MAU free             |
+| Azure OpenAI (optional)       | Pay-as-you-go      | ~$0.00 – $5.00         | Budget-capped summarization feature |
 | **Total (idle/demo)**         |                   | **~$0.31 – $5.60**    |                                |
 
 ### 2.2 Per-Environment Cost
@@ -105,6 +108,16 @@ With 3 environments (dev, test, master), each at idle:
 | Beyond 50K MAU       | $0.0025–$0.015 per auth | Tiered pricing     |
 
 **LawOffice estimate**: $0.00 - demo project with < 10 users.
+
+### 3.8 Azure OpenAI (Optional Summarization)
+
+| Pricing Dimension    | Practical Control              | Notes              |
+|----------------------|--------------------------------|--------------------|
+| Input/output tokens  | Per-office daily quota         | Main driver of summary cost |
+| Burst traffic        | APIM rate limit                | Protects from accidental overuse |
+| Large documents      | `AiSettings:MaxInputChars`     | Keeps prompt sizes bounded |
+
+**LawOffice estimate**: target the AI feature at roughly `$0-$5/month` for portfolio/demo usage by keeping low request volume, low completion size, and strict quotas.
 
 ### 3.7 Service Bus (Basic)
 
@@ -192,6 +205,7 @@ With 3 environments (dev, test, master), each at idle:
 | APIM rate limiting                      | Add rate-limit-by-key policy          |
 | Spending cap (subscription)             | Set subscription-level cap            |
 | Queue depth alerts                      | Alert on DLQ and active queue growth  |
+| Azure OpenAI budget alert               | Budget/alert on AI resource spend     |
 
 ---
 
@@ -232,6 +246,7 @@ Azure Portal → Cost Management + Billing → Cost Management:
 | Cost by meter                     | RU consumption vs. storage vs. compute       |
 | Daily cost trend                  | Spot unexpected spikes                       |
 | Forecast                          | Project end-of-month cost                    |
+| Azure OpenAI token usage          | Validate that AI summaries remain within budget |
 
 ---
 

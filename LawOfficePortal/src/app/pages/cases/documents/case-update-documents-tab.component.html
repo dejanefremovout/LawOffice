@@ -18,11 +18,17 @@
 				<thead>
 					<tr>
 						<th>Name</th>
+						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr *ngFor="let document of documentsList()" (click)="downloadDocument(document)" class="clickable-row">
+					<tr *ngFor="let document of documentsList()">
 						<td>{{ document.name }}</td>
+						<td class="actions-cell">
+							<button type="button" class="ghost-button" (click)="downloadDocument(document)">Download</button>
+							<button type="button" class="ghost-button" (click)="summarizeDocument(document, 'short')" [disabled]="summarizingId() === document.id">Summarize</button>
+							<button type="button" class="ghost-button" (click)="summarizeDocument(document, 'detailed')" [disabled]="summarizingId() === document.id">Detailed</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -32,6 +38,32 @@
 					<p>No documents found.</p>
 				</div>
 			</ng-template>
+
+			<div *ngIf="summaryErrorMessage()" class="error-message">
+				<p>{{ summaryErrorMessage() }}</p>
+			</div>
+
+			<div *ngIf="documentSummary() as summary" class="summary-card">
+				<h3>AI Summary</h3>
+				<p class="summary-depth">Depth: {{ summary.summaryDepth }}</p>
+				<p>{{ summary.shortSummary }}</p>
+
+				<div *ngIf="summary.keyPoints.length">
+					<h4>Key Points</h4>
+					<ul>
+						<li *ngFor="let point of summary.keyPoints">{{ point }}</li>
+					</ul>
+				</div>
+
+				<div *ngIf="summary.actionItems.length">
+					<h4>Action Items</h4>
+					<ul>
+						<li *ngFor="let item of summary.actionItems">{{ item }}</li>
+					</ul>
+				</div>
+
+				<p class="disclaimer">AI-generated content may be inaccurate. Always review before legal use.</p>
+			</div>
 		</div>
 	</ng-container>
 </div>

@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.1                                              |
-| **Last Updated**   | 2026-04-06                                       |
+| **Version**        | 1.2                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -78,6 +78,7 @@ graph LR
 | POST   | `/documentFile`                 | post-postdocumentfile    | Create document metadata (+SAS URI)|
 | PUT    | `/documentFile`                 | put-putdocumentfile      | Update document metadata          |
 | DELETE | `/documentFile/{documentFileId}` | delete-deletedocumentfile| Delete document metadata + blob  |
+| POST   | `/documentFile/{documentFileId}/summary` | post-postdocumentsummary | Generate AI summary for a supported document |
 
 ### 2.2 OfficeManagement API (APIM path: `/office`)
 
@@ -149,6 +150,8 @@ graph LR
 | 204         | No Content                 | Successful DELETE                      |
 | 400         | Bad Request                | Missing X-Office-Id, invalid body, validation failure |
 | 401         | Unauthorized               | Missing or invalid JWT (APIM level)    |
+| 413         | Payload Too Large          | Document content exceeds configured AI input limit |
+| 429         | Too Many Requests          | Per-office AI quota exceeded or APIM rate limit hit |
 | 404         | Not Found                  | Resource not found by ID               |
 
 ### 3.3 Entity Models
@@ -193,6 +196,27 @@ graph LR
   "officeId": "guid",
   "caseId": "guid (required)",
   "name": "string (required)"
+}
+```
+
+#### DocumentSummaryRequest (request only)
+
+```json
+{
+  "summaryDepth": "short"
+}
+```
+
+Allowed values: `short`, `detailed`
+
+#### DocumentSummary (response only)
+
+```json
+{
+  "summaryDepth": "short",
+  "shortSummary": "string",
+  "keyPoints": ["string", "string"],
+  "actionItems": ["string", "string"]
 }
 ```
 
@@ -318,6 +342,16 @@ npm run generate:api:office   # OfficeManagement only
 npm run generate:api:party    # PartyManagement only
 ```
 
+Important: these commands generate from the committed spec files in `LawOfficePortal/openapi-specs/`. They do not pull the latest OpenAPI document from a running Function App.
+
+Recommended workflow for backend API changes:
+- Update the HTTP-trigger Function's OpenAPI attributes.
+- Run the service locally and verify the operation appears in Swagger UI at `/api/swagger/ui`.
+- Refresh the corresponding committed spec file in `LawOfficePortal/openapi-specs/`.
+- Regenerate the Angular client with the relevant `npm run generate:api:*` command.
+
+If regeneration finishes successfully but no new service/model code appears, first check whether the committed JSON spec was refreshed.
+
 ### 5.2 Service Architecture
 
 Thin wrapper services in `src/app/services/` delegate to the generated clients, preserving a stable public API for components:
@@ -326,7 +360,7 @@ Thin wrapper services in `src/app/services/` delegate to the generated clients, 
 |----------------------------|--------------------------------|----------------------------------------|
 | `CaseService`              | `CaseService` (generated)      | CRUD cases, counts, last cases         |
 | `HearingService`           | `HearingService` (generated)   | CRUD hearings, upcoming hearings       |
-| `DocumentService`          | `DocumentFileService` (generated) | CRUD documents, SAS URI management  |
+| `DocumentService`          | `DocumentFileService`, `DocumentSummaryService` (generated) | CRUD documents, SAS URI management, document summaries |
 | `ClientService`            | `ClientService` (generated)    | CRUD clients                           |
 | `OpposingPartyService`     | `OpposingPartyService` (generated) | CRUD opposing parties              |
 | `PartyService`             | `PartyService` (generated)     | Party counts aggregate                 |
@@ -406,6 +440,8 @@ To minimize round-trips, some specialized aggregation endpoints exist:
 | Missing `X-Office-Id` header   | 400         | `"Missing X-Office-Id header."`        |
 | Invalid/empty request body     | 400         | `"Request body is empty."`             |
 | Domain validation failure      | 400         | Validation error message               |
+| AI input too large             | 413         | Validation error message               |
+| AI daily quota exceeded        | 429         | Validation error message               |
 | Resource not found             | 404         | No body                                |
 | JWT validation failure         | 401         | APIM error message                     |
 | Successful create              | 201         | Created entity (JSON)                  |
@@ -425,7 +461,7 @@ Unhandled exceptions (i.e., those not caught as `ArgumentException`) are caught 
 
 | Microservice       | Total Operations | GET | POST | PUT | DELETE |
 |--------------------|------------------|-----|------|-----|--------|
-| CaseManagement     | 18               | 10  | 3    | 3   | 3      |
+| CaseManagement     | 19               | 10  | 4    | 3   | 3      |
 | OfficeManagement   | 6                | 3   | 1    | 2   | 0      |
 | PartyManagement    | 10               | 5   | 2    | 2   | 1      |
-| **Total**          | **34**           | **18** | **6** | **7** | **4** |
+| **Total**          | **35**           | **18** | **7** | **7** | **4** |

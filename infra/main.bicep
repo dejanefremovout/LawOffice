@@ -48,6 +48,28 @@ param serviceBusNamespaceName string = 'sb-lawoffice-${environmentName}'
 @description('Queue used to notify CaseManagement when an opposing party is deleted.')
 param opposingPartyDeletedQueueName string = 'q-opposingparty-deleted'
 
+@description('Enable AI summarization feature settings for CaseManagement.')
+param enableAiFeatures bool = false
+
+@description('Azure OpenAI endpoint URI.')
+param aiEndpoint string = ''
+
+@description('Azure OpenAI deployment name used for summarization.')
+param aiDeploymentName string = 'gpt-4.1-mini'
+
+@description('Azure OpenAI API version.')
+param aiApiVersion string = '2024-10-21'
+
+@description('Per-office daily AI summary quota.')
+param aiDailyQuotaPerOffice int = 15
+
+@description('Maximum number of characters allowed per AI summary request.')
+param aiMaxInputChars int = 12000
+
+@description('Azure OpenAI API key.')
+@secure()
+param aiApiKey string = ''
+
 // ─── Variables ──────────────────────────────────────────────────────────────────
 
 var prefix = 'lawoffice'
@@ -75,6 +97,7 @@ var apimOperations = [
   { serviceIndex: 0, operationId: 'post-postdocumentfile', displayName: 'PostDocumentFile', method: 'POST', urlTemplate: '/documentFile', pathParameters: [] }
   { serviceIndex: 0, operationId: 'put-putdocumentfile', displayName: 'PutDocumentFile', method: 'PUT', urlTemplate: '/documentFile', pathParameters: [] }
   { serviceIndex: 0, operationId: 'delete-deletedocumentfile', displayName: 'DeleteDocumentFile', method: 'DELETE', urlTemplate: '/documentFile/{documentFileId}', pathParameters: ['documentFileId'] }
+  { serviceIndex: 0, operationId: 'post-postdocumentsummary', displayName: 'PostDocumentSummary', method: 'POST', urlTemplate: '/documentFile/{documentFileId}/summary', pathParameters: ['documentFileId'] }
   { serviceIndex: 0, operationId: 'get-gethearing', displayName: 'GetHearing', method: 'GET', urlTemplate: '/hearing/{hearingId}', pathParameters: ['hearingId'] }
   { serviceIndex: 0, operationId: 'get-getallhearings', displayName: 'GetAllHearings', method: 'GET', urlTemplate: '/hearing/case/{caseId}', pathParameters: ['caseId'] }
   { serviceIndex: 0, operationId: 'post-posthearing', displayName: 'PostHearing', method: 'POST', urlTemplate: '/hearing', pathParameters: [] }
@@ -116,6 +139,7 @@ var cosmosDatabases = [
       { name: 'cases', partitionKeyPath: '/officeId' }
       { name: 'documentfiles', partitionKeyPath: '/officeId' }
       { name: 'hearings', partitionKeyPath: '/officeId' }
+      { name: 'aiusagequotas', partitionKeyPath: '/officeId' }
     ]
   }
   {
@@ -354,6 +378,34 @@ resource funcApps 'Microsoft.Web/sites@2024-11-01' = [
                 {
                   name: 'BlobSettings:ConnectionString'
                   value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+                }
+              ]
+            : [],
+          (svc.key == 'casemanagement' && enableAiFeatures)
+            ? [
+                {
+                  name: 'AiSettings:Endpoint'
+                  value: aiEndpoint
+                }
+                {
+                  name: 'AiSettings:DeploymentName'
+                  value: aiDeploymentName
+                }
+                {
+                  name: 'AiSettings:ApiVersion'
+                  value: aiApiVersion
+                }
+                {
+                  name: 'AiSettings:DailyQuotaPerOffice'
+                  value: string(aiDailyQuotaPerOffice)
+                }
+                {
+                  name: 'AiSettings:MaxInputChars'
+                  value: string(aiMaxInputChars)
+                }
+                {
+                  name: 'AiSettings:ApiKey'
+                  value: aiApiKey
                 }
               ]
             : []

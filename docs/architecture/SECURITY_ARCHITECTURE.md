@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -230,6 +230,17 @@ SSL 3.0 (backend): Disabled
 
 **Recommendation**: Migrate to managed identity + RBAC for Service Bus in a production-grade setup to avoid long-lived shared keys.
 
+### 6.5 AI Summarization Security Controls
+
+| Control                                | Purpose                                                      |
+|----------------------------------------|--------------------------------------------------------------|
+| APIM rate limiting on summary path     | Limits burst traffic and cost amplification                  |
+| Per-office daily quota in Cosmos DB    | Prevents unbounded tenant-level AI consumption               |
+| Supported file type allow-list         | Restricts v1 summaries to text-based uploads only            |
+| Max input character guard              | Prevents oversized requests and cost spikes                  |
+| Azure OpenAI prompt guardrails         | Instructs the model to stay concise and avoid legal advice   |
+| Summary result not persisted by default| Reduces unnecessary storage of AI-generated content          |
+
 ---
 
 ## 7. Data Protection
@@ -334,6 +345,8 @@ sequenceDiagram
 | Header injection (X-Office-Id)        | Tampering       | APIM overwrites header (`exists-action=override`)   |
 | Unauthorized blob access              | Information Disclosure | SAS tokens, no public blob access           |
 | Queue message tampering/injection     | Tampering       | Shared key auth + private app settings + payload validation |
+| AI cost abuse / excessive summarization | Denial of Service | APIM rate limit + tenant daily quota + input size guards |
+| Hallucinated legal output             | Information Disclosure | Constrained prompt + UI disclaimer + human review expectation |
 | FTP/SCM credential compromise         | Elevation of Privilege | Publishing credentials disabled            |
 | Data exposure via backup              | Information Disclosure | Encrypted backups, limited retention        |
 | DDoS                                  | Denial of Service | Consumption tier auto-scale + Azure platform protection |

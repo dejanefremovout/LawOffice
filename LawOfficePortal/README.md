@@ -12,6 +12,8 @@ This is an admin-style Angular portal with a collapsible left menu panel and a m
 - Cases
 - Office
 
+The portal currently supports case document upload/download and AI-assisted document summaries from the case documents tab.
+
 ## Development server
 
 To start a local development server, run:
@@ -90,6 +92,21 @@ npm run generate:api:party    # PartyManagement only
 ```
 
 Generated code is written to `src/app/api/<service>/` (models, services, core). Wrapper services in `src/app/services/` delegate to the generated clients so that components are not coupled to the generated code directly.
+
+The CaseManagement generated client includes the document summary endpoint and related models used by the case documents UI.
+
+Important: `npm run generate:api:*` only regenerates from the committed JSON files under `openapi-specs/`. It does not fetch the latest schema from a running backend automatically.
+
+Recommended workflow after changing a backend endpoint:
+
+```bash
+1. Add or update the OpenAPI attributes in the Function App code.
+2. Run the backend locally and verify the endpoint appears in Swagger UI at /api/swagger/ui.
+3. Refresh the committed spec file in `openapi-specs/` for that service.
+4. Run npm run generate:api:case   # or office / party
+```
+
+If the codegen command succeeds but no generated files change, the most likely cause is a stale spec file rather than a generator failure.
 
 ## Additional Resources
 

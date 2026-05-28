@@ -25,7 +25,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 > - [Solution Architecture Overview](docs/architecture/SOLUTION_ARCHITECTURE_OVERVIEW.md) - C4 diagrams, technology stack, architecture principles
 > - [Infrastructure & Deployment](docs/architecture/INFRASTRUCTURE_AND_DEPLOYMENT.md)     - Azure resources, Bicep IaC, environments, Docker
 > - [Security Architecture](docs/architecture/SECURITY_ARCHITECTURE.md)                   - Identity, AuthN/AuthZ, tenant isolation, TLS
-> - [API Design](docs/architecture/API_DESIGN.md)                                         - API catalog (34 operations), contracts, models
+> - [API Design](docs/architecture/API_DESIGN.md)                                         - API catalog (35 operations), contracts, models
 > - [Data Architecture](docs/architecture/DATA_ARCHITECTURE.md)                           - Cosmos DB, partitioning, blob storage, consistency
 > - [Architecture Decision Records](docs/architecture/ARCHITECTURE_DECISION_RECORDS.md)   - 17 ADRs with rationale and trade-offs
 > - [Operational Runbook](docs/architecture/OPERATIONAL_RUNBOOK.md)                       - Monitoring, incident response, maintenance
@@ -38,6 +38,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 - **Case Management** - Create, track, and close legal cases with metadata (court, judge, year, parties)
 - **Hearing Scheduling** - Schedule court hearings linked to cases with courtroom and date tracking
 - **Document Management** - Upload and download case documents directly to Azure Blob Storage via SAS URIs
+- **AI Document Summaries** - Generate short or detailed summaries for supported text-based case documents with per-office daily quota enforcement
 - **Party Management** - Manage clients and opposing parties with contact information
 - **Asynchronous Reconciliation** - Queue-driven cleanup of case references after opposing-party deletion
 - **Office Administration** - Configure office details and manage lawyer profiles with invitation codes
@@ -59,7 +60,13 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 ┌─────────────┐                           ┌──────────────┐ ┌──────────────┐
 │ Blob Storage│                           │  Cosmos DB   │ │ Service Bus  │
 │ (documents) │                           │  (Serverless)│ │ Basic (Queue)│
-└─────────────┘                           └──────────────┘ └──────────────┘
+└─────────────┘                           └───────┬──────┘ └──────────────┘
+                                                  │
+                                                  ▼
+                                         ┌────────────────┐
+                                         │ Azure OpenAI   │
+                                         │ (external)     │
+                                         └────────────────┘
 ```
 
 | Layer              | Technology                                   |
@@ -69,6 +76,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 | Backend            | Azure Functions v4, .NET 10 isolated worker  |
 | Database           | Azure Cosmos DB NoSQL (Serverless)           |
 | File Storage       | Azure Blob Storage (SAS-based upload)        |
+| AI Inference       | Azure OpenAI (existing deployment per environment) |
 | Messaging          | Azure Service Bus (Basic queue)              |
 | Identity           | Microsoft Entra External ID (CIAM)           |
 | Infrastructure     | Bicep (IaC), Docker Compose (local dev), Kubernetes/minikube (local dev) |
@@ -77,7 +85,7 @@ Explore the live demo or review the documentation to see how LawOffice brings to
 
 | Service              | Domain                              | Database            | Entities                     |
 |----------------------|-------------------------------------|---------------------|------------------------------|
-| CaseManagement API   | Cases, hearings, document files     | `casemanagement`    | Case, Hearing, DocumentFile  |
+| CaseManagement API   | Cases, hearings, document files, AI summaries | `casemanagement`    | Case, Hearing, DocumentFile, AiUsageQuota  |
 | OfficeManagement API | Office settings, lawyer profiles    | `officemanagement`  | Office, Lawyer               |
 | PartyManagement API  | Clients, opposing parties           | `partymanagement`   | Client, OpposingParty        |
 
@@ -145,6 +153,8 @@ Copy-Item .env.local.example .env.local
 Review and adjust values in `.env.local` if needed.
 
 Set `SERVICE_BUS_CONNECTION_STRING` in `.env.local` to a real Azure Service Bus namespace connection string.
+
+If you want to test AI summarization locally, also set `AI_ENDPOINT`, `AI_API_KEY`, and `AI_DEPLOYMENT_NAME` in `.env.local`. The current documented Azure OpenAI inference API version is `2024-10-21`.
 
 ### 3. Start all services
 
@@ -228,6 +238,8 @@ az deployment group create \
   --template-file infra/main.bicep \
   --parameters infra/main.dev.bicepparam
 ```
+
+If you want AI summarization enabled in Azure, create or reuse an Azure OpenAI resource first, deploy a chat model such as `gpt-4.1-mini`, and pass the AI parameters (`enableAiFeatures`, `aiEndpoint`, `aiApiKey`, `aiDeploymentName`, `aiApiVersion`) during deployment. The current Bicep template wires these settings into CaseManagement but does not provision the Azure OpenAI resource itself.
 
 ### 3. Publish Function App code
 

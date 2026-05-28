@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.0                                              |
-| **Last Updated**   | 2026-03-22                                       |
+| **Version**        | 1.1                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -21,6 +21,7 @@ LawOffice uses **Azure Cosmos DB NoSQL** as its primary data store and **Azure B
 | Document Database   | Cosmos DB NoSQL (Serverless)| Primary data store for all entities   |
 | File Storage        | Azure Blob Storage          | Case document file storage            |
 | Message Queue       | Azure Service Bus (Basic)   | Cross-service integration events      |
+| External AI Service | Azure OpenAI                | Document summarization inference      |
 | Local Database      | Cosmos DB Emulator          | Local development data store          |
 | Local File Storage  | Azurite                     | Local development blob storage        |
 
@@ -51,6 +52,7 @@ graph TB
             C_CASES["cases<br/>pk: /officeId"]
             C_DOCS["documentfiles<br/>pk: /officeId"]
             C_HEAR["hearings<br/>pk: /officeId"]
+            C_AI["aiusagequotas<br/>pk: /officeId"]
         end
 
         subgraph "officemanagement database"
@@ -67,6 +69,7 @@ graph TB
     CaseAPI["CaseManagement API"] --> C_CASES
     CaseAPI --> C_DOCS
     CaseAPI --> C_HEAR
+    CaseAPI --> C_AI
 
     OfficeAPI["OfficeManagement API"] --> O_OFFICES
     OfficeAPI --> O_LAWYERS
@@ -86,6 +89,7 @@ graph TB
 | cases           | `/officeId`   | Multi-tenancy: all queries scoped to office                  |
 | hearings        | `/officeId`   | Hearings queried per-office; cross-case queries (upcoming)   |
 | documentfiles   | `/officeId`   | Documents queried per-office; filtered by caseId in query    |
+| aiusagequotas   | `/officeId`   | Daily AI usage counter scoped to tenant and date             |
 | offices         | `/id`         | Each office is a single document; ID = partition key         |
 | lawyers         | `/officeId`   | Lawyers belong to an office; queried per-office              |
 | clients         | `/officeId`   | Clients belong to an office; queried per-office              |
@@ -99,6 +103,8 @@ The choice of `/officeId` as the dominant partition key serves two purposes:
 2. **Query efficiency**: All application queries are scoped to a single office, so they always target a single partition (optimal RU consumption)
 
 The `offices` container is the exception - it uses `/id` as the partition key because each office is a standalone document not scoped to another entity.
+
+The `aiusagequotas` container stores one document per office/day pair and is used by CaseManagement to enforce a low-cost AI usage ceiling before calling Azure OpenAI.
 
 ### 3.3 Partition Key Version
 
@@ -245,6 +251,7 @@ Entities enforce business rules through:
 | Get all for office   | Query with partition key filter     | Low (single partition) |
 | Get by sub-filter    | Query with partition + predicate    | Low (single partition) |
 | Reconcile deleted opposing party | Query by `ARRAY_CONTAINS(opposingPartyIds, id)` + upsert | Medium |
+| AI quota check/update | Point read/upsert in `aiusagequotas` by office/date | Low |
 | Count (active/total) | Aggregate query with partition key  | Medium           |
 | Get last N items     | Query with ORDER BY + TOP           | Medium           |
 | Delete               | Point delete with partition key     | ~1 RU            |
@@ -373,6 +380,7 @@ partymanagement   → Created
 casemanagement/cases           (pk: /officeId) → Created
 casemanagement/documentfiles   (pk: /officeId) → Created
 casemanagement/hearings        (pk: /officeId) → Created
+casemanagement/aiusagequotas   (pk: /officeId) → Created
 officemanagement/offices       (pk: /id)       → Created
 officemanagement/lawyers       (pk: /officeId) → Created
 partymanagement/clients        (pk: /officeId) → Created
@@ -409,6 +417,13 @@ flowchart TB
         D1["SPA POST /documentFile"] --> D2["API creates metadata + SAS URI"]
         D2 --> D3["SPA uploads blob via SAS URI"]
         D3 --> D4["Blob stored in Azure Storage"]
+    end
+
+    subgraph "AI Summary Path"
+        A1["SPA POST /documentFile/{id}/summary"] --> A2["CaseManagement validates office quota + file type"]
+        A2 --> A3["Blob text read from Storage"]
+        A3 --> A4["Azure OpenAI summary request"]
+        A4 --> A5["Summary returned to SPA; quota counter upserted"]
     end
 ```
 

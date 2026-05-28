@@ -39,6 +39,7 @@ var containers = new (string Database, string Container, string PartitionKey)[]
     ("casemanagement", "cases", "/officeId"),
     ("casemanagement", "documentfiles", "/officeId"),
     ("casemanagement", "hearings", "/officeId"),
+    ("casemanagement", "aiusagequotas", "/officeId"),
     ("officemanagement", "lawyers", "/officeId"),
     ("officemanagement", "offices", "/id"),
     ("partymanagement", "clients", "/officeId"),

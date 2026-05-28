@@ -5,8 +5,8 @@
 | Item               | Detail                                         |
 |--------------------|-------------------------------------------------|
 | **Project**        | LawOffice - B2C SaaS for Small Law Offices      |
-| **Version**        | 1.1                                              |
-| **Last Updated**   | 2026-04-06                                       |
+| **Version**        | 1.2                                              |
+| **Last Updated**   | 2026-04-28                                       |
 
 ---
 
@@ -33,6 +33,7 @@
 | ADR-017 | Azure Service Bus Basic for Integration Events   | Accepted |
 | ADR-018 | Minikube for Local Kubernetes Development         | Accepted |
 | ADR-019 | OpenAPI for API Documentation and Client Generation | Accepted |
+| ADR-020 | Azure OpenAI for Low-Cost Document Summaries     | Accepted |
 
 ---
 
@@ -623,3 +624,52 @@ Adopt **OpenAPI 3.0.1** across the entire stack:
 | NSwag                                | .NET-centric; less community adoption for Angular generation |
 | Hand-written TypeScript clients       | No spec-driven guarantees; drift risk (previous approach)    |
 | GraphQL                              | Different paradigm; not aligned with existing REST APIs      |
+
+---
+
+## ADR-020: Azure OpenAI for Low-Cost Document Summaries
+
+**Status**: Accepted  
+**Date**: 2026-04-28  
+
+### Context
+
+CaseManagement stores uploaded legal documents in Blob Storage, and users need a quick way to extract a short summary and actionable highlights without manually reading every file in full. The feature needs to fit the existing portfolio constraints: low idle cost, no additional always-on compute, tenant isolation, and bounded operational risk.
+
+The summarization flow also has to work within the existing architecture:
+- documents are uploaded directly to Blob Storage using SAS URIs
+- the SPA already consumes CaseManagement APIs through APIM
+- all requests are tenant-scoped via `X-Office-Id`
+- the solution should remain optional and tightly cost-controlled
+
+### Decision
+
+Introduce **Azure OpenAI-backed document summarization** as a CaseManagement capability, optimized for low-cost demo usage:
+
+1. **CaseManagement-owned orchestration** - A new CaseManagement endpoint accepts summary requests for an uploaded document and keeps the feature inside the existing domain boundary.
+2. **Blob read + text extraction in backend** - The API reads supported text-based files from Blob Storage and sends bounded text input to the AI provider; v1 intentionally supports `.txt`, `.md`, `.json`, `.csv`, and `.xml` only.
+3. **Azure OpenAI as external inference provider** - CaseManagement calls Azure OpenAI chat completions using a configured deployment name, endpoint, API key, and inference API version.
+4. **Cost controls by design** - Requests are limited through APIM throttling, a per-office daily quota stored in Cosmos DB (`aiusagequotas`), supported file allow-listing, and a maximum input character limit.
+5. **Non-persistent response model** - Summaries are returned directly to the SPA and are not stored as first-class domain entities by default.
+6. **Current deployment default** - The solution uses `gpt-4.1-mini` as the current cost/performance default with Azure OpenAI inference API version `2024-10-21`.
+
+### Consequences
+
+- **Positive**: Adds a visible AI capability without introducing a separate AI microservice or background processing tier
+- **Positive**: Reuses the existing CaseManagement, Blob Storage, APIM, and multi-tenant architecture
+- **Positive**: Cost exposure is bounded through quota, throttling, file-type restrictions, and input size limits
+- **Positive**: Tenant isolation is preserved because quota tracking and document access remain scoped by `officeId`
+- **Negative**: v1 only supports text-based files; binary formats such as scanned PDFs require a future extraction pipeline
+- **Negative**: Azure OpenAI is an external dependency with region/model availability constraints
+- **Negative**: Summaries can contain model errors or omissions and must be treated as assistant output, not authoritative legal advice
+- **Negative**: Real usage still requires careful monitoring because token-based pricing can drift if limits are relaxed later
+
+### Alternatives Considered
+
+| Alternative                          | Reason Rejected                                              |
+|--------------------------------------|--------------------------------------------------------------|
+| Custom rule-based summarization      | Low quality for varied legal documents; limited practical value |
+| Separate AI microservice             | Additional operational surface and deployment complexity       |
+| Azure AI Document Intelligence first | Higher complexity/cost for the current text-only v1 scope     |
+| Persist summaries in Cosmos DB       | Extra storage/lifecycle complexity without clear v1 need      |
+| No AI feature                        | Misses a useful differentiating capability for the portfolio   |
