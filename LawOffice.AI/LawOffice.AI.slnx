@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="LawOffice.AI.Tests/LawOffice.AI.Tests.csproj" />
+  </Folder>
+  <Project Path="LawOffice.AI/LawOffice.AI.csproj" />
+  <Project Path="LawOffice.AI.Harness/LawOffice.AI.Harness.csproj" />
+</Solution>
