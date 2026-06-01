@@ -1,6 +1,8 @@
 using Azure;
 using Azure.AI.OpenAI;
+using LawOffice.AI.Assistant;
 using LawOffice.AI.Observability;
+using LawOffice.AI.Prompts;
 using LawOffice.AI.Resilience;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +34,27 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IChatClient>(sp =>
             BuildChatClient(settings, resilience, cost, sp.GetRequiredService<ILoggerFactory>()));
 
+        AddLegalAssistant(services, configuration);
+
         return services;
+    }
+
+    /// <summary>
+    /// Registers the prompt registry and the contract-validated legal assistant. Prompts are loaded
+    /// once from embedded resources (immutable), so the store and the stateless validator/assistant are
+    /// singletons; the only mutable dependency is the thread-safe singleton <see cref="IChatClient"/>.
+    /// </summary>
+    private static void AddLegalAssistant(IServiceCollection services, IConfiguration configuration)
+    {
+        LegalAssistantOptions options =
+            configuration.GetSection(LegalAssistantOptions.SectionName).Get<LegalAssistantOptions>()
+            ?? new LegalAssistantOptions();
+        options.Validate();
+
+        services.AddSingleton(options);
+        services.AddSingleton<IPromptStore>(_ => new EmbeddedResourcePromptStore());
+        services.AddSingleton<LegalAnswerValidator>();
+        services.AddSingleton<ILegalAssistant, LegalAssistant>();
     }
 
     /// <summary>

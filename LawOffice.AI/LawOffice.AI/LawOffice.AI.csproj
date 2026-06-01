@@ -21,4 +21,9 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Prompts ship as embedded resources: versioned with the build, no extra files for consumers. -->
+    <EmbeddedResource Include="Prompts\Templates\*.prompt.md" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using LawOffice.AI;
+using LawOffice.AI.Assistant;
 using LawOffice.AI.Extensions;
 using LawOffice.AI.Resilience;
 using Microsoft.Extensions.AI;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Logging;
 //   dotnet run -- stream   streaming completion to the console
 //   dotnet run -- chaos    1s timeout -> retry (logged) -> graceful fallback
 //   dotnet run -- cost     non-streaming call; token + cost line is logged
+//   dotnet run -- legal    grounded assistant: two prompt versions + a refusal, structured + validated
 //
 // Endpoint/ApiKey come from user-secrets or environment (AiSettings__Endpoint / AiSettings__ApiKey),
 // never from source control.
@@ -36,6 +39,9 @@ switch (mode)
         break;
     case "cost":
         await RunCostAsync(host.Services.GetRequiredService<IChatClient>(), logger);
+        break;
+    case "legal":
+        await RunLegalAsync(host.Services.GetRequiredService<ILegalAssistant>(), logger);
         break;
     default:
         await RunStreamAsync(host.Services.GetRequiredService<IChatClient>(), logger);
@@ -110,4 +116,33 @@ async Task RunChaosAsync(IConfiguration config, ILoggerFactory lf, ILogger log)
             "I'm unable to answer right now. Please try again shortly."));
         Console.WriteLine("Fallback: " + fallback.Text);
     }
+}
+
+async Task RunLegalAsync(ILegalAssistant assistant, ILogger log)
+{
+    log.LogInformation("=== LEGAL demo: externalised/versioned prompts + structured, validated output ===");
+
+    // A few fake context snippets with ids the model must cite. Plan is that these come from
+    // tenant-scoped retrieval; today they're supplied directly.
+    IReadOnlyList<ContextSource> context =
+    [
+        new("lease-12", "The tenant shall give 60 days' written notice before terminating this lease."),
+        new("lease-12-rent", "Monthly rent is EUR 850, due on the first day of each month."),
+        new("nda-3", "Confidential information must not be disclosed for a period of five years."),
+    ];
+
+    // Same answerable task, two prompt versions: eyeball the difference (later we measure it properly).
+    const string answerable = "How much notice must the tenant give to terminate the lease?";
+    foreach (string version in new[] { "v1-terse", "v2-fewshot" })
+    {
+        Console.WriteLine($"\n--- prompt version: {version} ---");
+        LegalAnswer answer = await assistant.AnswerAsync(answerable, context, version);
+        Console.WriteLine(JsonSerializer.Serialize(answer, LegalAnswer.SerializerOptions));
+    }
+
+    // Refusal demo: the answer isn't in the supplied context, so the assistant must refuse.
+    Console.WriteLine("\n--- refusal demo (question not covered by context) ---");
+    LegalAnswer refusal = await assistant.AnswerAsync(
+        "What is the penalty for late rent payment?", context, "v1-terse");
+    Console.WriteLine(JsonSerializer.Serialize(refusal, LegalAnswer.SerializerOptions));
 }

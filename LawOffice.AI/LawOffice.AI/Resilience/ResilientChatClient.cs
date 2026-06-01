@@ -1,3 +1,4 @@
+using System.ClientModel;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -62,11 +63,18 @@ public sealed class ResilientChatClient : DelegatingChatClient
         ILogger logger)
     {
         // Retry/breaker handle transient faults, but never the caller's cancellation, argument errors,
-        // or an already-open circuit.
+        // an already-open circuit, or a non-retryable client (4xx) error such as a content-filter block
+        // or auth failure — those are deterministic, so retrying only wastes time and tokens.
         static bool IsTransient(Exception? ex) =>
             ex is not null
             && ex is not OperationCanceledException
-            && ex is not ArgumentException;
+            && ex is not ArgumentException
+            && !IsNonRetryableClientError(ex);
+
+        // A 4xx from the model API is a client error we caused (bad request, blocked content, bad key);
+        // 408 (timeout) and 429 (throttling) are the retryable exceptions.
+        static bool IsNonRetryableClientError(Exception ex) =>
+            ex is ClientResultException { Status: >= 400 and < 500 and not 408 and not 429 };
 
         return new ResiliencePipelineBuilder<ChatResponse>()
             // Outermost: retry the whole attempt (including a per-attempt timeout) with backoff + jitter.
