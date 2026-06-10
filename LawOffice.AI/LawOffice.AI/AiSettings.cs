@@ -22,6 +22,15 @@ public sealed class AiSettings
     public string ApiVersion { get; set; } = "2024-10-21";
 
     /// <summary>
+    /// Embedding deployment (model) name for retrieval. text-embedding-3-small is cheap (~$0.00002/1K
+    /// tokens) and emits 1,536-dim vectors — negligible cost for a demo-scale index.
+    /// </summary>
+    public string EmbeddingDeploymentName { get; set; } = "text-embedding-3-small";
+
+    /// <summary>Dimensions of the embedding model's output; must match the vector index definition.</summary>
+    public int EmbeddingDimensions { get; set; } = 1536;
+
+    /// <summary>
     /// Throws when any required value is missing, mirroring the early-validation discipline of
     /// the existing AzureOpenAiSummarizerClient.
     /// </summary>

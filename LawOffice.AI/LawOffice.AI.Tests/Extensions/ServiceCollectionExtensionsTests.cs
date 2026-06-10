@@ -1,6 +1,7 @@
 using LawOffice.AI.Assistant;
 using LawOffice.AI.Extensions;
 using LawOffice.AI.Prompts;
+using LawOffice.AI.Retrieval;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -45,5 +46,15 @@ public class ServiceCollectionExtensionsTests
         provider.GetRequiredService<ILegalAssistant>().ShouldNotBeNull();
         provider.GetRequiredService<LegalAnswerValidator>().ShouldNotBeNull();
         provider.GetRequiredService<LegalAssistantOptions>().PromptName.ShouldBe("legal-assistant");
+    }
+
+    [Fact]
+    public void Registers_the_in_memory_retrieval_stack_by_default()
+    {
+        using ServiceProvider provider = BuildProvider();
+
+        provider.GetRequiredService<IVectorStore>().ShouldBeOfType<InMemoryVectorStore>();
+        provider.GetRequiredService<IDocumentChunker>().ShouldBeOfType<StructureAwareChunker>();
+        provider.GetRequiredService<TenantDocumentRetriever>().ShouldNotBeNull();
     }
 }

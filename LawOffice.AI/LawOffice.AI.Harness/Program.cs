@@ -3,6 +3,7 @@ using LawOffice.AI;
 using LawOffice.AI.Assistant;
 using LawOffice.AI.Extensions;
 using LawOffice.AI.Resilience;
+using LawOffice.AI.Retrieval;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 //   dotnet run -- chaos    1s timeout -> retry (logged) -> graceful fallback
 //   dotnet run -- cost     non-streaming call; token + cost line is logged
 //   dotnet run -- legal    grounded assistant: two prompt versions + a refusal, structured + validated
+//   dotnet run -- rag      ingest sample docs -> tenant-scoped retrieval -> grounded, cited answer
 //
 // Endpoint/ApiKey come from user-secrets or environment (AiSettings__Endpoint / AiSettings__ApiKey),
 // never from source control.
@@ -42,6 +44,9 @@ switch (mode)
         break;
     case "legal":
         await RunLegalAsync(host.Services.GetRequiredService<ILegalAssistant>(), logger);
+        break;
+    case "rag":
+        await RunRagAsync(host.Services, logger);
         break;
     default:
         await RunStreamAsync(host.Services.GetRequiredService<IChatClient>(), logger);
@@ -145,4 +150,62 @@ async Task RunLegalAsync(ILegalAssistant assistant, ILogger log)
     LegalAnswer refusal = await assistant.AnswerAsync(
         "What is the penalty for late rent payment?", context, "v1-terse");
     Console.WriteLine(JsonSerializer.Serialize(refusal, LegalAnswer.SerializerOptions));
+}
+
+async Task RunRagAsync(IServiceProvider services, ILogger log)
+{
+    log.LogInformation("=== RAG demo: chunk -> embed -> tenant-scoped store -> retrieve -> grounded answer ===");
+
+    // Two sample documents with ids consistent with the 'legal' demo.
+    (string DocId, string DocType, string File)[] docs =
+    [
+        ("lease-12", "lease", "lease-agreement.md"),
+        ("nda-3", "nda", "nda.md"),
+    ];
+
+    var structureChunker = services.GetRequiredService<IDocumentChunker>();
+    var fixedChunker = new FixedSizeChunker(windowChars: 500, overlapChars: 60);
+
+    // 1) Chunking comparison: structure-aware respects clause boundaries; fixed-size cuts blindly.
+    foreach ((string docId, string docType, string file) in docs)
+    {
+        string text = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "SampleData", file));
+
+        IReadOnlyList<DocumentChunk> structured = structureChunker.Chunk(docId, docType, text);
+        IReadOnlyList<DocumentChunk> naive = fixedChunker.Chunk(docId, docType, text);
+
+        Console.WriteLine($"\n--- chunking '{docId}': structure-aware={structured.Count} chunks, fixed-size={naive.Count} chunks ---");
+        Console.WriteLine("structure-aware sections: " + string.Join(" | ", structured.Select(c => c.Section)));
+    }
+
+    // 2) Ingest under two tenants to make the isolation boundary concrete.
+    const string officeA = "office-a";
+    const string officeB = "office-b";
+    var retriever = services.GetRequiredService<TenantDocumentRetriever>();
+
+    foreach ((string docId, string docType, string file) in docs)
+    {
+        string text = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "SampleData", file));
+        IReadOnlyList<DocumentChunk> chunks = structureChunker.Chunk(docId, docType, text);
+        await retriever.IngestAsync(officeA, chunks);
+    }
+
+    // Office B holds only the NDA — proving retrieval for office A never returns it is the isolation story.
+    string ndaText = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "SampleData", "nda.md"));
+    await retriever.IngestAsync(officeB, structureChunker.Chunk("nda-b", "nda", ndaText));
+
+    // 3) Retrieve (tenant A only) -> feed into the existing grounded assistant.
+    const string question = "How much notice must the tenant give to terminate the lease?";
+    IReadOnlyList<ContextSource> retrieved = await retriever.RetrieveAsync(officeA, question, topK: 4);
+
+    Console.WriteLine($"\n--- retrieved for {officeA} (top {retrieved.Count}) ---");
+    foreach (ContextSource source in retrieved)
+    {
+        Console.WriteLine($"  [{source.Id}]");
+    }
+
+    var assistant = services.GetRequiredService<ILegalAssistant>();
+    LegalAnswer answer = await assistant.AnswerAsync(question, retrieved);
+    Console.WriteLine("\n--- grounded answer ---");
+    Console.WriteLine(JsonSerializer.Serialize(answer, LegalAnswer.SerializerOptions));
 }

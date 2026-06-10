@@ -12,13 +12,18 @@ externalised, versioned content (a prompt registry) rather than string literals,
 output is treated as untrusted input that must satisfy a service-boundary contract — structured,
 validated, and repaired-or-refused. See [Prompts & the legal assistant](#prompts--the-legal-assistant-day-2).
 
+**Day 3** builds the tenant-isolated retrieval layer that feeds the assistant: structure-aware
+chunking → embeddings → a vector store → tenant-scoped retrieval. The store is **Azure Cosmos DB
+integrated vector search**, chosen for cost and architecture fit. See
+[Retrieval & multi-tenant isolation](#retrieval--multi-tenant-isolation-day-3).
+
 ## Projects
 
 | Project | Role |
 |---|---|
-| `LawOffice.AI` | Class library. A provider-abstracted `IChatClient` (`Microsoft.Extensions.AI`) over Azure OpenAI, composed as a middleware pipeline (Day 1), plus a prompt registry and contract-validated legal assistant (Day 2). |
-| `LawOffice.AI.Harness` | Console app that exercises the library: streaming, a force-failure/retry/fallback "chaos" mode, token+cost logging, and the grounded legal-assistant demo. |
-| `LawOffice.AI.Tests` | xUnit + Shouldly + NSubstitute. Resilience, cost/usage accounting, prompt store/renderer, contract validation, and assistant repair/refusal — all offline, no model calls. |
+| `LawOffice.AI` | Class library. A provider-abstracted `IChatClient` (`Microsoft.Extensions.AI`) over Azure OpenAI, composed as a middleware pipeline (Day 1), a prompt registry and contract-validated legal assistant (Day 2), and a tenant-isolated retrieval layer over Cosmos DB vector search (Day 3). |
+| `LawOffice.AI.Harness` | Console app that exercises the library: streaming, a force-failure/retry/fallback "chaos" mode, token+cost logging, the grounded legal-assistant demo, and the end-to-end `rag` retrieval demo. |
+| `LawOffice.AI.Tests` | xUnit + Shouldly + NSubstitute. Resilience, cost/usage accounting, prompt store/renderer, contract validation, assistant repair/refusal, chunking, and the tenant-isolation proof — all offline, no model calls. |
 
 ## Pipeline (outer → inner)
 
@@ -88,6 +93,44 @@ a real answer must cite at least one source, and — the anti-hallucination teet
 violation. The assistant never throws on bad model output; a safe "can't answer" beats a wrong legal
 answer.
 
+## Retrieval & multi-tenant isolation (Day 3)
+
+The retrieval layer (namespace `LawOffice.AI.Retrieval`) turns documents into grounding context for the
+Day-2 assistant: **chunk → embed → store → retrieve**. Its output is the same `ContextSource` the
+assistant already consumes, so retrieval plugs in with no change to the assistant.
+
+```
+StructureAwareChunker   split on clause/section/heading boundaries (+ overlap); FixedSizeChunker = the naive baseline
+  → IEmbeddingGenerator  Azure OpenAI text-embedding-3-small (1536 dims), via Microsoft.Extensions.AI
+       → IVectorStore     CosmosVectorStore (DiskANN) in prod; InMemoryVectorStore by default (zero-cost, no Azure)
+            → TenantDocumentRetriever  embeds the query, searches the tenant's vectors, maps hits → ContextSource
+```
+
+### Why Cosmos DB vector search
+
+The app already runs **Cosmos serverless** with a proven `/officeId` tenant partition. Storing
+embeddings there adds **zero new infrastructure**, costs ~nothing at idle (pay-per-RU), and **reuses the
+multi-tenant isolation already implemented across the services** — the architect's answer over standing
+up a separate Azure AI Search service (and it keeps this demo cost-effective). One-time ingest of the
+sample docs is ~$0.002 of embeddings; queries are negligible.
+
+### Tenant isolation — defence in depth
+
+`officeId` is a **required first parameter** on every `IVectorStore` operation, so a caller cannot search
+or write without naming the tenant. `CosmosVectorStore` then enforces it **twice**: the query is scoped
+to the tenant **partition key** *and* carries a `WHERE c.officeId = @officeId` filter (the construction is
+in the pure, unit-tested `BuildSearchQuery`). `TenantIsolationTests` is the headline proof — a query
+scoped to office A returns **zero** of office B's chunks even when B holds the geometrically closest
+vector. This is OWASP LLM "Vector and Embedding Weaknesses" mitigated in code.
+
+### Local-dev note
+
+The proving tests use `InMemoryVectorStore`, so **CI and the default `rag` demo need no Azure**. The
+Cosmos path requires a vector-capable store — the **vnext Linux Cosmos emulator** or a real serverless
+Cosmos account (the classic emulator does not support `VectorDistance`). Set `AiSettings:Retrieval:Provider`
+to `Cosmos` and supply `CosmosConnectionString` to use it; `CosmosVectorStore` creates the
+`documentchunks` container (cosine / DiskANN on `/embedding`) on first use.
+
 ## Configuration
 
 Reuses the repo-wide `AiSettings:*` keys (same as the CaseManagement summarizer). Non-secret defaults
@@ -102,8 +145,10 @@ dotnet user-secrets set "AiSettings:ApiKey"   "<key>"
 ```
 
 Optional tuning sections: `AiSettings:Resilience` (timeout, retries, breaker thresholds),
-`AiSettings:Cost` (per-1K-token USD rates per model), and `AiSettings:LegalAssistant`
-(`PromptName`, `DefaultPromptVersion`, `MaxRepairAttempts`, `UseJsonSchema`).
+`AiSettings:Cost` (per-1K-token USD rates per model), `AiSettings:LegalAssistant`
+(`PromptName`, `DefaultPromptVersion`, `MaxRepairAttempts`, `UseJsonSchema`), and `AiSettings:Retrieval`
+(`Provider` = `InMemory`|`Cosmos`, `CosmosConnectionString`, `DatabaseId`, `ContainerId`, `TopK`).
+Retrieval also uses `AiSettings:EmbeddingDeploymentName` / `EmbeddingDimensions`.
 
 ## Run
 
@@ -115,8 +160,15 @@ dotnet run --project LawOffice.AI/LawOffice.AI.Harness -- stream   # streamed an
 dotnet run --project LawOffice.AI/LawOffice.AI.Harness -- chaos    # 1s timeout → retries → fallback
 dotnet run --project LawOffice.AI/LawOffice.AI.Harness -- cost     # non-streaming; token+cost log
 dotnet run --project LawOffice.AI/LawOffice.AI.Harness -- legal    # grounded assistant: v1 vs v2 + a refusal
+dotnet run --project LawOffice.AI/LawOffice.AI.Harness -- rag      # chunk → embed → retrieve → grounded, cited answer
 ```
 
 The `legal` demo runs an answerable question through both prompt versions (eyeball terse vs few-shot),
 then asks a question the supplied context does not cover and shows the assistant refuse with a populated
 `refusedReason` and no citations.
+
+The `rag` demo ingests the sample legal docs in `LawOffice.AI.Harness/SampleData/`, prints the
+structure-aware vs fixed-size chunk comparison, stores embeddings under two tenants, then retrieves
+(office A only) and feeds the results into the legal assistant for a grounded, cited answer. It needs an
+Azure OpenAI **embedding** deployment (and a chat deployment) configured; it uses the in-memory store by
+default, so no Cosmos is required.
