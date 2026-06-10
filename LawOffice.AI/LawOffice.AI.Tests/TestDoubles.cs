@@ -1,3 +1,4 @@
+using LawOffice.AI.Assistant;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 
@@ -75,6 +76,27 @@ internal sealed class FakeEmbeddingGenerator(int dimensions = 32) : IEmbeddingGe
         }
 
         return hash;
+    }
+}
+
+/// <summary>
+/// Stub assistant whose answer is decided by a supplied handler over the context it receives, and which
+/// captures the last context passed to it. Lets RAG tests model "cite or refuse" deterministically
+/// (e.g. answer only when an answer-bearing chunk made it into the context) without a model call.
+/// </summary>
+internal sealed class StubLegalAssistant(Func<string, IReadOnlyList<ContextSource>, LegalAnswer> handler)
+    : ILegalAssistant
+{
+    public IReadOnlyList<ContextSource>? LastContext { get; private set; }
+
+    public Task<LegalAnswer> AnswerAsync(
+        string question,
+        IReadOnlyList<ContextSource> context,
+        string? promptVersion = null,
+        CancellationToken cancellationToken = default)
+    {
+        LastContext = context;
+        return Task.FromResult(handler(question, context));
     }
 }
 

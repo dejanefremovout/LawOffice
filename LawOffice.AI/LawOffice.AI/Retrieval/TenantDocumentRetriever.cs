@@ -7,7 +7,7 @@ namespace LawOffice.AI.Retrieval;
 /// The seam between retrieval and the grounded assistant. Embeds a query (or a batch of chunks) with the
 /// configured <see cref="IEmbeddingGenerator{TInput,TEmbedding}"/>, searches the tenant-scoped
 /// <see cref="IVectorStore"/>, and maps hits to the <see cref="ContextSource"/> shape that
-/// <see cref="ILegalAssistant"/> already consumes — so the Day-2 assistant gets its grounding context
+/// <see cref="ILegalAssistant"/> already consumes — so the assistant gets its grounding context
 /// from tenant-isolated retrieval without any change to the assistant itself.
 /// </summary>
 public sealed class TenantDocumentRetriever
@@ -54,10 +54,10 @@ public sealed class TenantDocumentRetriever
 
     /// <summary>
     /// Embeds the query and returns the top-<paramref name="topK"/> chunks for <paramref name="officeId"/>
-    /// as citation-ready <see cref="ContextSource"/>s (id = <c>{docId}#{section}</c>, the form the
-    /// assistant's grounding check validates against).
+    /// as scored <see cref="RetrievedCandidate"/>s — preserving the vector similarity score the reranker
+    /// fuses on. This is the broad-recall step of the RAG pipeline; callers narrow the pool afterwards.
     /// </summary>
-    public async Task<IReadOnlyList<ContextSource>> RetrieveAsync(
+    public async Task<IReadOnlyList<RetrievedCandidate>> RetrieveCandidatesAsync(
         string officeId,
         string query,
         int topK,
@@ -75,7 +75,25 @@ public sealed class TenantDocumentRetriever
             .ConfigureAwait(false);
 
         return hits
-            .Select(h => new ContextSource($"{h.Record.DocId}#{h.Record.Section}", h.Record.Text))
+            .Select(h => new RetrievedCandidate(h.Record.DocId, h.Record.Section, h.Record.Text, h.Score))
             .ToList();
+    }
+
+    /// <summary>
+    /// Embeds the query and returns the top-<paramref name="topK"/> chunks for <paramref name="officeId"/>
+    /// as citation-ready <see cref="ContextSource"/>s (id = <c>{docId}#{section}</c>, the form the
+    /// assistant's grounding check validates against). The naive one-shot retrieval path, kept for
+    /// callers that don't rerank.
+    /// </summary>
+    public async Task<IReadOnlyList<ContextSource>> RetrieveAsync(
+        string officeId,
+        string query,
+        int topK,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RetrievedCandidate> candidates =
+            await RetrieveCandidatesAsync(officeId, query, topK, cancellationToken).ConfigureAwait(false);
+
+        return candidates.Select(c => c.ToContextSource()).ToList();
     }
 }

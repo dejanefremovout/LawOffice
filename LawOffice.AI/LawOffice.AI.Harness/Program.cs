@@ -194,18 +194,60 @@ async Task RunRagAsync(IServiceProvider services, ILogger log)
     string ndaText = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "SampleData", "nda.md"));
     await retriever.IngestAsync(officeB, structureChunker.Chunk("nda-b", "nda", ndaText));
 
-    // 3) Retrieve (tenant A only) -> feed into the existing grounded assistant.
+    // 3) Naive retrieval vs the full RAG pipeline (retrieve broad -> rerank -> grounded answer).
     const string question = "How much notice must the tenant give to terminate the lease?";
-    IReadOnlyList<ContextSource> retrieved = await retriever.RetrieveAsync(officeA, question, topK: 4);
-
-    Console.WriteLine($"\n--- retrieved for {officeA} (top {retrieved.Count}) ---");
-    foreach (ContextSource source in retrieved)
-    {
-        Console.WriteLine($"  [{source.Id}]");
-    }
-
     var assistant = services.GetRequiredService<ILegalAssistant>();
-    LegalAnswer answer = await assistant.AnswerAsync(question, retrieved);
-    Console.WriteLine("\n--- grounded answer ---");
-    Console.WriteLine(JsonSerializer.Serialize(answer, LegalAnswer.SerializerOptions));
+    var pipeline = services.GetRequiredService<IRagPipeline>();
+    var settings = services.GetRequiredService<RetrievalSettings>();
+
+    Console.WriteLine("\n--- naive: top-k retrieve -> answer ---");
+    IReadOnlyList<ContextSource> naiveContext = await retriever.RetrieveAsync(officeA, question, settings.TopK);
+    LegalAnswer naiveAnswer = await assistant.AnswerAsync(question, naiveContext);
+    Console.WriteLine(JsonSerializer.Serialize(naiveAnswer, LegalAnswer.SerializerOptions));
+
+    Console.WriteLine("\n--- pipeline: retrieve broad -> rerank -> answer ---");
+    RagResult result = await pipeline.AskAsync(officeA, question);
+    PrintRagResult(result);
+
+    // 4) Failure mode — RETRIEVAL MISS: a pool of one can exclude the answer-bearing chunk, so the
+    //    assistant has nothing to ground on and (correctly) refuses. Widening the pool + reranking
+    //    brings the chunk back. (The deterministic proof of this lives in RagFailureModeTests.)
+    var reranker = services.GetRequiredService<IReranker>();
+    ILogger<RagPipeline> pipelineLogger = services.GetRequiredService<ILoggerFactory>().CreateLogger<RagPipeline>();
+    var narrowPipeline = new RagPipeline(
+        retriever, reranker, assistant,
+        new RetrievalSettings { CandidatePoolSize = 1, TopK = 1 },
+        pipelineLogger);
+
+    Console.WriteLine("\n--- failure mode: retrieval miss (pool=1) ---");
+    const string nicheQuestion = "What is the monthly rent and when is it due?";
+    RagResult missed = await narrowPipeline.AskAsync(officeA, nicheQuestion);
+    PrintRagResult(missed);
+
+    Console.WriteLine("\n--- same question, full pool + rerank ---");
+    RagResult recovered = await pipeline.AskAsync(officeA, nicheQuestion);
+    PrintRagResult(recovered);
+
+    // 5) Failure mode — CHUNK-BOUNDARY DAMAGE: zero-overlap fixed chunking can split a single fact
+    //    across two chunks so neither is self-sufficient; structure-aware chunking keeps the clause
+    //    intact. Ingest the same lease two ways under two tenants and compare.
+    const string boundaryQuestion = "How much notice must the tenant give to terminate the lease?";
+    string leaseText = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "SampleData", "lease-agreement.md"));
+    var splittingChunker = new FixedSizeChunker(windowChars: 120, overlapChars: 0);
+
+    await retriever.IngestAsync("office-fixed", splittingChunker.Chunk("lease-12", "lease", leaseText));
+    await retriever.IngestAsync("office-structured", structureChunker.Chunk("lease-12", "lease", leaseText));
+
+    Console.WriteLine("\n--- failure mode: boundary damage (zero-overlap fixed chunks) ---");
+    PrintRagResult(await pipeline.AskAsync("office-fixed", boundaryQuestion));
+
+    Console.WriteLine("\n--- same question, structure-aware chunks ---");
+    PrintRagResult(await pipeline.AskAsync("office-structured", boundaryQuestion));
+
+    static void PrintRagResult(RagResult result)
+    {
+        Console.WriteLine($"retrieved {result.Retrieved.Count} -> kept {result.Reranked.Count}: "
+            + string.Join(", ", result.Reranked.Select(c => $"[{c.SourceId}]")));
+        Console.WriteLine(JsonSerializer.Serialize(result.Answer, LegalAnswer.SerializerOptions));
+    }
 }

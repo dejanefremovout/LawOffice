@@ -21,7 +21,13 @@ public sealed class RetrievalSettings
     /// <summary>Cosmos container id holding the document chunks + embeddings.</summary>
     public string ContainerId { get; set; } = "documentchunks";
 
-    /// <summary>Default number of chunks to retrieve per query.</summary>
+    /// <summary>
+    /// Broad candidate pool retrieved before reranking. Vector recall is cheap, so we fetch generously
+    /// (high recall) and let the reranker narrow to <see cref="TopK"/> (high precision).
+    /// </summary>
+    public int CandidatePoolSize { get; set; } = 20;
+
+    /// <summary>Number of chunks kept after reranking and fed to the model as grounding context.</summary>
     public int TopK { get; set; } = 5;
 
     public bool UsesCosmos => string.Equals(Provider, "Cosmos", StringComparison.OrdinalIgnoreCase);

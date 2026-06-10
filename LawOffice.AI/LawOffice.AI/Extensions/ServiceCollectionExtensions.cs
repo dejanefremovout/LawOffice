@@ -76,6 +76,11 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton<TenantDocumentRetriever>();
+
+        // RAG seam: broad retrieval -> rerank -> grounded answer. The reranker is the deterministic,
+        // free lexical/hybrid default; swap the registration for a cross-encoder/LLM reranker later.
+        services.AddSingleton<IReranker>(_ => new LexicalReranker());
+        services.AddSingleton<IRagPipeline, RagPipeline>();
         return services;
     }
 
