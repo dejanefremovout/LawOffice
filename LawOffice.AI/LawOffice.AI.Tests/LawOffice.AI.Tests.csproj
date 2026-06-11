@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LawOffice.AI\LawOffice.AI.csproj" />
+    <ProjectReference Include="..\LawOffice.AI.McpServer\LawOffice.AI.McpServer.csproj" />
   </ItemGroup>
 
 </Project>
