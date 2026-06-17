@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LawOffice.AI</RootNamespace>
+    <!-- We serialize Cosmos documents with System.Text.Json, so the Newtonsoft reference check is moot. -->
+    <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Provider-agnostic IChatClient abstraction + ChatClientBuilder / UseLogging middleware. -->
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.4.1" />
+    <!-- Azure OpenAI -> IChatClient adapter (AsIChatClient). Pins OpenAI 2.9.1, matching Azure.AI.OpenAI below. -->
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.4.1" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
+    <!-- Cosmos DB integrated vector search (DiskANN). Matches the version used across the services. -->
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.57.0" />
+    <!-- Cosmos SDK has a runtime dependency on Newtonsoft.Json even when using System.Text.Json serializers. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <!-- Polly v8 resilience pipelines: timeout + retry + circuit breaker. -->
+    <PackageReference Include="Polly.Core" Version="8.6.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Prompts ship as embedded resources: versioned with the build, no extra files for consumers. -->
+    <EmbeddedResource Include="Prompts\Templates\*.prompt.md" />
+  </ItemGroup>
+
+</Project>

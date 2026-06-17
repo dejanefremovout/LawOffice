@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LawOffice.AI.Harness": {
+      "commandName": "Project",
+      "commandLineArgs": "rag"
+    }
+  }
+}
